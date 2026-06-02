@@ -14,8 +14,10 @@
     values: TransactionFormValues;
     error?: string;
     submitLabel: string;
-    // Accept exactly what `resolve()` accepts so the cancel link stays type-safe.
-    cancelHref?: Parameters<typeof resolve>[0];
+    // Cancel-link target, typed as the literal route so `resolve()` stays type-safe. Avoids
+    // `Parameters<typeof resolve>[0]`, which collapses to `never` here (the generated
+    // `$app/types` route union is absent under this SvelteKit setup).
+    cancelHref?: "/transactions";
   } = $props();
 
   // Writable derived: seeded from the prop, re-set by the radios, and re-evaluated when
