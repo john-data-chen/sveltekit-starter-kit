@@ -1,12 +1,13 @@
 <script lang="ts">
   import CategoryChart from "$lib/components/CategoryChart.svelte";
+  import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>
 
-<svelte:head><title>Dashboard · Expense Tracker</title></svelte:head>
+<svelte:head><title>{pageTitle("Dashboard")}</title></svelte:head>
 
 <section class="grid gap-6">
   <div class="flex items-center justify-between gap-4">

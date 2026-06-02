@@ -1,5 +1,6 @@
 <script lang="ts">
   import TransactionForm from "$lib/components/TransactionForm.svelte";
+  import { pageTitle } from "$lib/constants";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
@@ -13,7 +14,7 @@
   });
 </script>
 
-<svelte:head><title>Edit transaction · Expense Tracker</title></svelte:head>
+<svelte:head><title>{pageTitle("Edit transaction")}</title></svelte:head>
 
 <section class="grid max-w-md gap-6">
   <h1 class="text-xl font-bold">Edit transaction</h1>

@@ -1,3 +1,4 @@
+import { DEMO_EMAIL } from "$lib/constants";
 import { setSessionCookie } from "$lib/server/auth";
 import { db } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
@@ -6,11 +7,8 @@ import { eq } from "drizzle-orm";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-// Pre-filled so a visitor can sign in with one click. No password / no registration.
-const DEFAULT_EMAIL = "john@example.com";
-
 export const load: PageServerLoad = () => {
-  return { defaultEmail: DEFAULT_EMAIL };
+  return { defaultEmail: DEMO_EMAIL };
 };
 
 export const actions: Actions = {

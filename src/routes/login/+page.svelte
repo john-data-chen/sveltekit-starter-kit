@@ -1,11 +1,12 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { pageTitle } from "$lib/constants";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
 </script>
 
-<svelte:head><title>Sign in · Expense Tracker</title></svelte:head>
+<svelte:head><title>{pageTitle("Sign in")}</title></svelte:head>
 
 <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
   <header class="text-center">

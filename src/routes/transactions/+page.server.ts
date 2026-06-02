@@ -1,42 +1,37 @@
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "$lib/categories";
+import { ALL_CATEGORIES } from "$lib/categories";
+import { isValidMonth } from "$lib/date";
 import { deleteTransaction, listTransactions } from "$lib/server/db/queries";
-import { redirect } from "@sveltejs/kit";
+import { requireUser } from "$lib/server/guards";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-const MONTH_RE = /^\d{4}-\d{2}$/;
-
 export const load: PageServerLoad = async ({ locals, url }) => {
-  if (!locals.user) {
-    redirect(303, "/login");
-  }
+  const user = requireUser(locals);
 
   const categoryParam = url.searchParams.get("category") ?? "";
   const monthParam = url.searchParams.get("month") ?? "";
 
   const category = categoryParam || undefined;
-  const month = MONTH_RE.test(monthParam) ? monthParam : undefined;
+  const month = isValidMonth(monthParam) ? monthParam : undefined;
 
-  const transactions = await listTransactions(locals.user.id, { category, month });
+  const transactions = await listTransactions(user.id, { category, month });
 
   return {
     transactions,
     filters: { category: category ?? "", month: month ?? "" },
-    categoryOptions: [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES]
+    categoryOptions: ALL_CATEGORIES
   };
 };
 
 export const actions: Actions = {
   delete: async ({ request, locals }) => {
-    if (!locals.user) {
-      redirect(303, "/login");
-    }
+    const user = requireUser(locals);
 
     const form = await request.formData();
     const id = Number(form.get("id"));
     if (Number.isInteger(id) && id > 0) {
       // Ownership is enforced inside deleteTransaction (scoped by userId).
-      await deleteTransaction(locals.user.id, id);
+      await deleteTransaction(user.id, id);
     }
 
     return { deleted: true };

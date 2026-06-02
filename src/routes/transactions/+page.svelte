@@ -1,13 +1,14 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
+  import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>
 
-<svelte:head><title>Transactions · Expense Tracker</title></svelte:head>
+<svelte:head><title>{pageTitle("Transactions")}</title></svelte:head>
 
 <section class="grid gap-6">
   <div class="flex items-center justify-between">

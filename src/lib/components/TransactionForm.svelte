@@ -1,15 +1,8 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
-  import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "$lib/categories";
-
-  interface Values {
-    type: string;
-    category: string;
-    amount: string;
-    occurredOn: string;
-    note: string;
-  }
+  import { categoriesFor } from "$lib/categories";
+  import type { TransactionFormValues } from "$lib/transaction";
 
   let {
     values,
@@ -17,7 +10,7 @@
     submitLabel,
     cancelHref = "/transactions"
   }: {
-    values: Values;
+    values: TransactionFormValues;
     error?: string;
     submitLabel: string;
     // Accept exactly what `resolve()` accepts so the cancel link stays type-safe.
@@ -27,7 +20,7 @@
   // Writable derived: seeded from the prop, re-set by the radios, and re-evaluated when
   // the prop changes (e.g. server echoes values back after a failed submit).
   let type = $derived(values.type === "income" ? "income" : "expense");
-  let categories = $derived(type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES);
+  let categories = $derived(categoriesFor(type));
 </script>
 
 <form method="POST" use:enhance class="grid gap-4">

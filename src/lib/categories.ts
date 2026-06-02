@@ -16,6 +16,9 @@ export type IncomeCategory = (typeof INCOME_CATEGORIES)[number];
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
 export type Category = IncomeCategory | ExpenseCategory;
 
+/** Every category across both types (income first) — for "all categories" filters. */
+export const ALL_CATEGORIES = [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES] as const;
+
 /** Fixed category list for a given transaction type. */
 export function categoriesFor(type: TransactionType): readonly string[] {
   return type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;

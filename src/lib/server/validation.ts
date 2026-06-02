@@ -1,20 +1,12 @@
 import { isTransactionType, isValidCategory } from "$lib/categories";
+import { isValidDate } from "$lib/date";
 import { parseAmount } from "$lib/money";
 import type { TransactionInput } from "$lib/server/db/queries";
-
-export interface TransactionFormValues {
-  type: string;
-  category: string;
-  amount: string;
-  occurredOn: string;
-  note: string;
-}
+import type { TransactionFormValues } from "$lib/transaction";
 
 export type TransactionFormResult =
   | { ok: true; data: TransactionInput }
   | { ok: false; values: TransactionFormValues; error: string };
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Validate a transaction form submission against the fixed category lists. */
 export function parseTransactionForm(form: FormData): TransactionFormResult {
@@ -37,7 +29,7 @@ export function parseTransactionForm(form: FormData): TransactionFormResult {
   if (amount === null || amount <= 0) {
     return { ok: false, values, error: "Amount must be a positive whole number." };
   }
-  if (!DATE_RE.test(values.occurredOn)) {
+  if (!isValidDate(values.occurredOn)) {
     return { ok: false, values, error: "Please choose a valid date." };
   }
 
