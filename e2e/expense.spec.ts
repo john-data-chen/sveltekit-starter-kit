@@ -12,8 +12,9 @@ test("John signs in, adds an expense, then deletes it", async ({ page }) => {
   await page.getByRole("button", { name: "Continue With Email" }).click();
   await expect(page).toHaveURL("/");
 
-  // 2. Add a new expense tagged with a unique note.
-  const note = `e2e-${Date.now()}`;
+  // 2. Add a new expense tagged with a unique note. The random suffix guarantees uniqueness
+  // even across fast repeated runs (Date.now() alone can collide within the same millisecond).
+  const note = `e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   await page.goto("/transactions/new");
   await page.locator('select[name="category"]').selectOption("Food");
   await page.locator('input[name="amount"]').fill("999");
