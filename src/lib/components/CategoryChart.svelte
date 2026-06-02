@@ -30,19 +30,21 @@
 </script>
 
 {#if items.length === 0}
-  <p class="text-sm text-gray-500">No expenses for this month.</p>
+  <p class="text-sm text-gray-500 dark:text-gray-400">No expenses for this month.</p>
 {:else}
   <div class="flex flex-wrap items-center gap-6">
     <div class="relative size-40 shrink-0">
       <div class="size-40 rounded-full" style:background={gradient}></div>
-      <div class="absolute inset-0 m-auto size-20 rounded-full bg-white"></div>
+      <div class="absolute inset-0 m-auto size-20 rounded-full bg-white dark:bg-gray-950"></div>
     </div>
     <ul class="grid gap-2 text-sm">
       {#each slices as slice (slice.category)}
         <li class="flex items-center gap-2">
           <span class="size-3 shrink-0 rounded-sm" style:background={slice.color}></span>
           <span class="font-medium">{slice.category}</span>
-          <span class="text-gray-500">{formatTWD(slice.total)} · {slice.pct}%</span>
+          <span class="text-gray-500 dark:text-gray-400"
+            >{formatTWD(slice.total)} · {slice.pct}%</span
+          >
         </li>
       {/each}
     </ul>

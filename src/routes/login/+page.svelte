@@ -11,11 +11,17 @@
 <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
   <header class="text-center">
     <h1 class="text-2xl font-bold">Expense Tracker</h1>
-    <p class="mt-1 text-sm text-gray-500">Please press Continue — you don't need to register.</p>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Please press Continue — you don't need to register.
+    </p>
   </header>
 
   {#if form?.message}
-    <p class="rounded bg-red-50 p-3 text-center text-sm text-red-700">{form.message}</p>
+    <p
+      class="rounded bg-red-50 p-3 text-center text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+    >
+      {form.message}
+    </p>
   {/if}
 
   <form method="POST" use:enhance class="grid gap-3">
@@ -27,12 +33,12 @@
         value={form?.email ?? data.defaultEmail}
         required
         autocomplete="email"
-        class="rounded border border-gray-300 p-2"
+        class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
       />
     </label>
     <button
       type="submit"
-      class="rounded bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
+      class="rounded bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
     >
       Continue With Email
     </button>

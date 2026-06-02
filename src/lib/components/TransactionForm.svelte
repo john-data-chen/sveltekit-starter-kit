@@ -26,11 +26,13 @@
 
 <form method="POST" use:enhance class="grid gap-4">
   {#if error}
-    <p class="rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>
+    <p class="rounded bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+      {error}
+    </p>
   {/if}
 
   <fieldset class="grid gap-1">
-    <span class="text-sm text-gray-500">Type</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">Type</span>
     <div class="flex gap-4">
       <label class="flex items-center gap-2">
         <input type="radio" name="type" value="expense" bind:group={type} /> Expense
@@ -42,8 +44,11 @@
   </fieldset>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500">Category</span>
-    <select name="category" class="rounded border border-gray-300 p-2">
+    <span class="text-sm text-gray-500 dark:text-gray-400">Category</span>
+    <select
+      name="category"
+      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
+    >
       {#each categories as category (category)}
         <option value={category} selected={category === values.category}>{category}</option>
       {/each}
@@ -51,7 +56,7 @@
   </label>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500">Amount (TWD)</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">Amount (TWD)</span>
     <input
       type="number"
       name="amount"
@@ -60,39 +65,42 @@
       inputmode="numeric"
       value={values.amount}
       required
-      class="rounded border border-gray-300 p-2"
+      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
     />
   </label>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500">Date</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">Date</span>
     <input
       type="date"
       name="occurredOn"
       value={values.occurredOn}
       required
-      class="rounded border border-gray-300 p-2"
+      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
     />
   </label>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500">Note (optional)</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">Note (optional)</span>
     <input
       type="text"
       name="note"
       value={values.note}
       maxlength="200"
-      class="rounded border border-gray-300 p-2"
+      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
     />
   </label>
 
   <div class="flex gap-3">
     <button
       type="submit"
-      class="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+      class="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
     >
       {submitLabel}
     </button>
-    <a href={resolve(cancelHref)} class="px-4 py-2 text-sm text-gray-500 hover:underline">Cancel</a>
+    <a
+      href={resolve(cancelHref)}
+      class="px-4 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400">Cancel</a
+    >
   </div>
 </form>
