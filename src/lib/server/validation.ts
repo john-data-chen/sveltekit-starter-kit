@@ -1,6 +1,7 @@
 import { isTransactionType, isValidCategory } from "$lib/categories";
 import { isValidDate } from "$lib/date";
 import { parseAmount } from "$lib/money";
+import * as m from "$lib/paraglide/messages";
 import type { TransactionInput } from "$lib/server/db/queries";
 import type { TransactionFormValues } from "$lib/transaction";
 
@@ -19,18 +20,18 @@ export function parseTransactionForm(form: FormData): TransactionFormResult {
   };
 
   if (!isTransactionType(values.type)) {
-    return { ok: false, values, error: "Please choose a type." };
+    return { ok: false, values, error: m.validation_choose_type() };
   }
   if (!isValidCategory(values.type, values.category)) {
-    return { ok: false, values, error: "Please choose a valid category for this type." };
+    return { ok: false, values, error: m.validation_choose_category() };
   }
 
   const amount = parseAmount(values.amount);
   if (amount === null || amount <= 0) {
-    return { ok: false, values, error: "Amount must be a positive whole number." };
+    return { ok: false, values, error: m.validation_amount_positive() };
   }
   if (!isValidDate(values.occurredOn)) {
-    return { ok: false, values, error: "Please choose a valid date." };
+    return { ok: false, values, error: m.validation_choose_date() };
   }
 
   const note = values.note.trim();

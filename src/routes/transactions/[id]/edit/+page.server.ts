@@ -1,3 +1,4 @@
+import * as m from "$lib/paraglide/messages";
 import { getTransaction, updateTransaction } from "$lib/server/db/queries";
 import { requireUser } from "$lib/server/guards";
 import { parseTransactionForm } from "$lib/server/validation";
@@ -10,12 +11,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const id = Number(params.id);
   if (!Number.isInteger(id)) {
-    error(404, "Transaction not found");
+    error(404, m.error_transaction_not_found());
   }
 
   const transaction = await getTransaction(user.id, id);
   if (!transaction) {
-    error(404, "Transaction not found");
+    error(404, m.error_transaction_not_found());
   }
 
   return { transaction };
@@ -27,7 +28,7 @@ export const actions: Actions = {
 
     const id = Number(params.id);
     if (!Number.isInteger(id)) {
-      error(404, "Transaction not found");
+      error(404, m.error_transaction_not_found());
     }
 
     const result = parseTransactionForm(await request.formData());
@@ -38,7 +39,7 @@ export const actions: Actions = {
     const updated = await updateTransaction(user.id, id, result.data);
     if (!updated) {
       // Not owned by this user (or already gone).
-      error(404, "Transaction not found");
+      error(404, m.error_transaction_not_found());
     }
 
     redirect(303, "/transactions");

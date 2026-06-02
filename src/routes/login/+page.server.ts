@@ -1,4 +1,5 @@
 import { DEMO_EMAIL } from "$lib/constants";
+import * as m from "$lib/paraglide/messages";
 import { setSessionCookie } from "$lib/server/auth";
 import { db } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
@@ -19,7 +20,7 @@ export const actions: Actions = {
       .toLowerCase();
 
     if (!email) {
-      return fail(400, { email, message: "Please enter your email." });
+      return fail(400, { email, message: m.login_error_email_required() });
     }
 
     const [user] = await db
@@ -29,7 +30,7 @@ export const actions: Actions = {
       .limit(1);
 
     if (!user) {
-      return fail(400, { email, message: "No account found for that email." });
+      return fail(400, { email, message: m.login_error_no_account() });
     }
 
     setSessionCookie(cookies, user.id);
