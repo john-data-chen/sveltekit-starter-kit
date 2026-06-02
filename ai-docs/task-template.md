@@ -5,7 +5,7 @@ task:
 other requirements:
 
 use session-handoff skill to create task plans and execution logs for handoff to another model
-only output task plan, never execute plan until you get double confirmation
+only output task plan, never execute plan until you get confirmation
 
 # Skills
 
