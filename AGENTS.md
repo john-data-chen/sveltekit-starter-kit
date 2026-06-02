@@ -27,6 +27,10 @@ Additionally:
 
 check README.md in root folder
 
+# SKill for coding tasks
+
+- karpathy-guidelines: use it every time in all coding tasks
+
 # Svelte Tools for AI
 
 ## Skills
