@@ -9,11 +9,12 @@ After **every** code modification, you MUST execute all three commands in order:
 ```bash
 pnpm lint      # 1. Lint — must pass with zero errors and warnings
 pnpm build     # 2. Build — TypeScript compile + Vite build must succeed
+pnpm check.    # 3. Check type
 ```
 
 # Commands
 
-- `pnpm dev` — Dev server (usually already running; start only if not)
+- `pnpm dev` — Dev server (usually already running; start before you get confirmation)
 - `pnpm test` — `vitest run` (single run)
 - `pnpm test:coverage` — `vitest run --coverage`
 
