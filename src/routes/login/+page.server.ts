@@ -6,32 +6,32 @@ import { eq } from "drizzle-orm";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
-  const accounts = await db
-    .select({ id: users.id, name: users.name, avatar: users.avatar })
-    .from(users)
-    .orderBy(users.id);
+// Pre-filled so a visitor can sign in with one click. No password / no registration.
+const DEFAULT_EMAIL = "john@example.com";
 
-  return { accounts };
+export const load: PageServerLoad = () => {
+  return { defaultEmail: DEFAULT_EMAIL };
 };
 
 export const actions: Actions = {
   default: async ({ request, cookies }) => {
     const form = await request.formData();
-    const userId = Number(form.get("userId"));
+    const email = String(form.get("email") ?? "")
+      .trim()
+      .toLowerCase();
 
-    if (!Number.isInteger(userId) || userId <= 0) {
-      return fail(400, { message: "Invalid user" });
+    if (!email) {
+      return fail(400, { email, message: "Please enter your email." });
     }
 
     const [user] = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.id, userId))
+      .where(eq(users.email, email))
       .limit(1);
 
     if (!user) {
-      return fail(400, { message: "User not found" });
+      return fail(400, { email, message: "No account found for that email." });
     }
 
     setSessionCookie(cookies, user.id);
