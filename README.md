@@ -29,6 +29,7 @@ Categories are fixed lists in `src/lib/categories.ts`; the cookie is signed with
 | Linting          | [oxlint](https://oxc.rs) (JS/TS) + [ESLint](https://eslint.org) (Svelte)       |
 | Formatting       | [oxfmt](https://oxc.rs) (JS/TS/etc) + [Prettier](https://prettier.io) (Svelte) |
 | Unit tests       | [Vitest](https://vitest.dev)                                                   |
+| E2E tests        | [Playwright](https://playwright.dev)                                           |
 | Git hooks        | Husky + lint-staged + commitlint (conventional commits)                        |
 | Package manager  | pnpm 11.5                                                                      |
 | Node requirement | >= 24                                                                          |
@@ -44,6 +45,7 @@ pnpm format        # oxfmt --write . (JS/TS/etc) + prettier --write Svelte
 pnpm test          # vitest run
 pnpm test:watch    # vitest (watch mode)
 pnpm test:coverage # vitest run --coverage
+pnpm test:e2e      # Playwright e2e (needs a seeded local DB + dev server)
 pnpm check         # svelte-kit sync + svelte-check
 pnpm commit        # git-cz (commitizen with commitlint)
 pnpm db:start      # docker compose up (PostgreSQL)
