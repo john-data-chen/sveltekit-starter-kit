@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { categoryLabel } from "$lib/categories";
   import { formatTWD } from "$lib/money";
+  import * as m from "$lib/paraglide/messages";
 
   interface Slice {
     category: string;
@@ -30,7 +32,7 @@
 </script>
 
 {#if items.length === 0}
-  <p class="text-sm text-gray-500 dark:text-gray-400">No expenses for this month.</p>
+  <p class="text-sm text-gray-500 dark:text-gray-400">{m.no_expenses_this_month()}</p>
 {:else}
   <div class="flex flex-wrap items-center gap-6">
     <div class="relative size-40 shrink-0">
@@ -41,7 +43,7 @@
       {#each slices as slice (slice.category)}
         <li class="flex items-center gap-2">
           <span class="size-3 shrink-0 rounded-sm" style:background={slice.color}></span>
-          <span class="font-medium">{slice.category}</span>
+          <span class="font-medium">{categoryLabel(slice.category)}</span>
           <span class="text-gray-500 dark:text-gray-400"
             >{formatTWD(slice.total)} · {slice.pct}%</span
           >

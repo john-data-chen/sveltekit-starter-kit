@@ -1,3 +1,5 @@
+import { getTextDirection } from "$lib/paraglide/runtime";
+import { paraglideMiddleware } from "$lib/paraglide/server";
 import { parseSessionCookie, SESSION_COOKIE_NAME } from "$lib/server/auth";
 import { db } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
@@ -26,7 +28,20 @@ export const handle: Handle = async ({ event, resolve }) => {
   const themeCookie = event.cookies.get(THEME_COOKIE);
   const htmlClass = themeCookie === undefined || themeCookie === "dark" ? ' class="dark"' : "";
 
-  return resolve(event, {
-    transformPageChunk: ({ html }) => html.replace('<html lang="en"', `<html lang="en"${htmlClass}`)
+  // Resolve the locale (cookie strategy → `zh-tw` default when no cookie) and render the
+  // `<html lang>/<dir>` placeholders plus the theme class in a single pass. paraglideMiddleware
+  // also establishes the request-scoped locale context so server `load`/actions can resolve
+  // localized messages. The `.dark` class is injected on `<html` (a stable anchor) because the
+  // `lang` attribute is now a Paraglide placeholder rather than the literal `lang="en"`.
+  return paraglideMiddleware(event.request, ({ request, locale }) => {
+    event.request = request;
+
+    return resolve(event, {
+      transformPageChunk: ({ html }) =>
+        html
+          .replace("%paraglide.lang%", locale)
+          .replace("%paraglide.dir%", getTextDirection(locale))
+          .replace("<html", `<html${htmlClass}`)
+    });
   });
 };

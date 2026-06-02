@@ -1,18 +1,19 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { pageTitle } from "$lib/constants";
+  import * as m from "$lib/paraglide/messages";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
 </script>
 
-<svelte:head><title>{pageTitle("Sign in")}</title></svelte:head>
+<svelte:head><title>{pageTitle(m.sign_in())}</title></svelte:head>
 
 <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
   <header class="text-center">
-    <h1 class="text-2xl font-bold">Expense Tracker</h1>
+    <h1 class="text-2xl font-bold">{m.login_heading()}</h1>
     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-      Please press Continue — you don't need to register.
+      {m.login_subtitle()}
     </p>
   </header>
 
@@ -26,7 +27,7 @@
 
   <form method="POST" use:enhance class="grid gap-3">
     <label class="grid gap-1">
-      <span class="text-sm font-medium">Email</span>
+      <span class="text-sm font-medium">{m.login_email_label()}</span>
       <input
         type="email"
         name="email"
@@ -40,7 +41,7 @@
       type="submit"
       class="rounded bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
     >
-      Continue With Email
+      {m.continue_with_email()}
     </button>
   </form>
 </main>

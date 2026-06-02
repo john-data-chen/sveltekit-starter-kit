@@ -1,7 +1,8 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
-  import { categoriesFor, type TransactionType } from "$lib/categories";
+  import { categoriesFor, categoryLabel, type TransactionType } from "$lib/categories";
+  import * as m from "$lib/paraglide/messages";
   import type { TransactionFormValues } from "$lib/transaction";
 
   let {
@@ -32,31 +33,35 @@
   {/if}
 
   <fieldset class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">Type</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_type()}</span>
     <div class="flex gap-4">
       <label class="flex items-center gap-2">
-        <input type="radio" name="type" value="expense" bind:group={type} /> Expense
+        <input type="radio" name="type" value="expense" bind:group={type} />
+        {m.type_expense()}
       </label>
       <label class="flex items-center gap-2">
-        <input type="radio" name="type" value="income" bind:group={type} /> Income
+        <input type="radio" name="type" value="income" bind:group={type} />
+        {m.type_income()}
       </label>
     </div>
   </fieldset>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">Category</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_category()}</span>
     <select
       name="category"
       class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
     >
       {#each categories as category (category)}
-        <option value={category} selected={category === values.category}>{category}</option>
+        <option value={category} selected={category === values.category}
+          >{categoryLabel(category)}</option
+        >
       {/each}
     </select>
   </label>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">Amount (TWD)</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_amount()}</span>
     <input
       type="number"
       name="amount"
@@ -70,7 +75,7 @@
   </label>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">Date</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_date()}</span>
     <input
       type="date"
       name="occurredOn"
@@ -81,7 +86,7 @@
   </label>
 
   <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">Note (optional)</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_note()}</span>
     <input
       type="text"
       name="note"
@@ -100,7 +105,8 @@
     </button>
     <a
       href={resolve(cancelHref)}
-      class="px-4 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400">Cancel</a
+      class="px-4 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400"
+      >{m.action_cancel()}</a
     >
   </div>
 </form>

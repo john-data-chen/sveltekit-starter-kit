@@ -1,42 +1,46 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
+  import { categoryLabel } from "$lib/categories";
   import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
+  import * as m from "$lib/paraglide/messages";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>
 
-<svelte:head><title>{pageTitle("Transactions")}</title></svelte:head>
+<svelte:head><title>{pageTitle(m.nav_transactions())}</title></svelte:head>
 
 <section class="grid gap-6">
   <div class="flex items-center justify-between">
-    <h1 class="text-xl font-bold">Transactions</h1>
+    <h1 class="text-xl font-bold">{m.nav_transactions()}</h1>
     <a
       href={resolve("/transactions/new")}
       class="rounded bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
     >
-      + New
+      {m.new_transaction_button()}
     </a>
   </div>
 
   <form method="GET" class="flex flex-wrap items-end gap-3">
     <label class="grid gap-1 text-sm">
-      <span class="text-gray-500 dark:text-gray-400">Category</span>
+      <span class="text-gray-500 dark:text-gray-400">{m.field_category()}</span>
       <select
         name="category"
         class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
       >
-        <option value="" selected={data.filters.category === ""}>All categories</option>
+        <option value="" selected={data.filters.category === ""}>{m.all_categories()}</option>
         {#each data.categoryOptions as category (category)}
-          <option value={category} selected={data.filters.category === category}>{category}</option>
+          <option value={category} selected={data.filters.category === category}
+            >{categoryLabel(category)}</option
+          >
         {/each}
       </select>
     </label>
 
     <label class="grid gap-1 text-sm">
-      <span class="text-gray-500 dark:text-gray-400">Month</span>
+      <span class="text-gray-500 dark:text-gray-400">{m.field_month()}</span>
       <input
         type="month"
         name="month"
@@ -49,11 +53,12 @@
       type="submit"
       class="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
     >
-      Apply
+      {m.filter_apply()}
     </button>
     <a
       href={resolve("/transactions")}
-      class="px-2 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400">Clear</a
+      class="px-2 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400"
+      >{m.filter_clear()}</a
     >
   </form>
 
@@ -61,7 +66,7 @@
     <p
       class="rounded border border-dashed border-gray-300 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400"
     >
-      No transactions match these filters.
+      {m.no_transactions_match()}
     </p>
   {:else}
     <ul
@@ -70,7 +75,7 @@
       {#each data.transactions as tx (tx.id)}
         <li class="flex items-center justify-between gap-4 p-4">
           <div class="min-w-0">
-            <p class="font-medium">{tx.category}</p>
+            <p class="font-medium">{categoryLabel(tx.category)}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {tx.occurredOn}{#if tx.note}
                 · {tx.note}{/if}
@@ -91,20 +96,20 @@
               href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
               class="text-sm text-gray-500 hover:underline dark:text-gray-400"
             >
-              Edit
+              {m.action_edit()}
             </a>
             <form
               method="POST"
               action="?/delete"
               use:enhance={({ cancel }) => {
-                if (!confirm("Delete this transaction?")) {
+                if (!confirm(m.confirm_delete_transaction())) {
                   cancel();
                 }
               }}
             >
               <input type="hidden" name="id" value={tx.id} />
               <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
-                >Delete</button
+                >{m.action_delete()}</button
               >
             </form>
           </div>

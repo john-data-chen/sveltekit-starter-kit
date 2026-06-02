@@ -2,16 +2,17 @@
   import CategoryChart from "$lib/components/CategoryChart.svelte";
   import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
+  import * as m from "$lib/paraglide/messages";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>
 
-<svelte:head><title>{pageTitle("Dashboard")}</title></svelte:head>
+<svelte:head><title>{pageTitle(m.nav_dashboard())}</title></svelte:head>
 
 <section class="grid gap-6">
   <div class="flex items-center justify-between gap-4">
-    <h1 class="text-xl font-bold">Dashboard</h1>
+    <h1 class="text-xl font-bold">{m.nav_dashboard()}</h1>
     <form method="GET">
       <input
         type="month"
@@ -25,19 +26,19 @@
 
   <div class="grid gap-4 sm:grid-cols-3">
     <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Income</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{m.type_income()}</p>
       <p class="text-2xl font-bold text-green-600 dark:text-green-400">
         {formatTWD(data.stats.income)}
       </p>
     </div>
     <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Expense</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{m.type_expense()}</p>
       <p class="text-2xl font-bold text-red-600 dark:text-red-400">
         {formatTWD(data.stats.expense)}
       </p>
     </div>
     <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Balance</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{m.stat_balance()}</p>
       <p
         class={[
           "text-2xl font-bold",
@@ -52,7 +53,7 @@
   </div>
 
   <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-    <h2 class="mb-4 font-semibold">Expenses by category</h2>
+    <h2 class="mb-4 font-semibold">{m.expenses_by_category()}</h2>
     <CategoryChart items={data.stats.expenseByCategory} total={data.stats.expense} />
   </div>
 </section>
