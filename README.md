@@ -2,7 +2,7 @@
 
 # SvelteKit Starter Kit
 
-A modern [SvelteKit](https://svelte.dev/docs/kit) starter project (Svelte 5, runes mode) with TypeScript, Tailwind CSS v4, Drizzle ORM + PostgreSQL, oxlint/oxfmt, and conventional commits.
+A modern [SvelteKit](https://svelte.dev/docs/kit) starter project (Svelte 5, runes mode) with TypeScript, Tailwind CSS v4, Drizzle ORM + PostgreSQL, oxlint/oxfmt (with ESLint/Prettier for Svelte), and conventional commits.
 
 ## Expense Tracker (demo app)
 
@@ -19,19 +19,19 @@ Categories are fixed lists in `src/lib/categories.ts`; the cookie is signed with
 
 ## Tech Stack
 
-| Category         | Tooling                                                             |
-| ---------------- | ------------------------------------------------------------------- |
-| Framework        | [SvelteKit](https://svelte.dev/docs/kit) 2.x + Svelte 5 (runes)     |
-| Styling          | [Tailwind CSS](https://tailwindcss.com) v4 (Vite plugin)            |
-| Database         | [Drizzle ORM](https://orm.drizzle.team) + PostgreSQL via `postgres` |
-| Local DB         | Docker Compose (`compose.yaml`)                                     |
-| Language         | TypeScript (strict)                                                 |
-| Linting          | [oxlint](https://oxc.rs)                                            |
-| Formatting       | [oxfmt](https://oxc.rs)                                             |
-| Unit tests       | [Vitest](https://vitest.dev)                                        |
-| Git hooks        | Husky + lint-staged + commitlint (conventional commits)             |
-| Package manager  | pnpm 11.5                                                           |
-| Node requirement | >= 24                                                               |
+| Category         | Tooling                                                                        |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Framework        | [SvelteKit](https://svelte.dev/docs/kit) 2.x + Svelte 5 (runes)                |
+| Styling          | [Tailwind CSS](https://tailwindcss.com) v4 (Vite plugin)                       |
+| Database         | [Drizzle ORM](https://orm.drizzle.team) + PostgreSQL via `postgres`            |
+| Local DB         | Docker Compose (`compose.yaml`)                                                |
+| Language         | TypeScript (strict)                                                            |
+| Linting          | [oxlint](https://oxc.rs) (JS/TS) + [ESLint](https://eslint.org) (Svelte)       |
+| Formatting       | [oxfmt](https://oxc.rs) (JS/TS/etc) + [Prettier](https://prettier.io) (Svelte) |
+| Unit tests       | [Vitest](https://vitest.dev)                                                   |
+| Git hooks        | Husky + lint-staged + commitlint (conventional commits)                        |
+| Package manager  | pnpm 11.5                                                                      |
+| Node requirement | >= 24                                                                          |
 
 ## Commands
 
@@ -39,8 +39,8 @@ Categories are fixed lists in `src/lib/categories.ts`; the cookie is signed with
 pnpm dev           # Start dev server
 pnpm build         # TypeScript compile + Vite build
 pnpm preview       # Preview production build
-pnpm lint          # oxlint --fix
-pnpm format        # oxfmt --write .
+pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte)
+pnpm format        # oxfmt --write . (JS/TS/etc) + prettier --write Svelte
 pnpm test          # vitest run
 pnpm test:watch    # vitest (watch mode)
 pnpm test:coverage # vitest run --coverage
