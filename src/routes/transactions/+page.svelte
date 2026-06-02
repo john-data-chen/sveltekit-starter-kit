@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { formatTWD } from '$lib/money';
 	import type { PageProps } from './$types';
 
@@ -71,6 +72,18 @@
 						<a href="/transactions/{tx.id}/edit" class="text-sm text-gray-500 hover:underline">
 							Edit
 						</a>
+						<form
+							method="POST"
+							action="?/delete"
+							use:enhance={({ cancel }) => {
+								if (!confirm('Delete this transaction?')) {
+									cancel();
+								}
+							}}
+						>
+							<input type="hidden" name="id" value={tx.id} />
+							<button type="submit" class="text-sm text-red-500 hover:underline">Delete</button>
+						</form>
 					</div>
 				</li>
 			{/each}

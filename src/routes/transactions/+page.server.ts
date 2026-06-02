@@ -1,8 +1,8 @@
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "$lib/categories";
-import { listTransactions } from "$lib/server/db/queries";
+import { deleteTransaction, listTransactions } from "$lib/server/db/queries";
 import { redirect } from "@sveltejs/kit";
 
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 const MONTH_RE = /^\d{4}-\d{2}$/;
 
@@ -24,4 +24,21 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     filters: { category: category ?? "", month: month ?? "" },
     categoryOptions: [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES]
   };
+};
+
+export const actions: Actions = {
+  delete: async ({ request, locals }) => {
+    if (!locals.user) {
+      redirect(303, "/login");
+    }
+
+    const form = await request.formData();
+    const id = Number(form.get("id"));
+    if (Number.isInteger(id) && id > 0) {
+      // Ownership is enforced inside deleteTransaction (scoped by userId).
+      await deleteTransaction(locals.user.id, id);
+    }
+
+    return { deleted: true };
+  }
 };
