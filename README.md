@@ -1,42 +1,64 @@
-# sv
+# SvelteKit Starter Kit
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A modern SvelteKit starter project.
 
-## Creating a project
+# Architecture
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
 ```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-pnpm dlx sv@0.15.3 create --template minimal --types ts --add vitest="usages:unit,component" playwright tailwindcss="plugins:none" drizzle="database:postgresql+postgresql:postgres.js+docker:yes" mcp="ide:claude-code,gemini,opencode,other+setup:remote" --install pnpm sveltekit-starter-kit
+.
+├── .claude/
+│   └── settings.local.json
+├── .codex/
+│   └── config.toml
+├── .opencode/
+│   ├── opencode.json
+│   ├── svelte.json
+│   ├── package.json
+│   └── package-lock.json
+├── .vscode/
+│   ├── extensions.json
+│   └── settings.json
+├── src/
+│   ├── lib/
+│   │   ├── assets/
+│   │   │   └── favicon.svg
+│   │   ├── server/
+│   │   │   └── db/
+│   │   │       ├── index.ts
+│   │   │       └── schema.ts
+│   │   ├── vitest-examples/
+│   │   │   ├── greet.ts
+│   │   │   ├── greet.spec.ts
+│   │   │   ├── Welcome.svelte
+│   │   │   └── Welcome.svelte.spec.ts
+│   │   └── index.ts
+│   ├── routes/
+│   │   ├── demo/
+│   │   │   ├── playwright/
+│   │   │   │   ├── +page.svelte
+│   │   │   │   └── page.svelte.e2e.ts
+│   │   │   └── +page.svelte
+│   │   ├── +layout.svelte
+│   │   ├── +page.svelte
+│   │   └── layout.css
+│   ├── app.d.ts
+│   └── app.html
+├── static/
+│   └── robots.txt
+├── .env
+├── .env.example
+├── .gitignore
+├── .mcp.json
+├── .npmrc
+├── AGENTS.md
+├── CLAUDE.md
+├── compose.yaml
+├── drizzle.config.ts
+├── LICENSE
+├── package.json
+├── playwright.config.ts
+├── pnpm-workspace.yaml
+├── svelte.config.js
+├── tsconfig.json
+└── vite.config.ts
 ```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

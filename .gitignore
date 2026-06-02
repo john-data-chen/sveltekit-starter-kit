@@ -27,4 +27,5 @@ test-results
 # AI
 
 .antigravitycli
-
+.claude/skills/
+CLAUDE.md
