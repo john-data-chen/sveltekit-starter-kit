@@ -1,1 +1,3 @@
-// place files you want to import through the `$lib` alias in this folder.
+// Shared (client + server) domain modules. Server-only code lives under `$lib/server`.
+export * from "./categories";
+export * from "./money";

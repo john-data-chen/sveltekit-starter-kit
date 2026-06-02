@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
+    "db:seed": "tsx --env-file=.env src/lib/server/db/seed.ts",
     "db:start": "docker compose up",
     "db:studio": "drizzle-kit studio",
     "dev": "vite dev",
@@ -22,15 +23,19 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
     "@commitlint/cz-commitlint": "^21.0.2",
-    "@sveltejs/adapter-auto": "^7.0.1",
+    "@sveltejs/adapter-vercel": "^6.3.3",
     "@sveltejs/kit": "^2.61.1",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "24.12.4",
+    "@vitest/coverage-v8": "4.1.8",
     "commitizen": "^4.3.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
@@ -42,14 +47,18 @@
     "svelte": "^5.56.1",
     "svelte-check": "^4.5.0",
     "tailwindcss": "^4.3.0",
+    "tsx": "4.22.4",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
     "vitest": "^4.1.8"
   },
   "lint-staged": {
-    "*.{js,mjs,cjs,ts,svelte}": [
+    "*.{js,mjs,cjs,ts}": [
       "oxlint --fix",
       "oxfmt --write"
+    ],
+    "*.svelte": [
+      "oxlint --fix"
     ],
     "*.{css,html,json,md}": "oxfmt --write"
   },
@@ -61,5 +70,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.5.0"
+  "packageManager": "pnpm@11.5.1"
 }
