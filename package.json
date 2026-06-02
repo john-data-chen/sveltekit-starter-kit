@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
+    "db:seed": "tsx --env-file=.env src/lib/server/db/seed.ts",
     "db:start": "docker compose up",
     "db:studio": "drizzle-kit studio",
     "dev": "vite dev",
@@ -45,6 +46,7 @@
     "svelte": "^5.56.1",
     "svelte-check": "^4.5.0",
     "tailwindcss": "^4.3.0",
+    "tsx": "4.22.4",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
     "vitest": "^4.1.8"
