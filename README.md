@@ -1,42 +1,79 @@
-# sv
+# SvelteKit Starter Kit
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A modern [SvelteKit](https://svelte.dev/docs/kit) starter project (Svelte 5, runes mode) with TypeScript, Tailwind CSS v4, Drizzle ORM + PostgreSQL, oxlint/oxfmt, and conventional commits.
 
-## Creating a project
+## Tech Stack
 
-If you're seeing this, you've probably already done this step. Congrats!
+| Category         | Tooling                                                             |
+| ---------------- | ------------------------------------------------------------------- |
+| Framework        | [SvelteKit](https://svelte.dev/docs/kit) 2.x + Svelte 5 (runes)     |
+| Styling          | [Tailwind CSS](https://tailwindcss.com) v4 (Vite plugin)            |
+| Database         | [Drizzle ORM](https://orm.drizzle.team) + PostgreSQL via `postgres` |
+| Local DB         | Docker Compose (`compose.yaml`)                                     |
+| Language         | TypeScript (strict)                                                 |
+| Linting          | [oxlint](https://oxc.rs)                                            |
+| Formatting       | [oxfmt](https://oxc.rs)                                             |
+| Unit tests       | [Vitest](https://vitest.dev)                                        |
+| Git hooks        | Husky + lint-staged + commitlint (conventional commits)             |
+| Package manager  | pnpm 11.5                                                           |
+| Node requirement | >= 24                                                               |
 
-```sh
-# create a new project
-npx sv create my-app
+## Commands
+
+```bash
+pnpm dev           # Start dev server
+pnpm build         # TypeScript compile + Vite build
+pnpm preview       # Preview production build
+pnpm lint          # oxlint --fix
+pnpm format        # oxfmt --write .
+pnpm test          # vitest run
+pnpm test:watch    # vitest (watch mode)
+pnpm test:coverage # vitest run --coverage
+pnpm check         # svelte-kit sync + svelte-check
+pnpm commit        # git-cz (commitizen with commitlint)
+pnpm db:start      # docker compose up (PostgreSQL)
+pnpm db:generate   # drizzle-kit generate
+pnpm db:migrate    # drizzle-kit migrate
+pnpm db:push       # drizzle-kit push
+pnpm db:studio     # drizzle-kit studio
 ```
 
-To recreate this project with the same configuration:
+## Getting Started
 
-```sh
-# recreate this project
-pnpm dlx sv@0.15.3 create --template minimal --types ts --add vitest="usages:unit,component" playwright tailwindcss="plugins:none" drizzle="database:postgresql+postgresql:postgres.js+docker:yes" mcp="ide:claude-code,gemini,opencode,other+setup:remote" --install pnpm sveltekit-starter-kit
+```bash
+pnpm install
+pnpm db:start        # Start PostgreSQL via Docker
+pnpm db:push         # Push schema to local DB
+pnpm dev             # Start dev server
 ```
 
-## Developing
+Copy `.env.example` to `.env` — the default credentials match `compose.yaml`.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Project Structure
 
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
+.
+├── .agents/skills/          # Agent skill definitions (doc-coauthoring, drizzle, etc.)
+├── .husky/                  # Git hooks (pre-commit, commit-msg)
+├── .opencode/               # OpenCode AI configuration
+├── .vscode/                 # VS Code settings + extension recommendations
+├── ai-docs/                 # AI task templates
+├── src/
+│   ├── lib/
+│   │   ├── assets/          # Static assets (favicon)
+│   │   ├── server/db/       # Drizzle client + schema (PostgreSQL)
+│   │   └── vitest-examples/ # Sample tests (greet, Welcome.svelte)
+│   ├── routes/
+│   │   ├── +layout.svelte   # Root layout (Tailwind + favicon)
+│   │   ├── +page.svelte     # Home page
+│   │   └── layout.css       # Tailwind import
+│   ├── app.d.ts             # SvelteKit app types
+│   └── app.html             # HTML shell
+├── static/                  # Public assets (robots.txt)
+├── compose.yaml             # PostgreSQL service
+├── commitlint.config.mjs    # Conventional commit config
+├── drizzle.config.ts        # Drizzle Kit config
+├── svelte.config.js         # SvelteKit config (runes mode forced)
+├── vite.config.ts           # Vite + Vitest config
+└── pnpm-workspace.yaml      # pnpm settings
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

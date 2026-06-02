@@ -1,3 +1,6 @@
-onlyBuiltDependencies:
-  - '@tailwindcss/oxide'
-  - esbuild
+allowBuilds:
+  esbuild: true
+minimumReleaseAgeExclude:
+  - svelte-check@4.5.0
+  - svelte@5.56.1
+  - vite@8.0.16

@@ -4,9 +4,9 @@ services:
     restart: always
     ports:
       - 5432:5432
-    environment: 
+    environment:
       POSTGRES_USER: root
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_PASSWORD: 123456
       POSTGRES_DB: local
     volumes:
       - pgdata:/var/lib/postgresql

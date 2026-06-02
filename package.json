@@ -1,40 +1,65 @@
 {
-	"name": "sveltekit-starter-kit",
-	"private": true,
-	"version": "0.0.1",
-	"type": "module",
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright install && playwright test",
-		"db:start": "docker compose up",
-		"db:push": "drizzle-kit push",
-		"db:generate": "drizzle-kit generate",
-		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
-	},
-	"devDependencies": {
-		"@sveltejs/adapter-auto": "^7.0.1",
-		"@sveltejs/kit": "^2.61.1",
-		"@sveltejs/vite-plugin-svelte": "^7.1.2",
-		"@tailwindcss/vite": "^4.3.0",
-		"@types/node": "^24",
-		"@vitest/browser-playwright": "^4.1.8",
-		"drizzle-kit": "^0.31.10",
-		"drizzle-orm": "^0.45.2",
-		"postgres": "^3.4.9",
-		"svelte": "^5.56.1",
-		"svelte-check": "^4.5.0",
-		"tailwindcss": "^4.3.0",
-		"typescript": "^6.0.3",
-		"vite": "^8.0.16",
-		"vitest": "^4.1.8",
-		"vitest-browser-svelte": "^2.1.1"
-	}
+  "name": "sveltekit-starter-kit",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "commit": "git-cz",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:start": "docker compose up",
+    "db:studio": "drizzle-kit studio",
+    "dev": "vite dev",
+    "format": "oxfmt --write .",
+    "lint": "oxlint --fix",
+    "prepare": "husky && svelte-kit sync || echo ''",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@commitlint/cz-commitlint": "^21.0.2",
+    "@sveltejs/adapter-auto": "^7.0.1",
+    "@sveltejs/kit": "^2.61.1",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "24.12.4",
+    "commitizen": "^4.3.1",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "oxfmt": "^0.52.0",
+    "oxlint": "^1.67.0",
+    "postgres": "^3.4.9",
+    "svelte": "^5.56.1",
+    "svelte-check": "^4.5.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,svelte}": [
+      "oxlint --fix",
+      "oxfmt --write"
+    ],
+    "*.{css,html,json,md}": "oxfmt --write"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.5.0"
 }
