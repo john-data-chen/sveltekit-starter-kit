@@ -1,6 +1,21 @@
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=john-data-chen_sveltekit-starter-kit&token=6c61941d26a0ba1e36bc438f28dba039c8e3700d)](https://sonarcloud.io/summary/new_code?id=john-data-chen_sveltekit-starter-kit)
+
 # SvelteKit Starter Kit
 
 A modern [SvelteKit](https://svelte.dev/docs/kit) starter project (Svelte 5, runes mode) with TypeScript, Tailwind CSS v4, Drizzle ORM + PostgreSQL, oxlint/oxfmt, and conventional commits.
+
+## Expense Tracker (demo app)
+
+Built on top of the starter, this repo ships a minimal multi-user expense tracker:
+
+- **Passwordless email login** — three built-in accounts (`john@example.com`, `sophia@example.com`, `mark@example.com`). The login form is pre-filled with `john@example.com`, so you can press **Continue With Email** to sign in immediately. The signed-in `userId` is kept in a signed, httpOnly session cookie.
+- **Transactions CRUD** — record income/expense entries (amount, type, category, date, optional note).
+- **List & filter** — filter transactions by category and by month; the filters live in the URL.
+- **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency).
+- **Per-user data isolation** — every query is scoped to the signed-in user; you only ever see your own data.
+- **Currency** — TWD only, stored as integers (no decimals).
+
+Categories are fixed lists in `src/lib/categories.ts`; the cookie is signed with `SESSION_SECRET` from `.env`.
 
 ## Tech Stack
 
@@ -35,6 +50,7 @@ pnpm db:start      # docker compose up (PostgreSQL)
 pnpm db:generate   # drizzle-kit generate
 pnpm db:migrate    # drizzle-kit migrate
 pnpm db:push       # drizzle-kit push
+pnpm db:seed       # Seed 3 demo users + sample transactions
 pnpm db:studio     # drizzle-kit studio
 ```
 
@@ -42,12 +58,33 @@ pnpm db:studio     # drizzle-kit studio
 
 ```bash
 pnpm install
-pnpm db:start        # Start PostgreSQL via Docker
-pnpm db:push         # Push schema to local DB
-pnpm dev             # Start dev server
+cp .env.example .env   # set DATABASE_URL + SESSION_SECRET
+pnpm db:start          # Start PostgreSQL via Docker
+pnpm db:migrate        # Apply migrations to the local DB
+pnpm db:seed           # Seed 3 demo users + sample transactions
+pnpm dev               # Start dev server
 ```
 
-Copy `.env.example` to `.env` — the default credentials match `compose.yaml`.
+The default `DATABASE_URL` in `.env.example` matches `compose.yaml`. Set `SESSION_SECRET` to any long random string — it signs the session cookie. Then open the dev server and press **Continue With Email** to sign in as `john@example.com`.
+
+## Deployment (Vercel)
+
+The app targets Vercel via the `@sveltejs/adapter-vercel` adapter (Node.js serverless runtime — required for the `postgres` TCP driver). A GitHub Actions workflow (`.github/workflows/ci.yml`) runs CI on every push/PR and, on push to `main`, deploys to Vercel with the Vercel CLI.
+
+One-time setup:
+
+1. Create/link a Vercel project (`vercel link`, or import the repo in the Vercel dashboard).
+2. Add these **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
+   - `VERCEL_TOKEN` — a Vercel access token
+   - `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` — found in `.vercel/project.json` after `vercel link`
+3. Add these **Vercel project environment variables** (Production):
+   - `DATABASE_URL` — a production PostgreSQL connection string (e.g. [Neon](https://neon.tech))
+   - `SESSION_SECRET` — a long random string
+4. Apply the schema to the production database once, and after any schema change:
+
+   ```bash
+   DATABASE_URL="<prod-url>" pnpm db:migrate   # optionally: pnpm db:seed
+   ```
 
 ## Project Structure
 
@@ -57,19 +94,27 @@ Copy `.env.example` to `.env` — the default credentials match `compose.yaml`.
 ├── .husky/                  # Git hooks (pre-commit, commit-msg)
 ├── .opencode/               # OpenCode AI configuration
 ├── .vscode/                 # VS Code settings + extension recommendations
-├── ai-docs/                 # AI task templates
+├── ai-docs/                 # AI task templates + session-handoff logs
 ├── src/
 │   ├── lib/
 │   │   ├── assets/          # Static assets (favicon)
-│   │   ├── server/db/       # Drizzle client + schema (PostgreSQL)
-│   │   └── vitest-examples/ # Sample tests (greet, Welcome.svelte)
+│   │   ├── components/      # Shared components (TransactionForm, CategoryChart)
+│   │   ├── server/          # Server-only: auth, validation, db/ (client, schema, queries, seed)
+│   │   ├── categories.ts    # Fixed income/expense category lists
+│   │   └── money.ts         # TWD integer formatting/parsing
 │   ├── routes/
-│   │   ├── +layout.svelte   # Root layout (Tailwind + favicon)
-│   │   ├── +page.svelte     # Home page
+│   │   ├── login/           # Email sign-in (page + action)
+│   │   ├── logout/          # Sign-out action
+│   │   ├── transactions/    # List + filter, new, [id]/edit (CRUD)
+│   │   ├── +layout.svelte   # Root layout (header/nav when signed in)
+│   │   ├── +layout.server.ts# Loads the user + guards protected routes
+│   │   ├── +page.svelte     # Dashboard (stats + pure-CSS chart)
 │   │   └── layout.css       # Tailwind import
-│   ├── app.d.ts             # SvelteKit app types
+│   ├── hooks.server.ts      # Resolves the session cookie → locals.user
+│   ├── app.d.ts             # SvelteKit app types (Locals.user)
 │   └── app.html             # HTML shell
 ├── static/                  # Public assets (robots.txt)
+├── drizzle/                 # Generated SQL migrations (drizzle-kit)
 ├── compose.yaml             # PostgreSQL service
 ├── commitlint.config.mjs    # Conventional commit config
 ├── drizzle.config.ts        # Drizzle Kit config
@@ -90,7 +135,3 @@ The `.agents/skills/` directory contains skill definitions that guide AI coding 
 | **session-handoff**           | Maintains `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions. Breaks goals into verifiable sub-tasks, logs every checkpoint, and produces handoff notes for the next session.                                                          |
 | **svelte-code-writer**        | CLI tools (`npx @sveltejs/mcp`) for Svelte 5 docs lookup, code analysis, and auto-fixing. Must be used when creating/editing any `.svelte` file or module.                                                                                                                     |
 | **svelte-core-bestpractices** | Guidance for Svelte 5 runes mode: prefer `$state` for reactive vars, `$derived` over `$effect` for computed values, avoid legacy features (`export let`, `on:click`, slots), use `{@render}`/`{#snippet}` instead of slots, and attach event listeners via element attributes. |
-
-```
-
-```
