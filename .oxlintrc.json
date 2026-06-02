@@ -1,11 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "oxc",
-    "import"
-  ],
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
   "rules": {
     "no-unused-vars": "warn",
     "no-debugger": "off",
@@ -77,9 +72,5 @@
     "typescript/unbound-method": "warn",
     "typescript/use-unknown-in-catch-callback-variable": "warn"
   },
-  "ignorePatterns": [
-    "node_modules/",
-    "static"
-  ]
-
+  "ignorePatterns": ["node_modules/", "static", ".agents"]
 }

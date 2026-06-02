@@ -20,6 +20,7 @@ only output task plan, never execute plan until you get double confirmation
 - svelte-core-bestpractices
 
 # MCP
+
 if you can't see below tools or one of them are disabled or missing, warn user before task
 
 - context7: Query documentation
