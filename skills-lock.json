@@ -7,6 +7,12 @@
       "skillPath": "skills/doc-coauthoring/SKILL.md",
       "computedHash": "b964e4c3ffe13f66f76dd7919073e60c7aec622cd8a8363bb36323188100cf8e"
     },
+    "drizzle": {
+      "source": "lobehub/lobehub",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/drizzle/SKILL.md",
+      "computedHash": "1386b45e66128776b14bf7a24024907f4d4585334176db13e0d93fb2a2d0b33d"
+    },
     "karpathy-guidelines": {
       "source": "multica-ai/andrej-karpathy-skills",
       "sourceType": "github",
