@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
-  import { categoriesFor } from "$lib/categories";
+  import { categoriesFor, type TransactionType } from "$lib/categories";
   import type { TransactionFormValues } from "$lib/transaction";
 
   let {
@@ -19,8 +19,9 @@
 
   // Writable derived: seeded from the prop, re-set by the radios, and re-evaluated when
   // the prop changes (e.g. server echoes values back after a failed submit).
+  // `bind:group` widens `type` to `string`; the ternary guarantees a valid TransactionType.
   let type = $derived(values.type === "income" ? "income" : "expense");
-  let categories = $derived(categoriesFor(type));
+  let categories = $derived(categoriesFor(type as TransactionType));
 </script>
 
 <form method="POST" use:enhance class="grid gap-4">
