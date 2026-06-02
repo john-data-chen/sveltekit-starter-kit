@@ -19,9 +19,9 @@ async function seed() {
   const [john, sophia, mark] = await db
     .insert(users)
     .values([
-      { name: "John", avatar: "🦊" },
-      { name: "Sophia", avatar: "🐼" },
-      { name: "Mark", avatar: "🐨" }
+      { name: "John", email: "john@example.com", avatar: "🦊" },
+      { name: "Sophia", email: "sophia@example.com", avatar: "🐼" },
+      { name: "Mark", email: "mark@example.com", avatar: "🐨" }
     ])
     .returning();
 
