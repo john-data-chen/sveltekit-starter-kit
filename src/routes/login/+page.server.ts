@@ -1,10 +1,8 @@
 import { DEMO_EMAIL } from "$lib/constants";
 import * as m from "$lib/paraglide/messages";
 import { setSessionCookie } from "$lib/server/auth";
-import { db } from "$lib/server/db";
-import { users } from "$lib/server/db/schema";
+import { findLoginUserByEmail, logLoginInfrastructureError } from "$lib/server/login";
 import { fail, redirect } from "@sveltejs/kit";
-import { eq } from "drizzle-orm";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -23,17 +21,23 @@ export const actions: Actions = {
       return fail(400, { email, message: m.login_error_email_required() });
     }
 
-    const [user] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const user = await findLoginUserByEmail(email);
 
-    if (!user) {
+    if (user.type === "service_unavailable") {
+      return fail(503, { email, message: m.login_error_service_unavailable() });
+    }
+
+    if (user.type === "not_found") {
       return fail(400, { email, message: m.login_error_no_account() });
     }
 
-    setSessionCookie(cookies, user.id);
+    try {
+      setSessionCookie(cookies, user.userId);
+    } catch (error) {
+      logLoginInfrastructureError("session cookie setup failed", error);
+      return fail(503, { email, message: m.login_error_service_unavailable() });
+    }
+
     redirect(303, "/");
   }
 };

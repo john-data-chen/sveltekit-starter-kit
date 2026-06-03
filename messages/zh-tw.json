@@ -12,6 +12,7 @@
   "continue_with_email": "以 Email 繼續",
   "login_error_email_required": "請輸入電子郵件。",
   "login_error_no_account": "找不到使用此電子郵件的帳號。",
+  "login_error_service_unavailable": "登入服務暫時無法使用，請稍後再試。",
 
   "stat_balance": "結餘",
   "expenses_by_category": "各分類支出",

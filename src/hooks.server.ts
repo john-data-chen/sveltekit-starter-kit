@@ -1,25 +1,12 @@
 import { getTextDirection } from "$lib/paraglide/runtime";
 import { paraglideMiddleware } from "$lib/paraglide/server";
-import { parseSessionCookie, SESSION_COOKIE_NAME } from "$lib/server/auth";
-import { db } from "$lib/server/db";
-import { users } from "$lib/server/db/schema";
+import { SESSION_COOKIE_NAME } from "$lib/server/auth";
+import { resolveSessionUser } from "$lib/server/session";
 import { THEME_COOKIE } from "$lib/theme";
 import type { Handle } from "@sveltejs/kit";
-import { eq } from "drizzle-orm";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const userId = parseSessionCookie(event.cookies.get(SESSION_COOKIE_NAME));
-
-  if (userId === null) {
-    event.locals.user = null;
-  } else {
-    const [user] = await db
-      .select({ id: users.id, name: users.name, avatar: users.avatar })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
-    event.locals.user = user ?? null;
-  }
+  event.locals.user = await resolveSessionUser(event.cookies.get(SESSION_COOKIE_NAME));
 
   // Render the `.dark` class on <html> for the explicit-dark and default (no cookie)
   // cases so the no-JS fallback and first-paint markup are correct. `light` and `system`
