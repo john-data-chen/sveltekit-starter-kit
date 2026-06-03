@@ -1,7 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("$lib/paraglide/messages", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("$lib/paraglide/messages")>();
+  return {
+    ...actual,
+    category_salary: () => "Salary (translated)",
+    category_food: () => "Food (translated)"
+  };
+});
 
 import {
   categoriesFor,
+  categoryLabel,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
   isTransactionType,
@@ -37,5 +47,16 @@ describe("isTransactionType", () => {
   });
   it("rejects anything else", () => {
     expect(isTransactionType("transfer")).toBe(false);
+  });
+});
+
+describe("categoryLabel", () => {
+  it("translates a valid category", () => {
+    expect(categoryLabel("Salary")).toBe("Salary (translated)");
+    expect(categoryLabel("Food")).toBe("Food (translated)");
+  });
+
+  it("falls back to the key for an invalid category", () => {
+    expect(categoryLabel("NonExistent")).toBe("NonExistent");
   });
 });

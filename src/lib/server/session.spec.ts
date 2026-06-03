@@ -82,4 +82,29 @@ describe("resolveSessionUser", () => {
     await expect(resolveSessionUser(cookie)).resolves.toBeNull();
     expect(errorSpy).toHaveBeenCalledWith("[session] user lookup failed", expect.any(Error));
   });
+
+  it("returns null and logs when cookie parsing throws", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.doMock("$lib/server/auth", () => ({
+      parseSessionCookie: () => {
+        throw new Error("malformed signature format");
+      }
+    }));
+    const { resolveSessionUser } = await loadSubjectWithDb(() => ({
+      db: createDb([])
+    }));
+
+    await expect(resolveSessionUser("dummy-cookie")).resolves.toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith("[session] cookie parsing failed", expect.any(Error));
+    vi.doUnmock("$lib/server/auth");
+  });
+
+  it("returns null when the session user is not found in database", async () => {
+    const cookie = createSessionCookie(999);
+    const { resolveSessionUser } = await loadSubjectWithDb(() => ({
+      db: createDb([])
+    }));
+
+    await expect(resolveSessionUser(cookie)).resolves.toBeNull();
+  });
 });

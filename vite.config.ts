@@ -17,6 +17,11 @@ export default defineConfig({
     expect: { requireAssertions: true },
     environment: "node",
     include: ["src/**/*.{test,spec}.{js,ts}"],
-    exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"]
+    exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: ["src/lib/paraglide/**", "**/*.spec.ts", "**/*.test.ts"]
+    }
   }
 });

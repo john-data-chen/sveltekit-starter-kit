@@ -2,7 +2,7 @@ import { findLoginUserByEmail, logLoginInfrastructureError } from "$lib/server/l
 import type { Cookies } from "@sveltejs/kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { actions } from "./+page.server";
+import { actions, load } from "./+page.server";
 
 vi.mock("$app/environment", () => ({ dev: true }));
 vi.mock("$env/dynamic/private", () => ({ env: { SESSION_SECRET: "test-secret-value" } }));
@@ -58,6 +58,14 @@ describe("login action", () => {
       status: 400,
       data: { email: "", message: expect.any(String) }
     });
+
+    const resultUndefined = await submitLogin(undefined);
+
+    expect(resultUndefined).toMatchObject({
+      status: 400,
+      data: { email: "", message: expect.any(String) }
+    });
+
     expect(findLoginUserByEmail).not.toHaveBeenCalled();
   });
 
@@ -108,5 +116,12 @@ describe("login action", () => {
       "session cookie setup failed",
       expect.any(Error)
     );
+  });
+});
+
+describe("login load", () => {
+  it("returns the default email", () => {
+    const result = load({} as any);
+    expect(result).toEqual({ defaultEmail: "john@example.com" });
   });
 });
