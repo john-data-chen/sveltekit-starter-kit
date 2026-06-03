@@ -104,14 +104,14 @@ This project was built with a "Human-in-the-Loop" approach where AI tools are or
 
 Skills are committed to the repo and surfaced to AI assistants via `AGENTS.md` / `CLAUDE.md`. Each skill encodes instructions and conventions the assistant must follow.
 
-| Skill                         | Responsibility                                                                                         |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------ |
-| **karpathy-guidelines**       | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops |
-| **doc-coauthoring**           | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README included)  |
-| **session-handoff**           | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions    |
-| **drizzle**                   | Drizzle ORM conventions: `pgTable`, the `db.select()` builder API, explicit JOINs, plural snake_case   |
-| **svelte-code-writer**        | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file        |
-| **svelte-core-bestpractices** | Svelte 5 runes guidance: `$state`/`$derived` over `$effect`, no legacy slots/`export let`/`on:click`   |
+| Skill                                                                                    | Responsibility                                                                                         |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README included)  |
+| **session-handoff (my private skill)**                                                   | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions    |
+| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM conventions: `pgTable`, the `db.select()` builder API, explicit JOINs, plural snake_case   |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file        |
+| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                           | Svelte 5 runes guidance: `$state`/`$derived` over `$effect`, no legacy slots/`export let`/`on:click`   |
 
 ### MCP (Model Context Protocol) Servers
 
@@ -119,7 +119,7 @@ MCP lets AI tools interact directly with development infrastructure, removing co
 
 | Server                                                                       | Integration Point | Workflow Enhancement                                                                         |
 | ---------------------------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------- |
-| [svelte-mcp](https://mcp.svelte.dev/mcp)                                     | Svelte docs       | Official Svelte 5 / SvelteKit docs, examples, and code autofixing (committed in `.mcp.json`) |
+| [svelte-mcp](https://svelte.dev/docs/ai/mcp)                                 | Svelte docs       | Official Svelte 5 / SvelteKit docs, examples, and code autofixing (committed in `.mcp.json`) |
 | [context7](https://github.com/upstash/context7)                              | Documentation     | Current, version-accurate library docs for AI agents                                         |
 | [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Browser state     | Lets AI agents inspect and verify the running app via the DevTools Protocol                  |
 
