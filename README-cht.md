@@ -104,14 +104,14 @@ Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 
 
 Skills 會提交到 repo，並透過 `AGENTS.md` / `CLAUDE.md` 提供給 AI assistants。每個 skill 都封裝了特定工作流與專案慣例。
 
-| Skill                                                                                    | 職責                                                                                               |
-| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | 降低 LLM coding mistakes：明確假設、優先簡單方案、手術刀式修改、目標導向循環                       |
-| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 文件共筆的 3-stage workflow（上下文 → 精煉 → 讀者測試），本 README 也屬於此類工作                  |
-| **session-handoff (my private skill)**                                                   | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層         |
-| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM 慣例：`pgTable`、`db.select()` builder API、explicit JOINs、plural snake_case          |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | 建立或修改 `.svelte` 檔時使用的 Svelte 5 docs lookup 與 code analysis CLI tooling                  |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | Svelte 5 runes guidance：偏好 `$state`/`$derived`、避免不必要 `$effect`、避免 legacy Svelte syntax |
+| Skill                                                                                    | 職責                                                                                        |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | 降低 LLM 程式碼錯誤：明確假設、優先簡單方案、手術刀式修改、目標導向循環                     |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 文件共筆的 3 階段工作流程（上下文 → 精煉 → 讀者測試），本 README 由此技能與作者共同協作產生 |
+| **session-handoff (my private skill)**                                                   | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層  |
+| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM 最佳實踐                                                                        |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | 用於在建立/編輯任何 `.svelte` 檔案時尋找技術文件和進行程式碼分析的 CLI 工具                 |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | 編寫快速、健壯、現代的 Svelte 程式碼的指南。                                                |
 
 ### MCP（Model Context Protocol）Servers
 

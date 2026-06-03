@@ -104,14 +104,14 @@ This project was built with a "Human-in-the-Loop" approach where AI tools are or
 
 Skills are committed to the repo and surfaced to AI assistants via `AGENTS.md` / `CLAUDE.md`. Each skill encodes instructions and conventions the assistant must follow.
 
-| Skill                                                                                    | Responsibility                                                                                         |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops |
-| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README included)  |
-| **session-handoff (my private skill)**                                                   | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions    |
-| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM conventions: `pgTable`, the `db.select()` builder API, explicit JOINs, plural snake_case   |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file        |
-| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                           | Svelte 5 runes guidance: `$state`/`$derived` over `$effect`, no legacy slots/`export let`/`on:click`   |
+| Skill                                                                                    | Responsibility                                                                                                              |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops                      |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README is made by user and this skill) |
+| **session-handoff (my private skill)**                                                   | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions                         |
+| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM best practices                                                                                                  |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file                             |
+| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                           | Guidance on writing fast, robust, modern Svelte code.                                                                       |
 
 ### MCP (Model Context Protocol) Servers
 
