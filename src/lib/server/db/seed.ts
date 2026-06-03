@@ -183,10 +183,11 @@ async function seed() {
   console.log(`Seeded 3 users and ${rows.length} transactions.`);
 }
 
-seed()
-  .then(() => client.end())
-  .catch(async (error) => {
-    console.error(error);
-    await client.end();
-    process.exit(1);
-  });
+try {
+  await seed();
+} catch (error) {
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await client.end();
+}

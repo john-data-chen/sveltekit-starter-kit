@@ -1,7 +1,8 @@
+import { env } from "$env/dynamic/private";
 import type { Cookies } from "@sveltejs/kit";
 import { describe, expect, it, vi } from "vitest";
 
-import { parseSessionCookie, setSessionCookie } from "./auth";
+import { parseSessionCookie, setSessionCookie, clearSessionCookie } from "./auth";
 
 vi.mock("$app/environment", () => ({ dev: true }));
 vi.mock("$env/dynamic/private", () => ({ env: { SESSION_SECRET: "test-secret-value" } }));
@@ -9,13 +10,13 @@ vi.mock("$env/dynamic/private", () => ({ env: { SESSION_SECRET: "test-secret-val
 function fakeCookies() {
   let stored: string | undefined;
   const cookies = {
-    set: (_name: string, value: string) => {
+    set: vi.fn((_name: string, value: string) => {
       stored = value;
-    },
-    delete: () => {
+    }),
+    delete: vi.fn(() => {
       stored = undefined;
-    },
-    get: () => stored
+    }),
+    get: vi.fn(() => stored)
   } as unknown as Cookies;
   return { cookies, read: () => stored };
 }
@@ -37,5 +38,35 @@ describe("session cookie sign + verify", () => {
     expect(parseSessionCookie(undefined)).toBeNull();
     expect(parseSessionCookie("999.deadbeef")).toBeNull();
     expect(parseSessionCookie("notanumber")).toBeNull();
+  });
+
+  it("throws when SESSION_SECRET is missing", () => {
+    const originalSecret = env.SESSION_SECRET;
+    env.SESSION_SECRET = "";
+    try {
+      const { cookies } = fakeCookies();
+      expect(() => setSessionCookie(cookies, 42)).toThrow("SESSION_SECRET is not set");
+    } finally {
+      env.SESSION_SECRET = originalSecret;
+    }
+  });
+
+  it("clears the session cookie", () => {
+    const { cookies } = fakeCookies();
+    clearSessionCookie(cookies);
+    expect(cookies.delete).toHaveBeenCalledWith("session", { path: "/" });
+  });
+
+  it("rejects non-positive and non-integer user IDs even with valid signature", () => {
+    const { cookies, read } = fakeCookies();
+
+    setSessionCookie(cookies, -5);
+    expect(parseSessionCookie(read())).toBeNull();
+
+    setSessionCookie(cookies, 0);
+    expect(parseSessionCookie(read())).toBeNull();
+
+    setSessionCookie(cookies, 1.5);
+    expect(parseSessionCookie(read())).toBeNull();
   });
 });

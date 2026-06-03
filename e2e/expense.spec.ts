@@ -1,0 +1,51 @@
+import { expect, test } from "@playwright/test";
+
+// Happy path: sign in as the built-in John account, add an expense, then delete it.
+// The row is tagged with a unique note so the test deletes exactly what it created
+// and never touches the seeded demo data.
+//
+// Cross-browser notes:
+// - Selectors are locale-agnostic. The UI renders in the zh-tw base locale, so we never match
+//   on translated button text; we scope to the owning form / use stable input names and the
+//   category option *value* (the canonical English key).
+// - In WebKit, a click issued before Svelte finishes hydrating can be swallowed (a native
+//   submit is lost). Rather than guess a hydration delay, we wrap each submit in `toPass`:
+//   the action is retried until the expected navigation actually commits. `waitForURL` (not a
+//   bare URL assertion) ensures the previous navigation is fully settled before the next step.
+test("John signs in, adds an expense, then deletes it", async ({ page }) => {
+  // The Delete button triggers a native confirm() — auto-accept it.
+  page.on("dialog", (dialog) => dialog.accept());
+
+  // 1. Sign in (email is pre-filled with john@example.com). The login form submits natively so
+  // the session cookie is set on a top-level navigation (WebKit does not persist it from an
+  // enhance fetch response). Retry the click until "/" is reached.
+  await page.goto("/login");
+  const signIn = page.locator('form:has(input[name="email"]) button[type="submit"]');
+  await expect(async () => {
+    await signIn.click();
+    await page.waitForURL("/", { timeout: 3000 });
+  }).toPass({ timeout: 20_000 });
+
+  // 2. Add a new expense tagged with a unique note. The random suffix guarantees uniqueness
+  // even across fast repeated runs (Date.now() alone can collide within the same millisecond).
+  const note = `e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  await page.goto("/transactions/new");
+  const addTransaction = page.locator('form:has(input[name="amount"]) button[type="submit"]');
+  // Re-fill inside the retry so a hydration reset of the inputs can't leave a stale value.
+  await expect(async () => {
+    await page.locator('select[name="category"]').selectOption("Food");
+    await page.locator('input[name="amount"]').fill("999");
+    await page.locator('input[name="note"]').fill(note);
+    await addTransaction.click();
+    await page.waitForURL("/transactions", { timeout: 3000 });
+  }).toPass({ timeout: 20_000 });
+
+  // 3. The new row is listed.
+  const row = page.locator("li", { hasText: note });
+  await expect(row).toBeVisible();
+
+  // 4. Delete it, then confirm it is gone. Scope to the row's delete form (the layout also
+  // renders a logout form on authed pages, so a bare submit selector would be ambiguous).
+  await row.locator('form[action="?/delete"] button[type="submit"]').click();
+  await expect(page.locator("li", { hasText: note })).toHaveCount(0);
+});

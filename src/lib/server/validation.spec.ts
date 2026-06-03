@@ -82,4 +82,18 @@ describe("parseTransactionForm", () => {
     );
     expect(result.ok).toBe(false);
   });
+
+  it("uses default blank strings when fields are missing from the form", () => {
+    const result = parseTransactionForm(new FormData());
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.values).toEqual({
+        type: "",
+        category: "",
+        amount: "",
+        occurredOn: "",
+        note: ""
+      });
+    }
+  });
 });

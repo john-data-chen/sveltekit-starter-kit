@@ -23,6 +23,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 # Playwright
 test-results
+playwright-report
+playwright/.cache
 # Vitest
 coverage
 
@@ -32,3 +34,9 @@ coverage
 .claude/skills/
 CLAUDE.md
 session-handoff
+
+# Paraglide (generated)
+src/lib/paraglide
+
+# pnpm
+.pnpm-store

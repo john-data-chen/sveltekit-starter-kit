@@ -36,5 +36,7 @@ describe("parseAmount", () => {
     expect(parseAmount("-5")).toBeNull();
     expect(parseAmount("abc")).toBeNull();
     expect(parseAmount("")).toBeNull();
+    // Test unsafe integers to cover the false branch of Number.isSafeInteger(value)
+    expect(parseAmount("999999999999999999999999999999")).toBeNull();
   });
 });

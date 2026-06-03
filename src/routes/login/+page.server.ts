@@ -1,16 +1,13 @@
+import { DEMO_EMAIL } from "$lib/constants";
+import * as m from "$lib/paraglide/messages";
 import { setSessionCookie } from "$lib/server/auth";
-import { db } from "$lib/server/db";
-import { users } from "$lib/server/db/schema";
+import { findLoginUserByEmail, logLoginInfrastructureError } from "$lib/server/login";
 import { fail, redirect } from "@sveltejs/kit";
-import { eq } from "drizzle-orm";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-// Pre-filled so a visitor can sign in with one click. No password / no registration.
-const DEFAULT_EMAIL = "john@example.com";
-
 export const load: PageServerLoad = () => {
-  return { defaultEmail: DEFAULT_EMAIL };
+  return { defaultEmail: DEMO_EMAIL };
 };
 
 export const actions: Actions = {
@@ -21,20 +18,26 @@ export const actions: Actions = {
       .toLowerCase();
 
     if (!email) {
-      return fail(400, { email, message: "Please enter your email." });
+      return fail(400, { email, message: m.login_error_email_required() });
     }
 
-    const [user] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const user = await findLoginUserByEmail(email);
 
-    if (!user) {
-      return fail(400, { email, message: "No account found for that email." });
+    if (user.type === "service_unavailable") {
+      return fail(503, { email, message: m.login_error_service_unavailable() });
     }
 
-    setSessionCookie(cookies, user.id);
+    if (user.type === "not_found") {
+      return fail(400, { email, message: m.login_error_no_account() });
+    }
+
+    try {
+      setSessionCookie(cookies, user.userId);
+    } catch (error) {
+      logLoginInfrastructureError("session cookie setup failed", error);
+      return fail(503, { email, message: m.login_error_service_unavailable() });
+    }
+
     redirect(303, "/");
   }
 };

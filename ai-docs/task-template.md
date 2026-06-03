@@ -9,7 +9,7 @@ only output task plan, never execute plan until you get confirmation
 
 # Skills
 
-- karpathy-guidelines: all coding tasks
+- karpathy-guidelines: use it every time in all coding tasks
 - doc-coauthoring: add and modify documentation
 - drizzle: tasks about drizzle and ORM
 - session-handoff: create task plans and execution logs for handoff to another model
