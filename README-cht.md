@@ -43,7 +43,7 @@
 
 | 類型      | 選擇                                          | 理由                                                  |
 | --------- | --------------------------------------------- | ----------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5（runes）               | 精細化回應、極簡樣板、SSR + 表單操作                  |
+| Framework | SvelteKit 2 + Svelte 5（runes）               | 精細的響應性、極簡樣板、SSR + 表單操作                |
 | Styling   | Tailwind CSS v4（Vite plugin）                | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置    |
 | Database  | Drizzle ORM + PostgreSQL                      | 類型安全 SQL、明確查詢、比大型 ORM 更輕量             |
 | DB Driver | `postgres`（TCP）                             | 快速 pooled driver，適合 Vercel Node serverless 服務  |
@@ -65,7 +65,7 @@
 
 - Unit tests 聚焦查詢邏輯、驗證、貨幣 格式化 / 解析
 - E2E tests 驗證重要流程（登入、transaction CRUD）
-- 每次 push / PR 都會先跑完整 pipeline，通過後再 merge
+- 每次 push / PR 都會先跑完整 pipeline，通過後再 merge (免費 server 效能不足，因此 CI 只執行 unit test)
 
 ### Developer Experience
 
@@ -85,7 +85,7 @@
 - **Passwordless email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
 - **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（數目、類型、類別、日期、備註）。
 - **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
-- **Dashboard** — 顯示當月收入、支出、結餘，以及以 **pure CSS** 製作的類型圓形圖表。
+- **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
 - **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
 - **i18n** — 英文與繁體中文（Paraglide JS）。
@@ -292,6 +292,7 @@ pnpm db:studio     # drizzle-kit studio
 | ----------- | ---------------------------------------------- |
 | Status      | **Production** — 格式化 JS/TS/CSS/HTML/JSON/MD |
 | Performance | 約比 Prettier 快 30 倍，冷啟動幾乎即時         |
+| Scope       | ESLint + Prettier 僅保留給 `.svelte` 檔案      |
 
 [Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
 
@@ -299,10 +300,10 @@ pnpm db:studio     # drizzle-kit studio
 
 ## Live Demo Constraints
 
-| 面向         | 目前狀態                                                                    | Production 建議                     |
-| ------------ | --------------------------------------------------------------------------- | ----------------------------------- |
-| **Hosting**  | Vercel free tier                                                            | Paid tier / multi-region deployment |
-| **Database** | Free-tier PostgreSQL（例如 Neon）                                           | Managed, regionally optimized DB    |
-| **Data**     | Seeded demo data；demo accounts 由訪客共用，但每個 account 的資料仍彼此隔離 | Real user accounts with sign-up     |
+| 面向         | 目前狀態                                                             | Production 建議               |
+| ------------ | -------------------------------------------------------------------- | ----------------------------- |
+| **Hosting**  | Vercel free tier                                                     | Paid tier / 多區域 deployment |
+| **Database** | Free-tier Neon                                                       | 根據地區優化的 DB             |
+| **Data**     | 預先建立的 Demo 資料；示範帳號由訪客共用，但每個帳號的資料仍彼此隔離 | 真實帳號隔離                  |
 
-Demo deployment 使用 免費等級 以降低成本。Production deployment 應根據真實使用者地區補上適當的地區性優化。
+Demo 使用免費等級以降低成本。Production 應根據真實使用者地區補上適當的地區性優化。
