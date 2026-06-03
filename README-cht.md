@@ -1,15 +1,15 @@
-# SvelteKit Expense Tracker | 具備 AI 輔助工程流程的全端 Starter Kit
+# SvelteKit 線上帳簿 | 具備 AI 輔助工程流程的全端 Starter Kit
 
 [![codecov](https://codecov.io/gh/john-data-chen/sveltekit-starter-kit/graph/badge.svg?token=9Mdwd8ibQs)](https://codecov.io/gh/john-data-chen/sveltekit-starter-kit)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=john-data-chen_sveltekit-starter-kit&metric=alert_status&token=6c61941d26a0ba1e36bc438f28dba039c8e3700d)](https://sonarcloud.io/summary/new_code?id=john-data-chen_sveltekit-starter-kit)
 [![CI](https://github.com/john-data-chen/sveltekit-starter-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/john-data-chen/sveltekit-starter-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-這是一個 production-grade 的 SvelteKit starter kit，以真實可用的多使用者 **expense tracker** 為核心，展示技術決策、品質工程，以及 AI-assisted development 的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
+這是一個產品級別的 SvelteKit starter kit，以真實可用的多使用者 **線上帳簿** 為核心，展示技術決策、品質工程，以及 AI 輔助開發的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
 
 英文版本請見 **[README.md](./README.md)**。
 
-**[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — 按下 **Continue With Email** 即可用已 seed 的 demo 使用者登入。
+**[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — 按下 **以 Email 繼續** 即可用已建立的使用者登入。
 
 <table>
   <tr>
@@ -41,16 +41,16 @@
 
 ### 架構
 
-| 類型      | 選擇                                          | 理由                                                        |
-| --------- | --------------------------------------------- | ----------------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5（runes）               | 細粒度 reactivity、低樣板碼、SSR + form actions             |
-| Styling   | Tailwind CSS v4（Vite plugin）                | Utility-first、zero-runtime，透過 v4 Vite plugin 加速 build |
-| Database  | Drizzle ORM + PostgreSQL                      | Type-safe SQL、明確 query、比大型 ORM 更輕量                |
-| DB Driver | `postgres`（TCP）                             | 快速 pooled driver，適合 Vercel Node serverless runtime     |
-| Auth      | Passwordless email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                  |
-| Charts    | Pure CSS donut                                | 不引入 chart dependency，降低 bundle 並保留完整控制         |
-| i18n      | Paraglide JS（`@inlang/paraglide-js`）        | Type-safe、tree-shakeable messages；支援英文與繁體中文      |
-| Deploy    | `@sveltejs/adapter-vercel`（Node serverless） | `postgres` TCP driver 需要 Node runtime                     |
+| 類型      | 選擇                                          | 理由                                                  |
+| --------- | --------------------------------------------- | ----------------------------------------------------- |
+| Framework | SvelteKit 2 + Svelte 5（runes）               | 精細化回應、極簡樣板、SSR + 表單操作                  |
+| Styling   | Tailwind CSS v4（Vite plugin）                | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置    |
+| Database  | Drizzle ORM + PostgreSQL                      | 類型安全 SQL、明確查詢、比大型 ORM 更輕量             |
+| DB Driver | `postgres`（TCP）                             | 快速 pooled driver，適合 Vercel Node serverless 服務  |
+| Auth      | Passwordless email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model            |
+| Charts    | Pure CSS donut                                | 不引入圖表套件，減少打包體積並保留完整控制            |
+| i18n      | Paraglide JS（`@inlang/paraglide-js`）        | 類型安全、tree-shakeable messages；支援英文與繁體中文 |
+| Deploy    | `@sveltejs/adapter-vercel`（Node serverless） | `postgres` TCP driver 需要 Node runtime               |
 
 ### 品質保證
 
@@ -63,8 +63,8 @@
 
 **Testing Strategy:**
 
-- Unit tests 聚焦 query logic、validation、money formatting/parsing
-- E2E tests 驗證重要流程（login、transaction CRUD）
+- Unit tests 聚焦查詢邏輯、驗證、貨幣 格式化 / 解析
+- E2E tests 驗證重要流程（登入、transaction CRUD）
 - 每次 push / PR 都會先跑完整 pipeline，通過後再 merge
 
 ### Developer Experience
@@ -74,7 +74,7 @@
 | oxlint                      | Rust-based JS/TS linter，比 ESLint 快 50-100 倍   |
 | oxfmt                       | Rust-based formatter，處理 JS/TS/CSS/HTML/JSON/MD |
 | ESLint + Prettier（Svelte） | 專門處理 `.svelte` 檔案的 lint/format             |
-| Vite                        | 近乎即時的 HMR 與快速 production build            |
+| Vite                        | 近乎即時的 HMR 與快速建置                         |
 | Husky + lint-staged         | pre-commit 品質檢查                               |
 | commitlint + Commitizen     | Conventional commits，維持乾淨 commit history     |
 
@@ -83,14 +83,14 @@
 ## 功能
 
 - **Passwordless email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
-- **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（amount、type、category、date、optional note）。
-- **List & filter** — 可依 category 與 month 篩選交易紀錄；filter state 會保存在 URL。
-- **Dashboard** — 顯示當月收入、支出、結餘，以及以 **pure CSS** 製作的 category-share donut chart。
-- **Per-user data isolation** — 每個 query 都會以 signed-in user 為 scope；使用者只能看到自己的資料。
+- **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（數目、類型、類別、日期、備註）。
+- **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
+- **Dashboard** — 顯示當月收入、支出、結餘，以及以 **pure CSS** 製作的類型圓形圖表。
+- **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
 - **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
 - **i18n** — 英文與繁體中文（Paraglide JS）。
-- **Theme switching** — light / dark / system。
-- **Responsive design** — mobile-first，並支援 desktop layout。
+- **Theme switching** — 淺色 / 深色 / 系統。
+- **Responsive design** — 手機小螢幕排版優先，也支援電腦大螢幕排版。
 
 Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 中的 `SESSION_SECRET` 簽章。
 
@@ -125,7 +125,7 @@ MCP 讓 AI 工具可直接和開發基礎設施互動，減少人工切換脈絡
 
 ### AI Guidelines（`AGENTS.md` / `CLAUDE.md`）
 
-這些檔案是 AI assistants 的專案工作守則，包含 mandatory verification workflow（`pnpm lint` → `pnpm build` → `pnpm check`）、常用 commands，以及不同任務應使用的 skills/MCP servers。AI tools 在修改此 repo 前應先讀取這些指引。
+這些檔案是 AI assistants 的專案工作守則，包含主要驗證流程（`pnpm lint` → `pnpm build` → `pnpm check`）、常用指令，以及不同任務應使用的 skills/MCP servers。AI tools 在修改此 repo 前應先讀取這些指引。
 
 ---
 
@@ -157,7 +157,7 @@ pnpm test:e2e          # E2E tests (needs a seeded DB + dev server)
 pnpm build             # Production build
 ```
 
-`.env.example` 的預設 `DATABASE_URL` 與 `compose.yaml` 相符。請將 `SESSION_SECRET` 設成一段足夠長的 random string，用來簽署 session cookie。接著開啟 dev server（預設 `http://localhost:5173`），按下 **Continue With Email** 即可用 `john@example.com` 登入。
+`.env.example` 的預設 `DATABASE_URL` 與 `compose.yaml` 相符。請將 `SESSION_SECRET` 設成一段足夠長的隨機字串，用來簽署 session cookie。接著開啟 dev server（預設 `http://localhost:5173`），按下 **以 Email 繼續** 即可用 `john@example.com` 登入。
 
 ### Commands
 
@@ -202,8 +202,8 @@ pnpm db:studio     # drizzle-kit studio
 ├── e2e/
 │   └── expense.spec.ts          # Playwright login + transaction CRUD happy path
 ├── messages/                    # Paraglide source messages
-│   ├── en.json                  # 英文 UI copy
-│   └── zh-tw.json               # 繁體中文 UI copy
+│   ├── en.json                  # 英文翻譯檔
+│   └── zh-tw.json               # 繁體中文翻譯檔
 ├── src/
 │   ├── app.d.ts                 # SvelteKit app types（App.Locals.user）
 │   ├── app.html                 # HTML shell，包含 Paraglide lang/dir placeholders
@@ -291,7 +291,7 @@ pnpm db:studio     # drizzle-kit studio
 | 面向        | 說明                                           |
 | ----------- | ---------------------------------------------- |
 | Status      | **Production** — 格式化 JS/TS/CSS/HTML/JSON/MD |
-| Performance | 約比 Prettier 快 30 倍，cold start 幾乎即時    |
+| Performance | 約比 Prettier 快 30 倍，冷啟動幾乎即時         |
 
 [Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
 
@@ -305,4 +305,4 @@ pnpm db:studio     # drizzle-kit studio
 | **Database** | Free-tier PostgreSQL（例如 Neon）                                           | Managed, regionally optimized DB    |
 | **Data**     | Seeded demo data；demo accounts 由訪客共用，但每個 account 的資料仍彼此隔離 | Real user accounts with sign-up     |
 
-Demo deployment 使用 free-tier infrastructure 以降低成本。Production deployment 應補上適當的 regional optimization 與真實使用者 onboarding。
+Demo deployment 使用 免費等級 以降低成本。Production deployment 應根據真實使用者地區補上適當的地區性優化。
