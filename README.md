@@ -9,6 +9,8 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 **[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — press **Continue With Email** to sign in instantly as a seeded demo user.
 
+繁體中文版本請見 **[README-cht.md](./README-cht.md)**.
+
 <table>
   <tr>
     <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="Passwordless email login screen, pre-filled with a demo account" width="200"></td>
@@ -27,9 +29,9 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 ---
 
 | Metric         | Result                                                                               |
-| -------------- | ------------------------------------------------------------------------------------ | --- |
+| -------------- | ------------------------------------------------------------------------------------ |
 | Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)               |
-| Code Quality   | See **SonarCloud Quality Gate** badge above (Security, Reliability, Maintainability) |     |
+| Code Quality   | See **SonarCloud Quality Gate** badge above (Security, Reliability, Maintainability) |
 | E2E Validation | Cross-browser via Playwright (Chrome / Edge / Safari)                                |
 | CI/CD Pipeline | GitHub Actions → SonarCloud + Codecov → Vercel                                       |
 
@@ -184,37 +186,88 @@ pnpm db:studio     # drizzle-kit studio
 
 ```text
 .
-├── .agents/skills/          # Agent skills (see AI-Augmented Engineering Workflow)
-├── .husky/                  # Git hooks (pre-commit, commit-msg)
-├── .opencode/               # OpenCode AI configuration
-├── .vscode/                 # VS Code settings + extension recommendations
-├── ai-docs/                 # AI task templates + session-handoff logs
+├── .agents/skills/              # Repo-specific AI skills used by AGENTS.md / CLAUDE.md
+│   ├── doc-coauthoring/         # Documentation co-authoring workflow
+│   ├── drizzle/                 # Drizzle schema/query conventions
+│   ├── karpathy-guidelines/     # Surgical-change and verification discipline
+│   ├── session-handoff/         # Maintains ai-docs/tasks.md + session-log.md
+│   ├── svelte-code-writer/      # Svelte MCP/CLI lookup and autofix workflow
+│   └── svelte-core-bestpractices/
+├── .github/workflows/ci.yml     # GitHub Actions: install, test, Codecov, SonarCloud
+├── .husky/                      # Git hooks (pre-commit, commit-msg)
+├── .opencode/                   # OpenCode AI configuration
+├── .vscode/                     # VS Code settings + extension recommendations
+├── ai-docs/                     # AI task template, task plan, and session log
+├── drizzle/                     # Generated SQL migrations + Drizzle metadata snapshots
+├── e2e/
+│   └── expense.spec.ts          # Playwright login + transaction CRUD happy path
+├── messages/                    # Paraglide source messages
+│   ├── en.json                  # English UI copy
+│   └── zh-tw.json               # Traditional Chinese UI copy
 ├── src/
+│   ├── app.d.ts                 # SvelteKit app types (App.Locals.user)
+│   ├── app.html                 # HTML shell with Paraglide lang/dir placeholders
+│   ├── hooks.server.ts          # Session lookup, locale middleware, theme class injection
 │   ├── lib/
-│   │   ├── assets/          # Static assets (favicon, screenshots)
-│   │   ├── components/      # Shared components (TransactionForm, CategoryChart)
-│   │   ├── server/          # Server-only: auth, validation, db/ (client, schema, queries, seed)
-│   │   ├── categories.ts    # Fixed income/expense category lists
-│   │   └── money.ts         # TWD integer formatting/parsing
+│   │   ├── assets/              # Favicon and README screenshots
+│   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
+│   │   ├── server/
+│   │   │   ├── db/
+│   │   │   │   ├── index.ts     # Drizzle client using DATABASE_URL
+│   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
+│   │   │   │   ├── schema.ts    # users / transactions tables and transaction_type enum
+│   │   │   │   ├── schema.spec.ts
+│   │   │   │   └── seed.ts      # Demo users and transactions
+│   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
+│   │   │   ├── guards.ts        # requireUser protected-route helper
+│   │   │   ├── login.ts         # Passwordless email lookup
+│   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
+│   │   │   └── validation.ts    # Transaction form validation
+│   │   ├── categories.ts        # Fixed category keys + localized labels
+│   │   ├── constants.ts         # App name, demo email, pageTitle helper
+│   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
+│   │   ├── money.ts             # TWD integer formatting/parsing
+│   │   ├── theme.svelte.ts      # Client theme store (light / dark / system)
+│   │   ├── theme.ts             # Server-safe theme constants and helpers
+│   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
-│   │   ├── login/           # Email sign-in (page + action)
-│   │   ├── logout/          # Sign-out action
-│   │   ├── transactions/    # List + filter, new, [id]/edit (CRUD)
-│   │   ├── +layout.svelte   # Root layout (header/nav when signed in)
-│   │   ├── +layout.server.ts# Loads the user + guards protected routes
-│   │   ├── +page.svelte     # Dashboard (stats + pure-CSS chart)
-│   │   └── layout.css       # Tailwind import
-│   ├── hooks.server.ts      # Resolves the session cookie → locals.user
-│   ├── app.d.ts             # SvelteKit app types (Locals.user)
-│   └── app.html             # HTML shell
-├── static/                  # Public assets (robots.txt)
-├── drizzle/                 # Generated SQL migrations (drizzle-kit)
-├── compose.yaml             # PostgreSQL service
-├── commitlint.config.mjs    # Conventional commit config
-├── drizzle.config.ts        # Drizzle Kit config
-├── svelte.config.js         # SvelteKit config (runes mode forced)
-├── vite.config.ts           # Vite + Vitest config
-└── pnpm-workspace.yaml      # pnpm settings
+│   │   ├── login/               # Passwordless email sign-in page/action + route spec
+│   │   ├── logout/              # Sign-out action
+│   │   ├── transactions/
+│   │   │   ├── [id]/edit/       # Edit form load/action, ownership-checked
+│   │   │   ├── new/             # Create form load/action
+│   │   │   └── +page.*          # List/filter page plus delete action
+│   │   ├── +layout.server.ts    # Auth guard and user data for all pages
+│   │   ├── +layout.svelte       # App shell, nav, locale/theme controls, logout form
+│   │   ├── +page.server.ts      # Dashboard monthly stats loader
+│   │   ├── +page.svelte         # Dashboard UI and pure-CSS category chart
+│   │   └── layout.css           # Tailwind v4 import and global styles
+│   └── *.spec.ts                # Unit/integration specs colocated with source modules
+├── static/
+│   └── robots.txt               # Public static asset
+├── .env.example                 # DATABASE_URL + SESSION_SECRET template
+├── .mcp.json                    # Svelte MCP server registration
+├── .npmrc                       # pnpm/node package manager settings
+├── .oxfmtrc.json                # oxfmt formatter config
+├── .oxlintrc.json               # oxlint JS/TS lint rules
+├── .prettierignore              # Prettier ignore rules
+├── .prettierrc                  # Prettier + Svelte/Tailwind plugin config
+├── AGENTS.md                    # AI agent instructions for this repo
+├── README.md                    # English README
+├── README-cht.md                # Traditional Chinese README
+├── commitlint.config.mjs        # Conventional commit config
+├── compose.yaml                 # Local PostgreSQL service
+├── drizzle.config.ts            # Drizzle Kit config
+├── eslint.config.js             # ESLint config for Svelte files
+├── package.json                 # Scripts, dependencies, lint-staged, engines
+├── playwright.config.ts         # Cross-browser e2e configuration
+├── pnpm-lock.yaml               # Locked dependency graph
+├── pnpm-workspace.yaml          # pnpm workspace and minimum-release-age policy
+├── skills-lock.json             # Locked AI skill/plugin metadata
+├── sonar-project.properties     # SonarCloud project configuration
+├── svelte.config.js             # SvelteKit config, Vercel adapter, forced runes mode
+├── tsconfig.json                # TypeScript config extending generated SvelteKit config
+└── vite.config.ts               # Vite plugins: Tailwind, SvelteKit, Paraglide; Vitest config
 ```
 
 ---

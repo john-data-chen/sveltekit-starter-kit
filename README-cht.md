@@ -1,0 +1,308 @@
+# SvelteKit Expense Tracker | 具備 AI 輔助工程流程的全端 Starter Kit
+
+[![codecov](https://codecov.io/gh/john-data-chen/sveltekit-starter-kit/graph/badge.svg?token=9Mdwd8ibQs)](https://codecov.io/gh/john-data-chen/sveltekit-starter-kit)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=john-data-chen_sveltekit-starter-kit&metric=alert_status&token=6c61941d26a0ba1e36bc438f28dba039c8e3700d)](https://sonarcloud.io/summary/new_code?id=john-data-chen_sveltekit-starter-kit)
+[![CI](https://github.com/john-data-chen/sveltekit-starter-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/john-data-chen/sveltekit-starter-kit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+這是一個 production-grade 的 SvelteKit starter kit，以真實可用的多使用者 **expense tracker** 為核心，展示技術決策、品質工程，以及 AI-assisted development 的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
+
+英文版本請見 **[README.md](./README.md)**。
+
+**[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — 按下 **Continue With Email** 即可用已 seed 的 demo 使用者登入。
+
+<table>
+  <tr>
+    <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="免密碼 email 登入畫面，已預填 demo account" width="200"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/dashboard.png" alt="Dashboard 顯示月收入、支出、結餘與純 CSS 類別 donut chart" width="200"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/transactions.png" alt="交易紀錄清單，包含類別與月份篩選，以及編輯與刪除操作" width="200"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/add-new-record.png" alt="新增交易表單，包含類型、類別、金額、日期與備註欄位" width="200"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Login</b></td>
+    <td align="center"><b>Dashboard</b></td>
+    <td align="center"><b>Transactions</b></td>
+    <td align="center"><b>Add Record</b></td>
+  </tr>
+</table>
+
+---
+
+| 指標           | 結果                                                                               |
+| -------------- | ---------------------------------------------------------------------------------- |
+| Test Coverage  | 見上方 **codecov** badge，由 Vitest（unit + integration）量測                      |
+| Code Quality   | 見上方 **SonarCloud Quality Gate** badge（Security、Reliability、Maintainability） |
+| E2E Validation | Playwright 跨瀏覽器驗證（Chrome / Edge / Safari）                                  |
+| CI/CD Pipeline | GitHub Actions → SonarCloud + Codecov → Vercel                                     |
+
+---
+
+## 技術決策
+
+### 架構
+
+| 類型      | 選擇                                          | 理由                                                        |
+| --------- | --------------------------------------------- | ----------------------------------------------------------- |
+| Framework | SvelteKit 2 + Svelte 5（runes）               | 細粒度 reactivity、低樣板碼、SSR + form actions             |
+| Styling   | Tailwind CSS v4（Vite plugin）                | Utility-first、zero-runtime，透過 v4 Vite plugin 加速 build |
+| Database  | Drizzle ORM + PostgreSQL                      | Type-safe SQL、明確 query、比大型 ORM 更輕量                |
+| DB Driver | `postgres`（TCP）                             | 快速 pooled driver，適合 Vercel Node serverless runtime     |
+| Auth      | Passwordless email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                  |
+| Charts    | Pure CSS donut                                | 不引入 chart dependency，降低 bundle 並保留完整控制         |
+| i18n      | Paraglide JS（`@inlang/paraglide-js`）        | Type-safe、tree-shakeable messages；支援英文與繁體中文      |
+| Deploy    | `@sveltejs/adapter-vercel`（Node serverless） | `postgres` TCP driver 需要 Node runtime                     |
+
+### 品質保證
+
+| 類型              | 工具       | 理由                                       |
+| ----------------- | ---------- | ------------------------------------------ |
+| Unit/Integration  | Vitest     | 比 Jest 更快，原生 ESM，與 Vite 生態整合佳 |
+| E2E               | Playwright | 跨瀏覽器支援，比 Cypress 更輕量            |
+| Static Analysis   | SonarCloud | 在 CI 中執行 quality gates                 |
+| Coverage Tracking | Codecov    | 自動整合 PR coverage                       |
+
+**Testing Strategy:**
+
+- Unit tests 聚焦 query logic、validation、money formatting/parsing
+- E2E tests 驗證重要流程（login、transaction CRUD）
+- 每次 push / PR 都會先跑完整 pipeline，通過後再 merge
+
+### Developer Experience
+
+| 工具                        | 用途                                              |
+| --------------------------- | ------------------------------------------------- |
+| oxlint                      | Rust-based JS/TS linter，比 ESLint 快 50-100 倍   |
+| oxfmt                       | Rust-based formatter，處理 JS/TS/CSS/HTML/JSON/MD |
+| ESLint + Prettier（Svelte） | 專門處理 `.svelte` 檔案的 lint/format             |
+| Vite                        | 近乎即時的 HMR 與快速 production build            |
+| Husky + lint-staged         | pre-commit 品質檢查                               |
+| commitlint + Commitizen     | Conventional commits，維持乾淨 commit history     |
+
+---
+
+## 功能
+
+- **Passwordless email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
+- **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（amount、type、category、date、optional note）。
+- **List & filter** — 可依 category 與 month 篩選交易紀錄；filter state 會保存在 URL。
+- **Dashboard** — 顯示當月收入、支出、結餘，以及以 **pure CSS** 製作的 category-share donut chart。
+- **Per-user data isolation** — 每個 query 都會以 signed-in user 為 scope；使用者只能看到自己的資料。
+- **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
+- **i18n** — 英文與繁體中文（Paraglide JS）。
+- **Theme switching** — light / dark / system。
+- **Responsive design** — mobile-first，並支援 desktop layout。
+
+Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 中的 `SESSION_SECRET` 簽章。
+
+---
+
+## AI-Augmented Engineering Workflow
+
+這個專案採用 Human-in-the-Loop 的 AI 協作方式。AI 工具不只是產生程式碼，而是被用來提高 **架構槓桿、品質保證與開發速度**。
+
+### AI Agent Skills（`.agents/skills/`）
+
+Skills 會提交到 repo，並透過 `AGENTS.md` / `CLAUDE.md` 提供給 AI assistants。每個 skill 都封裝了特定工作流與專案慣例。
+
+| Skill                         | 職責                                                                                               |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| **karpathy-guidelines**       | 降低 LLM coding mistakes：明確假設、優先簡單方案、surgical changes、goal-driven loops              |
+| **doc-coauthoring**           | 文件共筆的 3-stage workflow（Context → Refinement → Reader Testing），本 README 也屬於此類工作     |
+| **session-handoff**           | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層         |
+| **drizzle**                   | Drizzle ORM 慣例：`pgTable`、`db.select()` builder API、explicit JOINs、plural snake_case          |
+| **svelte-code-writer**        | 建立或修改 `.svelte` 檔時使用的 Svelte 5 docs lookup 與 code analysis CLI tooling                  |
+| **svelte-core-bestpractices** | Svelte 5 runes guidance：偏好 `$state`/`$derived`、避免不必要 `$effect`、避免 legacy Svelte syntax |
+
+### MCP（Model Context Protocol）Servers
+
+MCP 讓 AI 工具可直接和開發基礎設施互動，減少人工切換脈絡。
+
+| Server                                                                       | Integration Point | Workflow Enhancement                                                              |
+| ---------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------- |
+| [svelte-mcp](https://mcp.svelte.dev/mcp)                                     | Svelte docs       | 官方 Svelte 5 / SvelteKit docs、examples、code autofixing（已提交於 `.mcp.json`） |
+| [context7](https://github.com/upstash/context7)                              | Documentation     | 提供 AI agents version-accurate 的即時 library docs                               |
+| [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Browser state     | 讓 AI agents 透過 DevTools Protocol 檢查與驗證正在執行的 app                      |
+
+### AI Guidelines（`AGENTS.md` / `CLAUDE.md`）
+
+這些檔案是 AI assistants 的專案工作守則，包含 mandatory verification workflow（`pnpm lint` → `pnpm build` → `pnpm check`）、常用 commands，以及不同任務應使用的 skills/MCP servers。AI tools 在修改此 repo 前應先讀取這些指引。
+
+---
+
+## Quick Start
+
+### Requirements
+
+- Node.js >= 24
+- pnpm 11.5+
+- Docker / OrbStack（本機 PostgreSQL）
+
+### Setup
+
+```bash
+pnpm install
+
+# Environment — set DATABASE_URL + SESSION_SECRET
+cp .env.example .env
+
+# Database
+pnpm db:start          # Start PostgreSQL via Docker (compose.yaml)
+pnpm db:migrate        # Apply migrations to the local DB
+pnpm db:seed           # Seed 3 demo users + sample transactions
+
+# Run
+pnpm dev               # Development server
+pnpm test              # Unit tests
+pnpm test:e2e          # E2E tests (needs a seeded DB + dev server)
+pnpm build             # Production build
+```
+
+`.env.example` 的預設 `DATABASE_URL` 與 `compose.yaml` 相符。請將 `SESSION_SECRET` 設成一段足夠長的 random string，用來簽署 session cookie。接著開啟 dev server（預設 `http://localhost:5173`），按下 **Continue With Email** 即可用 `john@example.com` 登入。
+
+### Commands
+
+```bash
+pnpm dev           # Start dev server
+pnpm build         # TypeScript compile + Vite build
+pnpm preview       # Preview production build
+pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte)
+pnpm format        # oxfmt --write . (JS/TS/etc) + prettier --write Svelte
+pnpm test          # vitest run
+pnpm test:coverage # vitest run --coverage
+pnpm test:e2e      # Playwright e2e
+pnpm check         # svelte-kit sync + svelte-check
+pnpm commit        # git-cz (commitizen with commitlint)
+pnpm db:start      # docker compose up (PostgreSQL)
+pnpm db:generate   # drizzle-kit generate
+pnpm db:migrate    # drizzle-kit migrate
+pnpm db:push       # drizzle-kit push
+pnpm db:seed       # Seed demo users + sample transactions
+pnpm db:studio     # drizzle-kit studio
+```
+
+---
+
+## Project Structure
+
+```text
+.
+├── .agents/skills/              # Repo 專用 AI skills，由 AGENTS.md / CLAUDE.md 使用
+│   ├── doc-coauthoring/         # 文件共筆 workflow
+│   ├── drizzle/                 # Drizzle schema/query 慣例
+│   ├── karpathy-guidelines/     # Surgical change 與驗證紀律
+│   ├── session-handoff/         # 維護 ai-docs/tasks.md + session-log.md
+│   ├── svelte-code-writer/      # Svelte MCP/CLI 查詢與 autofix workflow
+│   └── svelte-core-bestpractices/
+├── .github/workflows/ci.yml     # GitHub Actions：install、test、Codecov、SonarCloud
+├── .husky/                      # Git hooks（pre-commit, commit-msg）
+├── .opencode/                   # OpenCode AI configuration
+├── .vscode/                     # VS Code settings + extension recommendations
+├── ai-docs/                     # AI task template、task plan、session log
+├── drizzle/                     # Generated SQL migrations + Drizzle metadata snapshots
+├── e2e/
+│   └── expense.spec.ts          # Playwright login + transaction CRUD happy path
+├── messages/                    # Paraglide source messages
+│   ├── en.json                  # 英文 UI copy
+│   └── zh-tw.json               # 繁體中文 UI copy
+├── src/
+│   ├── app.d.ts                 # SvelteKit app types（App.Locals.user）
+│   ├── app.html                 # HTML shell，包含 Paraglide lang/dir placeholders
+│   ├── hooks.server.ts          # Session lookup、locale middleware、theme class injection
+│   ├── lib/
+│   │   ├── assets/              # Favicon 與 README screenshots
+│   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
+│   │   ├── server/
+│   │   │   ├── db/
+│   │   │   │   ├── index.ts     # 使用 DATABASE_URL 的 Drizzle client
+│   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
+│   │   │   │   ├── schema.ts    # users / transactions tables 與 transaction_type enum
+│   │   │   │   ├── schema.spec.ts
+│   │   │   │   └── seed.ts      # Demo users 與 transactions
+│   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
+│   │   │   ├── guards.ts        # requireUser protected-route helper
+│   │   │   ├── login.ts         # Passwordless email lookup
+│   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
+│   │   │   └── validation.ts    # Transaction form validation
+│   │   ├── categories.ts        # 固定 category keys + localized labels
+│   │   ├── constants.ts         # App name、demo email、pageTitle helper
+│   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
+│   │   ├── money.ts             # TWD integer formatting/parsing
+│   │   ├── theme.svelte.ts      # Client theme store（light / dark / system）
+│   │   ├── theme.ts             # Server-safe theme constants and helpers
+│   │   └── transaction.ts       # Transaction form value types
+│   ├── routes/
+│   │   ├── login/               # Passwordless email sign-in page/action + route spec
+│   │   ├── logout/              # Sign-out action
+│   │   ├── transactions/
+│   │   │   ├── [id]/edit/       # Edit form load/action，含 ownership check
+│   │   │   ├── new/             # Create form load/action
+│   │   │   └── +page.*          # List/filter page + delete action
+│   │   ├── +layout.server.ts    # Auth guard 與所有頁面的 user data
+│   │   ├── +layout.svelte       # App shell、nav、locale/theme controls、logout form
+│   │   ├── +page.server.ts      # Dashboard monthly stats loader
+│   │   ├── +page.svelte         # Dashboard UI 與 pure-CSS category chart
+│   │   └── layout.css           # Tailwind v4 import 與 global styles
+│   └── *.spec.ts                # 與 source modules colocated 的 unit/integration specs
+├── static/
+│   └── robots.txt               # Public static asset
+├── .env.example                 # DATABASE_URL + SESSION_SECRET template
+├── .mcp.json                    # Svelte MCP server registration
+├── .npmrc                       # pnpm/node package manager settings
+├── .oxfmtrc.json                # oxfmt formatter config
+├── .oxlintrc.json               # oxlint JS/TS lint rules
+├── .prettierignore              # Prettier ignore rules
+├── .prettierrc                  # Prettier + Svelte/Tailwind plugin config
+├── AGENTS.md                    # 此 repo 的 AI agent instructions
+├── README.md                    # English README
+├── README-cht.md                # 繁體中文 README
+├── commitlint.config.mjs        # Conventional commit config
+├── compose.yaml                 # Local PostgreSQL service
+├── drizzle.config.ts            # Drizzle Kit config
+├── eslint.config.js             # Svelte files 的 ESLint config
+├── package.json                 # Scripts、dependencies、lint-staged、engines
+├── playwright.config.ts         # Cross-browser e2e configuration
+├── pnpm-lock.yaml               # Locked dependency graph
+├── pnpm-workspace.yaml          # pnpm workspace 與 minimum-release-age policy
+├── skills-lock.json             # Locked AI skill/plugin metadata
+├── sonar-project.properties     # SonarCloud project configuration
+├── svelte.config.js             # SvelteKit config、Vercel adapter、forced runes mode
+├── tsconfig.json                # TypeScript config，extends generated SvelteKit config
+└── vite.config.ts               # Vite plugins：Tailwind、SvelteKit、Paraglide；Vitest config
+```
+
+---
+
+## 新世代工具採用
+
+這個專案會持續評估新興工具，並根據可量測的效益決定是否採用。
+
+### Oxlint（Rust-based Linter）
+
+| 面向        | 說明                                      |
+| ----------- | ----------------------------------------- |
+| Status      | **Production** — 已啟用 JS/TS linting     |
+| Performance | 比 ESLint 快 50-100 倍                    |
+| Scope       | ESLint + Prettier 僅保留給 `.svelte` 檔案 |
+
+[Oxlint](https://oxc.rs/docs/guide/usage/linter.html)
+
+### Oxfmt（Rust-based Formatter）
+
+| 面向        | 說明                                           |
+| ----------- | ---------------------------------------------- |
+| Status      | **Production** — 格式化 JS/TS/CSS/HTML/JSON/MD |
+| Performance | 約比 Prettier 快 30 倍，cold start 幾乎即時    |
+
+[Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
+
+---
+
+## Live Demo Constraints
+
+| 面向         | 目前狀態                                                                    | Production 建議                     |
+| ------------ | --------------------------------------------------------------------------- | ----------------------------------- |
+| **Hosting**  | Vercel free tier                                                            | Paid tier / multi-region deployment |
+| **Database** | Free-tier PostgreSQL（例如 Neon）                                           | Managed, regionally optimized DB    |
+| **Data**     | Seeded demo data；demo accounts 由訪客共用，但每個 account 的資料仍彼此隔離 | Real user accounts with sign-up     |
+
+Demo deployment 使用 free-tier infrastructure 以降低成本。Production deployment 應補上適當的 regional optimization 與真實使用者 onboarding。
