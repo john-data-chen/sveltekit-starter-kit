@@ -26,17 +26,11 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ---
 
-## Engineering Metrics
-
-> `Performance` is marked `TODO` — to be backfilled with a measured Lighthouse score.
-> Live coverage and code-quality values are reported by the **codecov** and **SonarCloud** badges at the top of this README.
-
 | Metric         | Result                                                                               |
-| -------------- | ------------------------------------------------------------------------------------ |
+| -------------- | ------------------------------------------------------------------------------------ | --- |
 | Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)               |
-| Code Quality   | See **SonarCloud Quality Gate** badge above (Security, Reliability, Maintainability) |
-| Performance    | **`TODO`** Lighthouse                                                                |
-| E2E Validation | Cross-browser via Playwright                                                         |
+| Code Quality   | See **SonarCloud Quality Gate** badge above (Security, Reliability, Maintainability) |     |
+| E2E Validation | Cross-browser via Playwright (Chrome / Edge / Safari)                                |
 | CI/CD Pipeline | GitHub Actions → SonarCloud + Codecov → Vercel                                       |
 
 ---
@@ -186,27 +180,6 @@ pnpm db:studio     # drizzle-kit studio
 
 ---
 
-## Deployment (Vercel)
-
-The app targets Vercel via `@sveltejs/adapter-vercel` (Node.js serverless runtime — required for the `postgres` TCP driver). The GitHub Actions workflow (`.github/workflows/ci.yml`) runs CI on every push/PR and, on push to `main`, deploys to Vercel with the Vercel CLI.
-
-One-time setup:
-
-1. Create/link a Vercel project (`vercel link`, or import the repo in the Vercel dashboard).
-2. Add these **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
-   - `VERCEL_TOKEN` — a Vercel access token
-   - `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` — found in `.vercel/project.json` after `vercel link`
-3. Add these **Vercel project environment variables** (Production):
-   - `DATABASE_URL` — a production PostgreSQL connection string (e.g. [Neon](https://neon.tech))
-   - `SESSION_SECRET` — a long random string
-4. Apply the schema to the production database once, and after any schema change:
-
-   ```bash
-   DATABASE_URL="<prod-url>" pnpm db:migrate   # optionally: pnpm db:seed
-   ```
-
----
-
 ## Project Structure
 
 ```text
@@ -246,7 +219,7 @@ One-time setup:
 
 ---
 
-## Modern Tooling Adoption
+## Next Generations Tooling Adoption
 
 This project continuously evaluates emerging tools and adopts them based on measurable impact.
 
