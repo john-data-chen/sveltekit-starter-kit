@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import { pageTitle } from "$lib/constants";
   import * as m from "$lib/paraglide/messages";
   import type { PageProps } from "./$types";
@@ -25,7 +24,10 @@
     </p>
   {/if}
 
-  <form method="POST" use:enhance class="grid gap-3">
+  <!-- Native submit (no use:enhance): the login action sets the session cookie and 303s to "/".
+       Safari/WebKit only persists that Set-Cookie on a top-level navigation, not on an enhance
+       fetch response, so a native submit is required for cross-browser sign-in. -->
+  <form method="POST" class="grid gap-3">
     <label class="grid gap-1">
       <span class="text-sm font-medium">{m.login_email_label()}</span>
       <input
