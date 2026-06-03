@@ -65,7 +65,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 - Unit tests target query logic, validation, and money formatting/parsing
 - E2E tests validate critical flows (login, transaction CRUD)
-- Every push/PR triggers the full pipeline before merge
+- Every push/PR triggers the full pipeline before merge (Free server is not powerful enough, so CI only executes unit tests)
 
 ### Developer Experience
 
@@ -292,6 +292,7 @@ This project continuously evaluates emerging tools and adopts them based on meas
 | ----------- | ------------------------------------------------- |
 | Status      | **Production** — formats JS/TS/CSS/HTML/JSON/MD   |
 | Performance | ~30x faster than Prettier with instant cold start |
+| Scope       | ESLint + Prettier retained only for `.svelte`     |
 
 [Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
 
@@ -302,7 +303,7 @@ This project continuously evaluates emerging tools and adopts them based on meas
 | Aspect       | Current State                                                                              | Production Recommendation           |
 | ------------ | ------------------------------------------------------------------------------------------ | ----------------------------------- |
 | **Hosting**  | Vercel free tier                                                                           | Paid tier / multi-region deployment |
-| **Database** | Free-tier PostgreSQL (e.g. Neon)                                                           | Managed, regionally optimized DB    |
+| **Database** | Free-tier Neon                                                                             | Managed, regionally optimized DB    |
 | **Data**     | Seeded demo data; demo accounts shared by visitors, but each account's data stays isolated | Real user accounts with sign-up     |
 
 The demo deployment uses free-tier infrastructure to minimize costs. Production deployments should implement proper regional optimization and real user onboarding.
