@@ -19,20 +19,26 @@
 
 {#if data.user}
   <header class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-    <div class="mx-auto flex max-w-3xl items-center justify-between gap-4 p-4">
-      <nav class="flex gap-4 text-sm font-medium">
-        <a href={resolve("/")} class="hover:underline">{m.nav_dashboard()}</a>
-        <a href={resolve("/transactions")} class="hover:underline">{m.nav_transactions()}</a>
+    <div
+      class="mx-auto flex max-w-3xl flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+    >
+      <nav class="flex w-full flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium sm:w-auto">
+        <a href={resolve("/")} class="whitespace-nowrap hover:underline">{m.nav_dashboard()}</a>
+        <a href={resolve("/transactions")} class="whitespace-nowrap hover:underline">
+          {m.nav_transactions()}
+        </a>
       </nav>
-      <div class="flex items-center gap-3 text-sm">
+      <div
+        class="flex w-full flex-wrap items-center gap-2 text-sm sm:w-auto sm:justify-end sm:gap-3"
+      >
         <LocaleSwitcher />
         <ThemeToggle />
-        <span aria-hidden="true">{data.user.avatar}</span>
-        <span class="font-medium">{data.user.name}</span>
-        <form method="POST" action="/logout" use:enhance>
+        <span aria-hidden="true" class="shrink-0">{data.user.avatar}</span>
+        <span class="whitespace-nowrap font-medium">{data.user.name}</span>
+        <form method="POST" action="/logout" class="shrink-0" use:enhance>
           <button
             type="submit"
-            class="rounded border border-gray-200 px-3 py-1 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+            class="whitespace-nowrap rounded border border-gray-200 px-3 py-1 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
           >
             {m.sign_out()}
           </button>
