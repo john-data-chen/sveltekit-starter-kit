@@ -37,3 +37,6 @@ session-handoff
 
 # Paraglide (generated)
 src/lib/paraglide
+
+# pnpm
+.pnpm-store
