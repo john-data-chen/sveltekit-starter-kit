@@ -104,7 +104,7 @@ handleParaglide)`, BUT: (a) imports `$lib/paraglide/{runtime,server}` which **do
   messageFormat + m-function-matcher modules, `pathPattern: ./messages/{locale}.json`.
   (3) Created placeholder catalogs `messages/zh-tw.json` + `messages/en.json` (`hello_world`).
   (4) `vite.config.ts` — added `paraglideVitePlugin({ project, outdir: ./src/lib/paraglide,
-  strategy: ["cookie","baseLocale"] })`.
+strategy: ["cookie","baseLocale"] })`.
   (5) `.gitignore` — added `src/lib/paraglide` (generated).
   (6) `pnpm build` → generated `src/lib/paraglide/` (runtime.js, server.js, messages.js, …) and
   built clean. Verified generated `runtime.js`: `baseLocale="zh-tw"`, `locales=["zh-tw","en"]`,
@@ -292,3 +292,77 @@ dir="%paraglide.dir%">`. Kept the theme-bootstrap `<script>` intact (multi-line,
   FILES_WITH_PROBLEMS**. The full mandatory gate is now green.
 - **Issues encountered**: None.
 - **Next action**: Resume Task 6 — server-side message localization.
+
+### Entry: 10
+
+- **Sub-task**: 6. Localize server-side validation messages
+- **Status**: COMPLETED
+- **What I did**: Added `import * as m from "$lib/paraglide/messages"` to three server-side
+  files and replaced every hardcoded user-facing string with Paraglide message calls:
+  (1) `src/lib/server/validation.ts` — 4 validation error strings →
+  `m.validation_choose_type()`, `m.validation_choose_category()`,
+  `m.validation_amount_positive()`, `m.validation_choose_date()`.
+  (2) `src/routes/login/+page.server.ts` — 2 login action error strings →
+  `m.login_error_email_required()`, `m.login_error_no_account()`.
+  (3) `src/routes/transactions/[id]/edit/+page.server.ts` — 4 `error(404, …)` calls →
+  `m.error_transaction_not_found()`.
+- **Key decisions**:
+  - **No manual locale threading needed** — Paraglide v2's `paraglideMiddleware` in
+    `hooks.server.ts` establishes an AsyncLocalStorage context for each request. All `m.*()`
+    calls within that context (load functions, actions) automatically resolve to the request
+    locale via `getLocale()` → `serverAsyncLocalStorage.getStore().locale`. Confirmed by
+    reading the generated `messages/*.js` (each calls `getLocale()`) and `server.js`
+    (`serverAsyncLocalStorage.run({ locale, … }, () => resolve(…))`).
+  - **Surgical edits only** — added one import line + replaced string literals in each file;
+    no restructuring, no adjacent code touched.
+- **Files changed**: `src/lib/server/validation.ts`, `src/routes/login/+page.server.ts`,
+  `src/routes/transactions/[id]/edit/+page.server.ts`.
+- **Verification**: `pnpm lint` ✓, `pnpm build` ✓, `pnpm check` → **0 errors, 0 warnings**.
+- **Issues encountered**: None.
+- **Next action**: Task 7 — build `LocaleSwitcher.svelte` (2-way `zh-tw ⇄ en` toggle) and
+  mount globally next to `ThemeToggle` in `+layout.svelte`.
+
+### Entry: 11
+
+- **Sub-task**: 7. LocaleSwitcher component + mount globally
+- **Status**: COMPLETED
+- **What I did**: Created `src/lib/components/LocaleSwitcher.svelte` — a `<select>` dropdown
+  with two options (`中文` / `EN`) matching ThemeToggle's visual style (same Tailwind classes:
+  `rounded border px-2 py-1 text-sm` + dark mode variants). Uses Paraglide's built-in
+  `setLocale(newLocale)` which sets the `PARAGLIDE_LOCALE` cookie and reloads the page
+  automatically. Added `locale_label` message key (55 keys total now) for the `aria-label`.
+  Mounted in `+layout.svelte` in both locations:
+  (1) Signed-in header — before `ThemeToggle` in the controls `div`.
+  (2) Login overlay — added `flex gap-2` to the fixed-position `div`, placed before `ThemeToggle`.
+- **Key decisions**:
+  - **Used Paraglide's `setLocale()` directly** rather than manual cookie + `location.reload()`.
+    The generated runtime handles cookie writing (`PARAGLIDE_LOCALE=<locale>; path=/;
+max-age=34560000`) and page reload internally. Default `reload: true` is correct for the
+    cookie strategy (SSR re-renders with the new locale).
+  - **Labels are static display names** (`中文` / `EN`) not localized — they represent the
+    language itself, so they should be in their own language regardless of the current locale.
+  - **No `$state` needed** — `getLocale()` returns the current locale at component init, and
+    `setLocale` triggers a full reload, so reactivity is unnecessary.
+- **Files changed**: `src/lib/components/LocaleSwitcher.svelte` (new),
+  `src/routes/+layout.svelte` (import + mount), `messages/zh-tw.json` (+locale_label),
+  `messages/en.json` (+locale_label).
+- **Verification**: `pnpm lint` ✓, `pnpm build` ✓, `pnpm check` → **0 errors, 0 warnings**.
+- **Issues encountered**: None.
+- **Next action**: Task 8 — full verification pass (lint + build + check + unit tests).
+
+### Entry: 12
+
+- **Sub-task**: 8. Verify lint + build + check + unit tests (MANDATORY; NO chrome-devtools)
+- **Status**: COMPLETED
+- **What I did**: Ran the full mandatory verification gate:
+  - `pnpm lint` → oxlint 0 warnings/errors, eslint clean.
+  - `pnpm build` → Paraglide compilation ✓, Vite SSR+client build ✓.
+  - `pnpm check` → svelte-check 0 errors, 0 warnings.
+  - `pnpm test` → vitest 24/24 tests passed (auth 3, money 8, categories 7, validation 6).
+  - Grep for leftover hardcoded English in `src/` → none found.
+- **Key decisions**: None — pure verification step.
+- **Files changed**: None (verification only).
+- **Verification**: All 4 gates green. Zero errors/warnings across the board.
+- **Issues encountered**: None.
+- **Next action**: Tasks 9 (tests) and 10 (docs) remain. Task 9 requires user confirmation
+  of runtime results before adding tests per AGENTS.md. Task 10 is documentation.

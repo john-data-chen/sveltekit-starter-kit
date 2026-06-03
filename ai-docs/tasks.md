@@ -86,14 +86,18 @@ under SSR (correct `<html lang>`, no flash of the wrong language).
     key; validation unchanged.
   - Depends on: Tasks 3, 4
 
-- [ ] **6. Localize server-side validation messages**
+- [x] **6. Localize server-side validation messages** — ✅ DONE (validation.ts 4 msgs,
+      login action 2 msgs, edit-page 4×404; AsyncLocalStorage resolves locale; see session-log
+      Entry 10)
   - Scope: `src/lib/server/validation.ts` and its callers in `*.server.ts` actions.
   - Use Paraglide messages with the request locale resolved server-side (confirm the v2
     server-side locale API during impl).
   - Done when: validation errors display in the active locale.
   - Depends on: Tasks 2, 3
 
-- [ ] **7. LocaleSwitcher component + mount globally**
+- [x] **7. LocaleSwitcher component + mount globally** — ✅ DONE (2-way zh-tw⇄en select;
+      uses Paraglide setLocale() with auto-reload; mounted in header + login overlay; see
+      session-log Entry 11)
   - Scope: new `src/lib/components/LocaleSwitcher.svelte`; mount in `+layout.svelte` (signed-in
     header + login overlay, next to `ThemeToggle`).
   - 2-way toggle `zh-TW ⇄ en`; `setLocale` writes the cookie and persists across reload;
@@ -103,7 +107,8 @@ under SSR (correct `<html lang>`, no flash of the wrong language).
     pages.
   - Depends on: Tasks 4, 5, 6
 
-- [ ] **8. Verify lint + build + check + unit tests (MANDATORY; NO chrome-devtools)**
+- [x] **8. Verify lint + build + check + unit tests (MANDATORY; NO chrome-devtools)** — ✅ DONE
+      (lint 0, build ✓, check 0, test 24/24; no hardcoded strings remain; see session-log Entry 12)
   - Scope: whole repo. Run `pnpm lint`, `pnpm build`, `pnpm check`, `pnpm test`.
   - Done when: all pass with zero errors/warnings. (No chrome-devtools per task-template.)
   - Depends on: Tasks 1–7
