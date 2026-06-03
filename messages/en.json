@@ -63,5 +63,7 @@
   "category_entertainment": "Entertainment",
   "category_shopping": "Shopping",
   "category_medical": "Medical",
-  "category_other_expense": "Other Expense"
+  "category_other_expense": "Other Expense",
+
+  "locale_label": "Language"
 }

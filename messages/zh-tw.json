@@ -63,5 +63,7 @@
   "category_entertainment": "娛樂",
   "category_shopping": "購物",
   "category_medical": "醫療",
-  "category_other_expense": "其他支出"
+  "category_other_expense": "其他支出",
+
+  "locale_label": "語言"
 }

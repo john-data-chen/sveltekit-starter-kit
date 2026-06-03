@@ -6,6 +6,7 @@
   import "./layout.css";
   import favicon from "$lib/assets/favicon.svg";
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
+  import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
   import * as m from "$lib/paraglide/messages";
   import type { LayoutProps } from "./$types";
 
@@ -24,6 +25,7 @@
         <a href={resolve("/transactions")} class="hover:underline">{m.nav_transactions()}</a>
       </nav>
       <div class="flex items-center gap-3 text-sm">
+        <LocaleSwitcher />
         <ThemeToggle />
         <span aria-hidden="true">{data.user.avatar}</span>
         <span class="font-medium">{data.user.name}</span>
@@ -40,6 +42,6 @@
   </header>
   <main class="mx-auto max-w-3xl p-4">{@render children()}</main>
 {:else}
-  <div class="fixed right-4 top-4 z-10"><ThemeToggle /></div>
+  <div class="fixed right-4 top-4 z-10 flex gap-2"><LocaleSwitcher /><ThemeToggle /></div>
   {@render children()}
 {/if}
