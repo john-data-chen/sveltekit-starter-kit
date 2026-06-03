@@ -9,14 +9,19 @@ export type TransactionFormResult =
   | { ok: true; data: TransactionInput }
   | { ok: false; values: TransactionFormValues; error: string };
 
+function getStringEntry(form: FormData, key: string): string {
+  const value = form.get(key);
+  return typeof value === "string" ? value : "";
+}
+
 /** Validate a transaction form submission against the fixed category lists. */
 export function parseTransactionForm(form: FormData): TransactionFormResult {
   const values: TransactionFormValues = {
-    type: String(form.get("type") ?? ""),
-    category: String(form.get("category") ?? ""),
-    amount: String(form.get("amount") ?? ""),
-    occurredOn: String(form.get("occurredOn") ?? ""),
-    note: String(form.get("note") ?? "")
+    type: getStringEntry(form, "type"),
+    category: getStringEntry(form, "category"),
+    amount: getStringEntry(form, "amount"),
+    occurredOn: getStringEntry(form, "occurredOn"),
+    note: getStringEntry(form, "note")
   };
 
   if (!isTransactionType(values.type)) {
