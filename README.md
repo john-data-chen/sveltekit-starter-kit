@@ -28,12 +28,12 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ---
 
-| Metric         | Result                                                                              |
-| -------------- | ----------------------------------------------------------------------------------- |
-| Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)              |
-| Code Quality   | See **SonarQube Quality Gate** badge above (Security, Reliability, Maintainability) |
-| E2E Validation | Cross-browser via Playwright (Chrome / Edge / Safari)                               |
-| CI/CD Pipeline | GitHub Actions → Gemini PR Review + SonarQube + Codecov → Vercel                    |
+| Metric         | Result                                                                                |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)                |
+| Code Quality   | See **SonarQube Quality Gate** badge above (Security, Reliability, Maintainability)   |
+| E2E Validation | Cross-browser via Playwright (Chrome / Safari / Edge / Mobile Chrome / Mobile Safari) |
+| CI/CD Pipeline | GitHub Actions → Gemini PR Review + SonarQube + Codecov → Vercel                      |
 
 ---
 

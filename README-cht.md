@@ -32,7 +32,7 @@
 | -------------- | --------------------------------------------------------------------------------- |
 | Test Coverage  | 見上方 **codecov** badge，由 Vitest（unit + integration）量測                     |
 | Code Quality   | 見上方 **SonarQube Quality Gate** badge（Security、Reliability、Maintainability） |
-| E2E Validation | Playwright 跨瀏覽器驗證（Chrome / Edge / Safari）                                 |
+| E2E Validation | Playwright 跨瀏覽器驗證(Chrome / Safari / Edge / Mobile Chrome / Mobile Safari)   |
 | CI/CD Pipeline | Gemini PR Review + GitHub Actions → SonarQube + Codecov → Vercel                  |
 
 ---
