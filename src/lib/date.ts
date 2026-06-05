@@ -22,3 +22,15 @@ export function currentMonth(): string {
 export function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
+
+/**
+ * Formats a date string or object for consistent SSR/client rendering.
+ * Hardcodes Asia/Taipei timezone for deterministic output in this app.
+ */
+export function formatDateTime(value: Date | string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Taipei"
+  }).format(new Date(value));
+}

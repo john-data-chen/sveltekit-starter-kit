@@ -1,7 +1,9 @@
 <script lang="ts">
   import { pageTitle } from "$lib/constants";
+  import { formatDateTime } from "$lib/date";
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
+  import { getLocale } from "$lib/paraglide/runtime";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -95,7 +97,7 @@
             {#each data.recentAudits as audit (audit.id)}
               <tr class="border-b border-gray-100 dark:border-gray-800">
                 <td class="whitespace-nowrap px-3 py-2 text-gray-500">
-                  {new Date(audit.createdAt).toLocaleString()}
+                  {formatDateTime(audit.createdAt, getLocale())}
                 </td>
                 <td class="whitespace-nowrap px-3 py-2">
                   <span class="mr-1">{audit.actor.avatar}</span>
