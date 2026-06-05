@@ -1,7 +1,7 @@
 allowBuilds:
   esbuild: true
-minimumReleaseAgeExclude:
-  - svelte-check@4.5.0
-  - svelte@5.56.1
-  - vite@8.0.16
-  - "@inlang/paraglide-js@2.18.2"
+# Supply-chain release cooldown (pnpm 11 default is 1440 = 1 day).
+# Declared explicitly because minimumReleaseAgeExclude is only honored when
+# minimumReleaseAge is set. Only packages we deliberately track at the
+# bleeding edge belong here — use name patterns, never name@version pins.
+minimumReleaseAge: 1440
