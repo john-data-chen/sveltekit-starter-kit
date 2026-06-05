@@ -72,6 +72,7 @@
   "nav_admin": "Admin",
   "admin_title": "Admin Overview",
   "admin_users_heading": "Users",
+  "admin_col_user": "User",
   "admin_role": "Role",
   "role_member": "Member",
   "role_admin": "Admin",

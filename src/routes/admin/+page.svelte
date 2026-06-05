@@ -26,7 +26,7 @@
             <tr
               class="border-b border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400"
             >
-              <th class="whitespace-nowrap px-3 py-2 font-medium">{m.login_email_label()}</th>
+              <th class="whitespace-nowrap px-3 py-2 font-medium">{m.admin_col_user()}</th>
               <th class="whitespace-nowrap px-3 py-2 font-medium">{m.admin_role()}</th>
               <th class="whitespace-nowrap px-3 py-2 text-right font-medium"
                 >{m.admin_col_transactions()}</th
