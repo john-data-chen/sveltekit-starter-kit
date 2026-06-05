@@ -28,12 +28,12 @@
 
 ---
 
-| 指標           | 結果                                                                               |
-| -------------- | ---------------------------------------------------------------------------------- |
-| Test Coverage  | 見上方 **codecov** badge，由 Vitest（unit + integration）量測                      |
-| Code Quality   | 見上方 **SonarCloud Quality Gate** badge（Security、Reliability、Maintainability） |
-| E2E Validation | Playwright 跨瀏覽器驗證（Chrome / Edge / Safari）                                  |
-| CI/CD Pipeline | GitHub Actions → SonarCloud + Codecov → Vercel                                     |
+| 指標           | 結果                                                                              |
+| -------------- | --------------------------------------------------------------------------------- |
+| Test Coverage  | 見上方 **codecov** badge，由 Vitest（unit + integration）量測                     |
+| Code Quality   | 見上方 **SonarQube Quality Gate** badge（Security、Reliability、Maintainability） |
+| E2E Validation | Playwright 跨瀏覽器驗證（Chrome / Edge / Safari）                                 |
+| CI/CD Pipeline | Gemini PR Review + GitHub Actions → SonarQube + Codecov → Vercel                  |
 
 ---
 
@@ -41,16 +41,16 @@
 
 ### 架構
 
-| 類型      | 選擇                                          | 理由                                                  |
-| --------- | --------------------------------------------- | ----------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5（runes）               | 精細的響應性、極簡樣板、SSR + 表單操作                |
-| Styling   | Tailwind CSS v4（Vite plugin）                | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置    |
-| Database  | Drizzle ORM + PostgreSQL                      | 類型安全 SQL、明確查詢、比大型 ORM 更輕量             |
-| DB Driver | `postgres`（TCP）                             | 快速 pooled driver，適合 Vercel Node serverless 服務  |
-| Auth      | Passwordless email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model            |
-| Charts    | Pure CSS donut                                | 不引入圖表套件，減少打包體積並保留完整控制            |
-| i18n      | Paraglide JS（`@inlang/paraglide-js`）        | 類型安全、tree-shakeable messages；支援英文與繁體中文 |
-| Deploy    | `@sveltejs/adapter-vercel`（Node serverless） | `postgres` TCP driver 需要 Node runtime               |
+| 類型      | 選擇                                           | 理由                                                  |
+| --------- | ---------------------------------------------- | ----------------------------------------------------- |
+| Framework | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                |
+| Styling   | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置    |
+| Database  | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量             |
+| DB Driver | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務  |
+| Auth      | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model            |
+| Charts    | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制            |
+| i18n      | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文 |
+| Deploy    | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime               |
 
 ### 品質保證
 
@@ -58,7 +58,7 @@
 | ----------------- | ---------- | ------------------------------------------ |
 | Unit/Integration  | Vitest     | 比 Jest 更快，原生 ESM，與 Vite 生態整合佳 |
 | E2E               | Playwright | 跨瀏覽器支援，比 Cypress 更輕量            |
-| Static Analysis   | SonarCloud | 在 CI 中執行 quality gates                 |
+| Static Analysis   | SonarQube  | 在 CI 中執行 quality gates                 |
 | Coverage Tracking | Codecov    | 自動整合 PR coverage                       |
 
 **Testing Strategy:**
@@ -82,7 +82,7 @@
 
 ## 功能
 
-- **Passwordless email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
+- **Password-less email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
 - **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（數目、類型、類別、日期、備註）。
 - **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖。
@@ -111,11 +111,11 @@ Skills 會提交到 repo，並透過 `AGENTS.md` / `CLAUDE.md` 提供給 AI assi
 | **session-handoff (my private skill)**                                                   | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層  |
 | [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM 最佳實踐                                                                        |
 | [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | 用於在建立/編輯任何 `.svelte` 檔案時尋找技術文件和進行程式碼分析的 CLI 工具                 |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | 編寫快速、健壯、現代的 Svelte 程式碼的指南。                                                |
+| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                           | 編寫快速、健壯、現代的 Svelte 程式碼的指南。                                                |
 
 ### MCP（Model Context Protocol）Servers
 
-MCP 讓 AI 工具可直接和開發基礎設施互動，減少人工切換脈絡。
+MCP 讓 AI 工具可直接和開發基礎設施互動，從而消除上下文切換 (人工介入) 的 token 開銷。
 
 | Server                                                                       | Integration Point | Workflow Enhancement                                                              |
 | ---------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------- |
@@ -125,14 +125,14 @@ MCP 讓 AI 工具可直接和開發基礎設施互動，減少人工切換脈絡
 
 ### AI Guidelines（`AGENTS.md` / `CLAUDE.md`）
 
-這些檔案是 AI assistants 的專案工作守則，包含主要驗證流程（`pnpm lint` → `pnpm build` → `pnpm check`）、常用指令，以及不同任務應使用的 skills/MCP servers。AI tools 在修改此 repo 前應先讀取這些指引。
+這些檔案是 AI 輔助開發的專案工作守則，包含主要驗證流程（`pnpm lint` → `pnpm build` → `pnpm check`）、常用指令，以及不同任務應使用的 skills/MCP servers。AI 在修改此專案前應先讀取這些指引。
 
 ### 可衡量的影響
 
 透過將 AI 整合到技術堆疊中，本專案實現了以下目標：
 
 - **速度**：樣板程式碼和標準模式的實現速度提升 5-10 倍，借助 Gemini Code Assist 將 PR 審查時間縮短 30-40%。
-- **品質**：透過 AI 產生的測試框架，以及 Gemini Code Assist 的 PR 審查，實現更高的測試覆蓋率（80% 以上），從而減少 bug 和程式碼異味。
+- **品質**：透過 AI 產生的測試框架，實現更高的測試覆蓋率（80% 以上）。以及 Gemini Code Assist 的 PR 審查，從而減少 bug 和程式碼異味。
 - **學習**：透過 AI 指導的實現，快速掌握新工具（Svelte、Sveltekit、Drizzle 等）。
 - **成本**：利用 AI 代理的技能減少程式碼迭代次數並遵循最佳實踐，從而降低成本。
 - **專注**：將工程時間從語法開發轉移到系統架構和使用者體驗。
@@ -203,7 +203,7 @@ pnpm db:studio     # drizzle-kit studio
 │   ├── session-handoff/         # 維護 ai-docs/tasks.md + session-log.md
 │   ├── svelte-code-writer/      # Svelte MCP/CLI 查詢與 autofix workflow
 │   └── svelte-core-bestpractices/
-├── .github/workflows/ci.yml     # GitHub Actions：install、test、Codecov、SonarCloud
+├── .github/workflows/ci.yml     # GitHub Actions：install、test、Codecov、SonarQube
 ├── .husky/                      # Git hooks（pre-commit, commit-msg）
 ├── .opencode/                   # OpenCode AI configuration
 ├── .vscode/                     # VS Code settings + extension recommendations
@@ -230,7 +230,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   │   └── seed.ts      # Demo users 與 transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
 │   │   │   ├── guards.ts        # requireUser protected-route helper
-│   │   │   ├── login.ts         # Passwordless email lookup
+│   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
 │   │   │   └── validation.ts    # Transaction form validation
 │   │   ├── categories.ts        # 固定 category keys + localized labels
@@ -241,7 +241,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
-│   │   ├── login/               # Passwordless email sign-in page/action + route spec
+│   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/
 │   │   │   ├── [id]/edit/       # Edit form load/action，含 ownership check
@@ -274,7 +274,7 @@ pnpm db:studio     # drizzle-kit studio
 ├── pnpm-lock.yaml               # Locked dependency graph
 ├── pnpm-workspace.yaml          # pnpm workspace 與 minimum-release-age policy
 ├── skills-lock.json             # Locked AI skill/plugin metadata
-├── sonar-project.properties     # SonarCloud project configuration
+├── sonar-project.properties     # SonarQube project configuration
 ├── svelte.config.js             # SvelteKit config、Vercel adapter、forced runes mode
 ├── tsconfig.json                # TypeScript config，extends generated SvelteKit config
 └── vite.config.ts               # Vite plugins：Tailwind、SvelteKit、Paraglide；Vitest config
