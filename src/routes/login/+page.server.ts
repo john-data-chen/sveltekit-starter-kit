@@ -2,6 +2,7 @@ import { DEMO_EMAIL } from "$lib/constants";
 import * as m from "$lib/paraglide/messages";
 import { setSessionCookie } from "$lib/server/auth";
 import { findLoginUserByEmail, logLoginInfrastructureError } from "$lib/server/login";
+import { parseLoginEmail } from "$lib/server/validation";
 import { fail, redirect } from "@sveltejs/kit";
 
 import type { Actions, PageServerLoad } from "./$types";
@@ -13,13 +14,12 @@ export const load: PageServerLoad = () => {
 export const actions: Actions = {
   default: async ({ request, cookies }) => {
     const form = await request.formData();
-    const email = String(form.get("email") ?? "")
-      .trim()
-      .toLowerCase();
+    const parsed = parseLoginEmail(form);
 
-    if (!email) {
-      return fail(400, { email, message: m.login_error_email_required() });
+    if (!parsed.ok) {
+      return fail(400, { email: parsed.email, message: parsed.message });
     }
+    const email = parsed.email;
 
     const user = await findLoginUserByEmail(email);
 

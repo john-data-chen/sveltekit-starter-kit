@@ -11,6 +11,7 @@
   "login_email_label": "Email",
   "continue_with_email": "Continue With Email",
   "login_error_email_required": "Please enter your email.",
+  "login_error_email_invalid": "Please enter a valid email address.",
   "login_error_no_account": "No account found for that email.",
   "login_error_service_unavailable": "Sign-in is temporarily unavailable. Please try again later.",
 

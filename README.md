@@ -28,12 +28,12 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ---
 
-| Metric         | Result                                                                               |
-| -------------- | ------------------------------------------------------------------------------------ |
-| Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)               |
-| Code Quality   | See **SonarCloud Quality Gate** badge above (Security, Reliability, Maintainability) |
-| E2E Validation | Cross-browser via Playwright (Chrome / Edge / Safari)                                |
-| CI/CD Pipeline | GitHub Actions → SonarCloud + Codecov → Vercel                                       |
+| Metric         | Result                                                                              |
+| -------------- | ----------------------------------------------------------------------------------- |
+| Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)              |
+| Code Quality   | See **SonarQube Quality Gate** badge above (Security, Reliability, Maintainability) |
+| E2E Validation | Cross-browser via Playwright (Chrome / Edge / Safari)                               |
+| CI/CD Pipeline | GitHub Actions → Gemini PR Review + SonarQube + Codecov → Vercel                    |
 
 ---
 
@@ -41,16 +41,17 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ### Architecture
 
-| Type      | Choice                                        | Rationale                                                         |
-| --------- | --------------------------------------------- | ----------------------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5 (runes)                | Fine-grained reactivity, minimal boilerplate, SSR + form actions  |
-| Styling   | Tailwind CSS v4 (Vite plugin)                 | Utility-first, zero-runtime, fast builds via the v4 Vite plugin   |
-| Database  | Drizzle ORM + PostgreSQL                      | Type-safe SQL with explicit queries; lightweight, no heavy ORM    |
-| DB Driver | `postgres` (TCP)                              | Fast pooled driver; pairs with the Vercel Node serverless runtime |
-| Auth      | Passwordless email + signed `httpOnly` cookie | No password storage; minimal, secure session model                |
-| Charts    | Pure CSS donut                                | Zero charting dependency — smaller bundle, full control           |
-| i18n      | Paraglide JS (`@inlang/paraglide-js`)         | Type-safe, tree-shakeable messages; English + Traditional Chinese |
-| Deploy    | `@sveltejs/adapter-vercel` (Node serverless)  | Node runtime required for the `postgres` TCP driver               |
+| Type       | Choice                                         | Rationale                                                                                  |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Framework  | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions                           |
+| Styling    | Tailwind CSS v4 (Vite plugin)                  | Utility-first, zero-runtime, fast builds via the v4 Vite plugin                            |
+| Database   | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM                             |
+| DB Driver  | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime                          |
+| Auth       | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                         |
+| Validation | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input |
+| Charts     | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                    |
+| i18n       | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                          |
+| Deploy     | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver                                        |
 
 ### Quality Assurance
 
@@ -58,7 +59,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 | ----------------- | ---------- | ------------------------------------------- |
 | Unit/Integration  | Vitest     | Faster than Jest, native ESM, Vite-native   |
 | E2E               | Playwright | Cross-browser support, lighter than Cypress |
-| Static Analysis   | SonarCloud | Quality gates enforced in CI                |
+| Static Analysis   | SonarQube  | Quality gates enforced in CI                |
 | Coverage Tracking | Codecov    | Automated PR integration                    |
 
 **Testing Strategy:**
@@ -82,7 +83,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ## Features
 
-- **Passwordless email login** — three built-in accounts (`john@example.com`, `sophia@example.com`, `mark@example.com`); the form is pre-filled with `john@example.com`, so one click signs you in. The `userId` lives in a signed, `httpOnly` session cookie.
+- **Password-less email login** — three built-in accounts (`john@example.com`, `sophia@example.com`, `mark@example.com`); the form is pre-filled with `john@example.com`, so one click signs you in. The `userId` lives in a signed, `httpOnly` session cookie.
 - **Transactions CRUD** — record income/expense entries (amount, type, category, date, optional note).
 - **List & filter** — filter transactions by category and by month; filter state lives in the URL.
 - **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency).
@@ -104,14 +105,14 @@ This project was built with a "Human-in-the-Loop" approach where AI tools are or
 
 Skills are committed to the repo and surfaced to AI assistants via `AGENTS.md` / `CLAUDE.md`. Each skill encodes instructions and conventions the assistant must follow.
 
-| Skill                                                                                    | Responsibility                                                                                         |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops |
-| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README included)  |
-| **session-handoff (my private skill)**                                                   | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions    |
-| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM conventions: `pgTable`, the `db.select()` builder API, explicit JOINs, plural snake_case   |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file        |
-| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                           | Svelte 5 runes guidance: `$state`/`$derived` over `$effect`, no legacy slots/`export let`/`on:click`   |
+| Skill                                                                                    | Responsibility                                                                                                              |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops                      |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README is made by user and this skill) |
+| **session-handoff (my private skill)**                                                   | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions                         |
+| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM best practices                                                                                                  |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file                             |
+| [velte-core-bestpractices](https://svelte.dev/docs/ai/skills)                            | Guidance on writing fast, robust, modern Svelte code.                                                                       |
 
 ### MCP (Model Context Protocol) Servers
 
@@ -203,7 +204,7 @@ pnpm db:studio     # drizzle-kit studio
 │   ├── session-handoff/         # Maintains ai-docs/tasks.md + session-log.md
 │   ├── svelte-code-writer/      # Svelte MCP/CLI lookup and autofix workflow
 │   └── svelte-core-bestpractices/
-├── .github/workflows/ci.yml     # GitHub Actions: install, test, Codecov, SonarCloud
+├── .github/workflows/ci.yml     # GitHub Actions: install, test, Codecov, SonarQube
 ├── .husky/                      # Git hooks (pre-commit, commit-msg)
 ├── .opencode/                   # OpenCode AI configuration
 ├── .vscode/                     # VS Code settings + extension recommendations
@@ -230,9 +231,9 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   │   └── seed.ts      # Demo users and transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
 │   │   │   ├── guards.ts        # requireUser protected-route helper
-│   │   │   ├── login.ts         # Passwordless email lookup
+│   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
-│   │   │   └── validation.ts    # Transaction form validation
+│   │   │   └── validation.ts    # Zod schemas: transaction form + login email
 │   │   ├── categories.ts        # Fixed category keys + localized labels
 │   │   ├── constants.ts         # App name, demo email, pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
@@ -241,7 +242,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
-│   │   ├── login/               # Passwordless email sign-in page/action + route spec
+│   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/
 │   │   │   ├── [id]/edit/       # Edit form load/action, ownership-checked
@@ -274,7 +275,7 @@ pnpm db:studio     # drizzle-kit studio
 ├── pnpm-lock.yaml               # Locked dependency graph
 ├── pnpm-workspace.yaml          # pnpm workspace and minimum-release-age policy
 ├── skills-lock.json             # Locked AI skill/plugin metadata
-├── sonar-project.properties     # SonarCloud project configuration
+├── sonar-project.properties     # SonarQube project configuration
 ├── svelte.config.js             # SvelteKit config, Vercel adapter, forced runes mode
 ├── tsconfig.json                # TypeScript config extending generated SvelteKit config
 └── vite.config.ts               # Vite plugins: Tailwind, SvelteKit, Paraglide; Vitest config
