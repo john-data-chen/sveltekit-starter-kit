@@ -6,7 +6,7 @@ import { setSessionCookie } from "./auth";
 vi.mock("$app/environment", () => ({ dev: true }));
 vi.mock("$env/dynamic/private", () => ({ env: { SESSION_SECRET: "test-secret-value" } }));
 
-function createDb(rows: Array<{ id: number; name: string; avatar: string }>) {
+function createDb(rows: Array<{ id: number; name: string; avatar: string; role: string }>) {
   return {
     select: vi.fn(() => ({
       from: vi.fn(() => ({
@@ -44,7 +44,7 @@ afterEach(() => {
 describe("resolveSessionUser", () => {
   it("returns null when the session cookie is missing", async () => {
     const { resolveSessionUser } = await loadSubjectWithDb(() => ({
-      db: createDb([{ id: 1, name: "John", avatar: "J" }])
+      db: createDb([{ id: 1, name: "John", avatar: "J", role: "member" }])
     }));
 
     await expect(resolveSessionUser(undefined)).resolves.toBeNull();
@@ -53,13 +53,14 @@ describe("resolveSessionUser", () => {
   it("returns the session user when the cookie and lookup are valid", async () => {
     const cookie = createSessionCookie(1);
     const { resolveSessionUser } = await loadSubjectWithDb(() => ({
-      db: createDb([{ id: 1, name: "John", avatar: "J" }])
+      db: createDb([{ id: 1, name: "John", avatar: "J", role: "member" }])
     }));
 
     await expect(resolveSessionUser(cookie)).resolves.toEqual({
       id: 1,
       name: "John",
-      avatar: "J"
+      avatar: "J",
+      role: "member"
     });
   });
 

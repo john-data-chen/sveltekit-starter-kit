@@ -67,5 +67,26 @@
   "category_medical": "醫療",
   "category_other_expense": "其他支出",
 
-  "locale_label": "語言"
+  "locale_label": "語言",
+
+  "nav_admin": "管理後台",
+  "admin_title": "管理總覽",
+  "admin_users_heading": "使用者",
+  "admin_role": "角色",
+  "role_member": "成員",
+  "role_admin": "管理員",
+  "admin_col_transactions": "交易筆數",
+  "admin_col_income": "總收入",
+  "admin_col_expense": "總支出",
+  "admin_empty": "目前沒有使用者。",
+  "admin_activity_heading": "近期活動",
+  "audit_col_time": "時間",
+  "audit_col_actor": "操作者",
+  "audit_col_action": "動作",
+  "audit_col_entity": "實體",
+  "audit_col_summary": "摘要",
+  "action_create": "建立",
+  "action_update": "更新",
+  "action_delete": "刪除",
+  "admin_activity_empty": "目前沒有近期活動。"
 }

@@ -48,6 +48,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 | Database   | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM                             |
 | DB Driver  | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime                          |
 | Auth       | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                         |
+| Authz/RBAC | Route-level role guards (`requireAdmin`)       | Strict access control based on DB-backed user roles (`admin` vs `member`)                  |
 | Validation | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input |
 | Charts     | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                    |
 | i18n       | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                          |
@@ -83,7 +84,9 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ## Features
 
-- **Password-less email login** — three built-in accounts (`john@example.com`, `sophia@example.com`, `mark@example.com`); the form is pre-filled with `john@example.com`, so one click signs you in. The `userId` lives in a signed, `httpOnly` session cookie.
+- **Password-less email login** — three built-in accounts (`john@example.com` (Admin), `sophia@example.com` (Member), `mark@example.com` (Member)); the form is pre-filled with `john@example.com`, so one click signs you in. The `userId` lives in a signed, `httpOnly` session cookie.
+- **Roles & Permissions (Governance)** — "member" role (default) has access to their own dashboard and transactions. "admin" role grants access to a global `/admin` Governance view to oversee platform usage.
+- **Audit Log / Activity Trail** — best-effort logging of user mutations (create, update, delete) visible in the Admin Governance view.
 - **Transactions CRUD** — record income/expense entries (amount, type, category, date, optional note).
 - **List & filter** — filter transactions by category and by month; filter state lives in the URL.
 - **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency).
@@ -224,9 +227,11 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
 │   │   ├── server/
 │   │   │   ├── db/
+│   │   │   │   ├── admin.ts     # Admin-only queries (cross-user stats)
+│   │   │   │   ├── audit.ts     # Audit log queries
 │   │   │   │   ├── index.ts     # Drizzle client using DATABASE_URL
 │   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
-│   │   │   │   ├── schema.ts    # users / transactions tables and transaction_type enum
+│   │   │   │   ├── schema.ts    # users / transactions / audit_logs tables
 │   │   │   │   ├── schema.spec.ts
 │   │   │   │   └── seed.ts      # Demo users and transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
@@ -242,6 +247,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
+│   │   ├── admin/               # Governance view (admin-only) with cross-user aggregate stats
 │   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/

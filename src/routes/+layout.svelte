@@ -27,6 +27,9 @@
         <a href={resolve("/transactions")} class="whitespace-nowrap hover:underline">
           {m.nav_transactions()}
         </a>
+        {#if data.user.role === "admin"}
+          <a href={resolve("/admin")} class="whitespace-nowrap hover:underline">{m.nav_admin()}</a>
+        {/if}
       </nav>
       <div
         class="flex w-full flex-wrap items-center gap-2 text-sm sm:w-auto sm:justify-end sm:gap-3"

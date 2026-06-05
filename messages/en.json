@@ -67,5 +67,26 @@
   "category_medical": "Medical",
   "category_other_expense": "Other Expense",
 
-  "locale_label": "Language"
+  "locale_label": "Language",
+
+  "nav_admin": "Admin",
+  "admin_title": "Admin Overview",
+  "admin_users_heading": "Users",
+  "admin_role": "Role",
+  "role_member": "Member",
+  "role_admin": "Admin",
+  "admin_col_transactions": "Transactions",
+  "admin_col_income": "Total Income",
+  "admin_col_expense": "Total Expense",
+  "admin_empty": "No users found.",
+  "admin_activity_heading": "Recent Activity",
+  "audit_col_time": "Time",
+  "audit_col_actor": "Actor",
+  "audit_col_action": "Action",
+  "audit_col_entity": "Entity",
+  "audit_col_summary": "Summary",
+  "action_create": "Create",
+  "action_update": "Update",
+  "action_delete": "Delete",
+  "admin_activity_empty": "No recent activity."
 }

@@ -48,6 +48,7 @@
 | Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                           |
 | DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                |
 | Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                          |
+| Authz/RBAC | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制           |
 | Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod |
 | Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                          |
 | i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文               |
@@ -83,7 +84,9 @@
 
 ## 功能
 
-- **Password-less email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
+- **Password-less email login** — 內建三個帳號（`john@example.com` (Admin)、`sophia@example.com` (Member)、`mark@example.com` (Member)）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
+- **角色與權限 (Roles & Permissions)** — "member"（預設）只能看見並操作自己的記帳資料；"admin" 則可存取 `/admin` 管理介面，總覽所有使用者的平台使用狀況（Governance）。
+- **稽核日誌 (Audit Log)** — 紀錄使用者變更（新增、修改、刪除），顯示於管理員 Governance 介面中。
 - **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（數目、類型、類別、日期、備註）。
 - **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖。
@@ -224,9 +227,11 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
 │   │   ├── server/
 │   │   │   ├── db/
+│   │   │   │   ├── admin.ts     # Admin-only 查詢（跨使用者統計資料）
+│   │   │   │   ├── audit.ts     # 稽核日誌查詢
 │   │   │   │   ├── index.ts     # 使用 DATABASE_URL 的 Drizzle client
 │   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
-│   │   │   │   ├── schema.ts    # users / transactions tables 與 transaction_type enum
+│   │   │   │   ├── schema.ts    # users / transactions / audit_logs tables
 │   │   │   │   ├── schema.spec.ts
 │   │   │   │   └── seed.ts      # Demo users 與 transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
@@ -242,6 +247,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
+│   │   ├── admin/               # 管理員專用的 Governance 介面，顯示所有使用者的統計摘要
 │   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/

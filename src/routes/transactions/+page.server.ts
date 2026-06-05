@@ -1,5 +1,6 @@
 import { ALL_CATEGORIES } from "$lib/categories";
 import { isValidMonth } from "$lib/date";
+import { recordAudit } from "$lib/server/db/audit";
 import { deleteTransaction, listTransactions } from "$lib/server/db/queries";
 import { requireUser } from "$lib/server/guards";
 
@@ -31,7 +32,16 @@ export const actions: Actions = {
     const id = Number(form.get("id"));
     if (Number.isInteger(id) && id > 0) {
       // Ownership is enforced inside deleteTransaction (scoped by userId).
-      await deleteTransaction(user.id, id);
+      const deletedId = await deleteTransaction(user.id, id);
+      if (deletedId) {
+        await recordAudit(
+          user.id,
+          "delete",
+          "transaction",
+          deletedId,
+          `Deleted transaction ${deletedId}`
+        );
+      }
     }
 
     return { deleted: true };

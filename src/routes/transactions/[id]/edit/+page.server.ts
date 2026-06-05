@@ -1,4 +1,5 @@
 import * as m from "$lib/paraglide/messages";
+import { recordAudit } from "$lib/server/db/audit";
 import { getTransaction, updateTransaction } from "$lib/server/db/queries";
 import { requireUser } from "$lib/server/guards";
 import { parseTransactionForm } from "$lib/server/validation";
@@ -41,6 +42,14 @@ export const actions: Actions = {
       // Not owned by this user (or already gone).
       error(404, m.error_transaction_not_found());
     }
+
+    await recordAudit(
+      user.id,
+      "update",
+      "transaction",
+      id,
+      `${updated.type} ${updated.category} ${updated.amount}`
+    );
 
     redirect(303, "/transactions");
   }
