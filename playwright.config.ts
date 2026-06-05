@@ -11,9 +11,25 @@ export default defineConfig({
   // Cross-browser happy-path coverage. `edge` uses the installed Microsoft Edge app
   // (channel "msedge") and therefore runs locally only — e2e is intentionally kept out of CI.
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
-    { name: "edge", use: { ...devices["Desktop Edge"], channel: "msedge" } }
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] }
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] }
+    },
+    // this mac doesn't have Edge browser
+    // { name: "edge", use: { ...devices["Desktop Edge"], channel: "msedge" } },
+    /* Test against mobile viewports. */
+    {
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 7"] }
+    },
+    {
+      name: "Mobile Safari",
+      use: { ...devices["iPhone 14"] }
+    }
   ],
   webServer: {
     command: "pnpm dev",
