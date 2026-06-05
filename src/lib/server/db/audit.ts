@@ -1,12 +1,12 @@
 import { desc, eq } from "drizzle-orm";
 
-import { auditLogs, users } from "./schema";
+import { type AuditAction, auditLogs, users } from "./schema";
 
 import { db } from "./index";
 
 export async function recordAudit(
   actorId: number,
-  action: "create" | "update" | "delete",
+  action: AuditAction,
   entity: string,
   entityId: number | null,
   summary: string | null

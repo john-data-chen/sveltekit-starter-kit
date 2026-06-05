@@ -57,6 +57,7 @@ export const auditLogs = pgTable(
 
 export type User = typeof users.$inferSelect;
 export type UserRole = User["role"];
+export type AuditAction = (typeof auditAction.enumValues)[number];
 export type NewUser = typeof users.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;

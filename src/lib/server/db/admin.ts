@@ -1,6 +1,6 @@
 import { count, sql } from "drizzle-orm";
 
-import { transactions, users } from "./schema";
+import { type UserRole, transactions, users } from "./schema";
 
 import { db } from "./index";
 
@@ -9,7 +9,7 @@ export interface UserOverview {
   name: string;
   email: string;
   avatar: string;
-  role: string;
+  role: UserRole;
   transactionCount: number;
   totalIncome: number;
   totalExpense: number;
@@ -33,7 +33,8 @@ export async function listUsersWithStats(): Promise<UserOverview[]> {
     })
     .from(users)
     .leftJoin(transactions, sql`${transactions.userId} = ${users.id}`)
-    .groupBy(users.id);
+    .groupBy(users.id)
+    .orderBy(users.id);
 
   return rows.map((row) => ({
     ...row,
