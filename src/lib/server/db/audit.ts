@@ -4,6 +4,15 @@ import { type AuditAction, auditLogs, users } from "./schema";
 
 import { db } from "./index";
 
+/**
+ * Records an audit log entry.
+ *
+ * Data-Permission Boundary: The summary field often contains line-item details
+ * (e.g., amount, category). This is visible to admins in the activity trail
+ * by design, treating admins as trusted compliance/governance auditors. Members
+ * remain isolated. (Production hardening: redact amounts or restrict to aggregates
+ * if line-item visibility is undesired).
+ */
 export async function recordAudit(
   actorId: number,
   action: AuditAction,

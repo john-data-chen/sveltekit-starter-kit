@@ -100,6 +100,16 @@ Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 
 
 ---
 
+## 角色與權限 (Roles & Permissions) / Governance
+
+應用程式強制執行基於資料庫角色的資料權限邊界：
+
+- **成員 (Member)**：只能存取自己的儀表板與交易紀錄。資料在查詢層級即做到單一使用者隔離。
+- **管理員 (Admin)**：視為受信任的合規/治理稽核員。受到伺服器端 `requireAdmin` 守衛保護的 `/admin` 總覽介面僅供讀取。為了方便平台監督，設計上允許管理員在稽核日誌 (Audit Trail) 中看見單筆紀錄細節（例如單筆交易金額與分類）。
+- _上線強化建議 (Production hardening)_：如果在您的安全模型中，不希望管理員看到單筆詳細資料，可以將稽核摘要中的金額隱藏，或限制管理員只能看到彙總數據。
+
+---
+
 ## AI-Augmented Engineering Workflow
 
 這個專案採用 Human-in-the-Loop 的 AI 協作方式。AI 工具不只是產生程式碼，而是被用來提高 **架構槓桿、品質保證與開發速度**。

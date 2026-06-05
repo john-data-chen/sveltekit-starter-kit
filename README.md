@@ -100,6 +100,16 @@ Categories are fixed lists in `src/lib/categories.ts`; the session cookie is sig
 
 ---
 
+## Roles & Permissions / Governance
+
+The application enforces a strict data-permission boundary backed by database user roles:
+
+- **Member**: Can only access their own dashboard and transactions. Data is isolated per-user at the query level.
+- **Admin**: Operates as a trusted compliance/governance auditor. Server-side `requireAdmin` guards protect the `/admin` read-only overview. By design, the audit trail exposes line-item visibility (e.g., individual transaction amounts and categories) to admins to facilitate platform oversight.
+- _Production hardening note_: If line-item visibility for admins is undesired in your security model, redact transaction amounts in the audit summary or restrict the admin view purely to aggregates.
+
+---
+
 ## AI-Augmented Engineering Workflow
 
 This project was built with a "Human-in-the-Loop" approach where AI tools are orchestrated to amplify engineering impact — focusing not just on code generation, but on **architectural leverage, rigorous quality assurance, and accelerated velocity**.
