@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseTransactionForm } from "./validation";
+import { parseLoginEmail, parseTransactionForm } from "./validation";
 
 function form(fields: Record<string, string>): FormData {
   const data = new FormData();
@@ -94,6 +94,26 @@ describe("parseTransactionForm", () => {
         occurredOn: "",
         note: ""
       });
+    }
+  });
+});
+
+describe("parseLoginEmail", () => {
+  it("accepts a valid email and normalises case and surrounding whitespace", () => {
+    const result = parseLoginEmail(form({ email: "  John@Example.COM  " }));
+    expect(result).toEqual({ ok: true, email: "john@example.com" });
+  });
+
+  it("rejects a missing or whitespace-only email", () => {
+    expect(parseLoginEmail(new FormData()).ok).toBe(false);
+    expect(parseLoginEmail(form({ email: "   " })).ok).toBe(false);
+  });
+
+  it("rejects a malformed email and echoes back the normalised value", () => {
+    const result = parseLoginEmail(form({ email: "Not-An-Email" }));
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.email).toBe("not-an-email");
     }
   });
 });

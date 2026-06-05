@@ -41,16 +41,17 @@
 
 ### 架構
 
-| 類型      | 選擇                                           | 理由                                                  |
-| --------- | ---------------------------------------------- | ----------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                |
-| Styling   | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置    |
-| Database  | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量             |
-| DB Driver | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務  |
-| Auth      | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model            |
-| Charts    | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制            |
-| i18n      | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文 |
-| Deploy    | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime               |
+| 類型       | 選擇                                           | 理由                                                                |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------------------- |
+| Framework  | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                              |
+| Styling    | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                  |
+| Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                           |
+| DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                |
+| Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                          |
+| Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod |
+| Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                          |
+| i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文               |
+| Deploy     | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                             |
 
 ### 品質保證
 
@@ -232,7 +233,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   ├── guards.ts        # requireUser protected-route helper
 │   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
-│   │   │   └── validation.ts    # Transaction form validation
+│   │   │   └── validation.ts    # Zod schemas：交易表單 + 登入 email
 │   │   ├── categories.ts        # 固定 category keys + localized labels
 │   │   ├── constants.ts         # App name、demo email、pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers

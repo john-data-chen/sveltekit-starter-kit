@@ -41,16 +41,17 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ### Architecture
 
-| Type      | Choice                                         | Rationale                                                         |
-| --------- | ---------------------------------------------- | ----------------------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions  |
-| Styling   | Tailwind CSS v4 (Vite plugin)                  | Utility-first, zero-runtime, fast builds via the v4 Vite plugin   |
-| Database  | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM    |
-| DB Driver | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime |
-| Auth      | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                |
-| Charts    | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control           |
-| i18n      | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese |
-| Deploy    | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver               |
+| Type       | Choice                                         | Rationale                                                                                  |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Framework  | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions                           |
+| Styling    | Tailwind CSS v4 (Vite plugin)                  | Utility-first, zero-runtime, fast builds via the v4 Vite plugin                            |
+| Database   | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM                             |
+| DB Driver  | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime                          |
+| Auth       | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                         |
+| Validation | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input |
+| Charts     | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                    |
+| i18n       | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                          |
+| Deploy     | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver                                        |
 
 ### Quality Assurance
 
@@ -232,7 +233,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   ├── guards.ts        # requireUser protected-route helper
 │   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
-│   │   │   └── validation.ts    # Transaction form validation
+│   │   │   └── validation.ts    # Zod schemas: transaction form + login email
 │   │   ├── categories.ts        # Fixed category keys + localized labels
 │   │   ├── constants.ts         # App name, demo email, pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
