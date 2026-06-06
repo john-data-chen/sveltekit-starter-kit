@@ -8,6 +8,8 @@
 這是一個產品級別的 SvelteKit starter kit，以真實可用的多使用者 **線上記帳本** 為核心，所有帳號都可以新增支出、收入，並查看統計資訊。而管理帳號可以看到所有帳號的交易紀錄。
 這展示技術決策、品質工程，以及 AI 輔助開發的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
 
+本專案刻意聚焦於產品團隊在意的能力：型別化、模組化的 **TypeScript / Node.js**；有意識的 **API、資料流與 RBAC** 設計；搭配 ORM 驅動 **schema migration** 與執行時驗證的 **PostgreSQL**；**AI 輔助（Harness）工程**；以及具紀律、可驗證的交付。
+
 英文版本請見 **[README.md](./README.md)**。
 
 **[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — 按下 **以 Email 繼續** 即可用已建立的使用者登入。
@@ -109,6 +111,7 @@
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
 - **REST API + OpenAPI 互動文件** — 提供完整的 CRUD endpoints (`/api/transactions`, `/api/stats`)，重度利用 Zod 模型來動態對應出即時的 OpenAPI 3.1 規範。同時於 `/api/docs` 掛載了 Scalar UI 以供互動式探索。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
+- **Schema migration 與驗證** — PostgreSQL schema 以 Drizzle Kit 做版本控管（`db:generate` → `db:migrate`），所有不可信輸入都在邊界經由 Zod 驗證；單一 schema 同時是型別、驗證與 OpenAPI 規範的唯一真相來源。
 - **限流 (Rate limiting)** — best-effort 記憶體內 fixed-window 限流：登入每 IP 每分鐘上限 10 次，已驗證的 API 寫入每 IP 每分鐘上限 100 次，超過時回傳 `429` 並附上 `Retry-After` header。（serverless 環境下應改用 Vercel KV / Upstash Redis 讓多實例共享狀態。）
 - **安全強化 (Security hardening)** — 每個 HTML 回應都帶有 nonce-based Content-Security-Policy，以及 `X-Content-Type-Options`、`X-Frame-Options: DENY`、`Referrer-Policy`、`Permissions-Policy`；production 另啟用 `Strict-Transport-Security`。僅 Scalar `/api/docs` 頁面放寬 CSP，dev 模式則移除 CSP 以支援 Vite HMR。
 - **API 分頁 (Pagination)** — `GET /api/transactions` 接受 `limit`（預設 20，上限 100）與 `offset`，並回傳 `{ data, pagination: { total, limit, offset } }` 封裝。
@@ -116,6 +119,7 @@
 - **i18n** — 英文與繁體中文（Paraglide JS）。
 - **Theme switching** — 淺色 / 深色 / 系統。
 - **Responsive design** — 手機小螢幕排版優先，也支援電腦大螢幕排版。
+- **Web analytics** — 全站注入 Vercel Web Analytics（`@vercel/analytics`），提供注重隱私、不使用 cookie 的流量洞察。
 - **SEO 與可被搜尋性** — 登入著陸頁提供在地化的 meta description（`seo_description`）、canonical URL、theme-color、Open Graph 與 Twitter Card 標籤，以及 JSON-LD `WebApplication` 結構化資料；並從 `static/` 提供 `sitemap.xml` 與 `robots.txt` 的 `Sitemap:` 指令。
 
 Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 中的 `SESSION_SECRET` 簽章。
@@ -124,7 +128,7 @@ Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 
 
 ## 角色與權限 (Roles & Permissions) / Governance
 
-應用程式強制執行基於資料庫角色的資料權限邊界：
+應用程式強制執行基於資料庫角色的資料權限邊界。這正是企業系統（ERP / BPM / 內部後台工具）所仰賴的存取控制與監督樣式：role-based access control、逐使用者資料隔離、稽核軌跡（audit trail），以及僅供讀取的治理／合規檢視。
 
 - **成員 (Member)**：只能存取自己的儀表板與交易紀錄。資料在查詢層級即做到單一使用者隔離。
 - **管理員 (Admin)**：視為受信任的合規/治理稽核員。受到伺服器端 `requireAdmin` 守衛保護的 `/admin` 總覽介面僅供讀取。為了方便平台監督，設計上允許管理員在稽核日誌 (Audit Trail) 中看見單筆紀錄細節（例如單筆交易金額與分類）。
@@ -143,6 +147,7 @@ AI agent 是受治理的協作開發者，而非可自行 commit 的自動程式
 - **Skill 與 task 拆解** — 唯讀規劃 → 人工審查 → 單步執行 → 逐步驗證。
 - **生成邊界控制** — Zod 強制 I/O contract；測試 mock PostgreSQL／第三方；HSTS／CSP 依 `dev` 與 prod 切換。
 - **Session handoff** — task 與 session log 讓任何模型從中斷處包含但不限於 token 或 session 耗盡 / 不可預期的崩潰 接手。
+- **交付紀律** — 每次變更都明確掌握需求、風險與影響範圍，並須通過上線前驗證（lint／build／check／tests）才能合併。
 
 ### 可衡量的影響
 
@@ -257,9 +262,10 @@ pnpm db:seed       # Seed demo users + sample transactions
 │   ├── doc-coauthoring/         # 文件共筆 workflow
 │   ├── drizzle/                 # Drizzle schema/query 慣例
 │   ├── karpathy-guidelines/     # Surgical change 與驗證紀律
-│   ├── session-handoff/         # 維護 ai-docs/tasks.md + session-log.md
+│   ├── session-handoff/         # (private, 未提交) 維護 ai-docs/tasks.md + session-log.md
 │   ├── svelte-code-writer/      # Svelte MCP/CLI 查詢與 autofix workflow
 │   └── svelte-core-bestpractices/
+├── .codex/                      # Codex AI configuration
 ├── .github/workflows/ci.yml     # GitHub Actions：install、test、Codecov、SonarQube
 ├── .husky/                      # Git hooks（pre-commit, commit-msg）
 ├── .opencode/                   # OpenCode AI configuration
@@ -267,7 +273,8 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── ai-docs/                     # AI task template、task plan、session log
 ├── drizzle/                     # Generated SQL migrations + Drizzle metadata snapshots
 ├── e2e/
-│   └── expense.spec.ts          # Playwright login + transaction CRUD happy path
+│   ├── expense.spec.ts          # Playwright login + transaction CRUD happy path
+│   └── sort.spec.ts             # Playwright 排序 + URL 狀態 e2e 檢查
 ├── messages/                    # Paraglide source messages
 │   ├── en.json                  # 英文翻譯檔
 │   └── zh-tw.json               # 繁體中文翻譯檔
@@ -278,6 +285,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 │   ├── lib/
 │   │   ├── assets/              # Favicon 與 README screenshots
 │   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
+│   │   │   └── ui/              # 自建 Svelte 5 primitives：Button、ConfirmDialog、Field
 │   │   ├── server/
 │   │   │   ├── db/
 │   │   │   │   ├── admin.ts     # Admin-only 查詢（跨使用者統計資料）
@@ -292,12 +300,16 @@ pnpm db:seed       # Seed demo users + sample transactions
 │   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
 │   │   │   ├── api.ts           # REST API 回應包裝與身分驗證守衛
+│   │   │   ├── rate-limit.ts    # 記憶體內 fixed-window 限流（登入 + API）
 │   │   │   ├── openapi.ts       # 動態從 Zod 產生 OpenAPI 3.1 規範
 │   │   │   ├── schemas.ts       # 共用的 Zod 定義 (表單與 API 共用)
 │   │   │   └── validation.ts    # Action 驗證邏輯，底層依賴 schemas.ts
+│   │   ├── table/               # TanStack 排序：與 URL 同步的 sorted-table store
+│   │   │   └── sorted-table.svelte.ts
 │   │   ├── categories.ts        # 固定 category keys + localized labels
 │   │   ├── constants.ts         # App name、demo email、pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
+│   │   ├── index.ts             # lib barrel re-exports
 │   │   ├── money.ts             # TWD integer formatting/parsing
 │   │   ├── theme.svelte.ts      # Client theme store（light / dark / system）
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
@@ -332,6 +344,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── .prettierignore              # Prettier ignore rules
 ├── .prettierrc                  # Prettier + Svelte/Tailwind plugin config
 ├── AGENTS.md                    # 此 repo 的 AI agent instructions
+├── LICENSE                      # MIT license
 ├── README.md                    # English README
 ├── README-cht.md                # 繁體中文 README
 ├── commitlint.config.mjs        # Conventional commit config
@@ -342,6 +355,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── playwright.config.ts         # Cross-browser e2e configuration
 ├── pnpm-lock.yaml               # Locked dependency graph
 ├── pnpm-workspace.yaml          # pnpm workspace 與 minimum-release-age policy
+├── project.inlang/              # Paraglide / inlang i18n 專案設定
 ├── skills-lock.json             # Locked AI skill/plugin metadata
 ├── sonar-project.properties     # SonarQube project configuration
 ├── svelte.config.js             # SvelteKit config、Vercel adapter、forced runes mode
