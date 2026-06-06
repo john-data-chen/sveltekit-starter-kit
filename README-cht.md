@@ -1,11 +1,14 @@
-# SvelteKit 線上帳簿 | 具備 AI 輔助工程流程的全端 Starter Kit
+# SvelteKit: 多人(家庭)共享線上記帳本 | 包含人工智慧輔助工程流程的完整入門套件
 
 [![codecov](https://codecov.io/gh/john-data-chen/sveltekit-starter-kit/graph/badge.svg?token=9Mdwd8ibQs)](https://codecov.io/gh/john-data-chen/sveltekit-starter-kit)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=john-data-chen_sveltekit-starter-kit&metric=alert_status&token=6c61941d26a0ba1e36bc438f28dba039c8e3700d)](https://sonarcloud.io/summary/new_code?id=john-data-chen_sveltekit-starter-kit)
 [![CI](https://github.com/john-data-chen/sveltekit-starter-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/john-data-chen/sveltekit-starter-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-這是一個產品級別的 SvelteKit starter kit，以真實可用的多使用者 **線上帳簿** 為核心，展示技術決策、品質工程，以及 AI 輔助開發的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
+這是一個產品級別的 SvelteKit starter kit，以真實可用的多使用者 **線上記帳本** 為核心，所有帳號都可以新增支出、收入，並查看統計資訊。而管理帳號可以看到所有帳號的交易紀錄。
+這展示技術決策、品質工程，以及 AI 輔助開發的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
+
+本專案刻意聚焦於產品團隊在意的能力：型別化、模組化的 **TypeScript / Node.js**；有意識的 **API、資料流與 RBAC** 設計；搭配 ORM 驅動 **schema migration** 與執行時驗證的 **PostgreSQL**；**AI 輔助（Harness）工程**；以及具紀律、可驗證的交付。
 
 英文版本請見 **[README.md](./README.md)**。
 
@@ -51,30 +54,30 @@
 | DB Driver     | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                       |
 | Auth          | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                                 |
 | Authz/RBAC    | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制                  |
-| Rate Limiting | 記憶體內的 fixed-window 限流（登入 + API）     | Best-effort 防暴力破解/濫用；多實例環境改用 Vercel KV / Redis              |
+| Rate Limiting | 記憶體內的 fixed-window 限流（登入 + API）     | 簡易的防暴力破解/濫用；生產環境會改用 Vercel KV / Redis                    |
 | Security      | Nonce CSP + HSTS + 強化的回應標頭              | 縱深防禦；僅 Scalar `/api/docs` 放寬 CSP，dev 模式移除 CSP 以支援 Vite HMR |
 | Validation    | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod        |
 | REST API      | 完整的 CRUD API + JSON 回應封裝                | 分離的 REST 層以利外部系統整合或手機端應用呼叫                             |
 | API Docs      | Scalar UI + Zod 4 原生 OpenAPI 匯出            | 直接由 Zod 模型動態產生的零阻力互動式 API 文件                             |
 | Tables        | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染    |
 | Charts        | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                                 |
-| i18n          | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文                      |
+| i18n          | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable 翻譯；支援英文與繁體中文                          |
 | Deploy        | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                    |
 
 ### 品質保證
 
-| 類型              | 工具       | 理由                                       |
-| ----------------- | ---------- | ------------------------------------------ |
-| Unit/Integration  | Vitest     | 比 Jest 更快，原生 ESM，與 Vite 生態整合佳 |
-| E2E               | Playwright | 跨瀏覽器支援，比 Cypress 更輕量            |
-| Static Analysis   | SonarQube  | 在 CI 中執行 quality gates                 |
-| Coverage Tracking | Codecov    | 自動整合 PR coverage                       |
+| 類型              | 工具       | 理由                                             |
+| ----------------- | ---------- | ------------------------------------------------ |
+| Unit/Integration  | Vitest     | 比 Jest 更快，原生 ESM，與 Vite 生態整合佳       |
+| E2E               | Playwright | 跨瀏覽器支援，比 Cypress 更輕量                  |
+| Static Analysis   | SonarQube  | 在 CI 中執行 quality gates 程式碼 bad smell 檢查 |
+| Coverage Tracking | Codecov    | 自動整合 PR coverage                             |
 
 **Testing Strategy:**
 
 - Unit tests 聚焦查詢邏輯、驗證、貨幣 格式化 / 解析
 - E2E tests 驗證重要流程（登入、transaction CRUD）
-- 每次 push / PR 都會先跑完整 pipeline，通過後再 merge (免費 server 效能不足，因此 CI 只執行 unit test)
+- 每次推送/PR 都會先運行整個 pipeline，由 Gemini 進行初審，然後開發者再複查。只有兩次審核都通過後才會合併（免費伺服器效能不足，因此 CI 只執行單元測試，端對端測試在本機上執行）。
 
 ### Developer Experience
 
@@ -108,6 +111,7 @@
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
 - **REST API + OpenAPI 互動文件** — 提供完整的 CRUD endpoints (`/api/transactions`, `/api/stats`)，重度利用 Zod 模型來動態對應出即時的 OpenAPI 3.1 規範。同時於 `/api/docs` 掛載了 Scalar UI 以供互動式探索。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
+- **Schema migration 與驗證** — PostgreSQL schema 以 Drizzle Kit 做版本控管（`db:generate` → `db:migrate`），所有不可信輸入都在邊界經由 Zod 驗證；單一 schema 同時是型別、驗證與 OpenAPI 規範的唯一真相來源。
 - **限流 (Rate limiting)** — best-effort 記憶體內 fixed-window 限流：登入每 IP 每分鐘上限 10 次，已驗證的 API 寫入每 IP 每分鐘上限 100 次，超過時回傳 `429` 並附上 `Retry-After` header。（serverless 環境下應改用 Vercel KV / Upstash Redis 讓多實例共享狀態。）
 - **安全強化 (Security hardening)** — 每個 HTML 回應都帶有 nonce-based Content-Security-Policy，以及 `X-Content-Type-Options`、`X-Frame-Options: DENY`、`Referrer-Policy`、`Permissions-Policy`；production 另啟用 `Strict-Transport-Security`。僅 Scalar `/api/docs` 頁面放寬 CSP，dev 模式則移除 CSP 以支援 Vite HMR。
 - **API 分頁 (Pagination)** — `GET /api/transactions` 接受 `limit`（預設 20，上限 100）與 `offset`，並回傳 `{ data, pagination: { total, limit, offset } }` 封裝。
@@ -115,6 +119,7 @@
 - **i18n** — 英文與繁體中文（Paraglide JS）。
 - **Theme switching** — 淺色 / 深色 / 系統。
 - **Responsive design** — 手機小螢幕排版優先，也支援電腦大螢幕排版。
+- **Web analytics** — 全站注入 Vercel Web Analytics（`@vercel/analytics`），提供注重隱私、不使用 cookie 的流量洞察。
 - **SEO 與可被搜尋性** — 登入著陸頁提供在地化的 meta description（`seo_description`）、canonical URL、theme-color、Open Graph 與 Twitter Card 標籤，以及 JSON-LD `WebApplication` 結構化資料；並從 `static/` 提供 `sitemap.xml` 與 `robots.txt` 的 `Sitemap:` 指令。
 
 Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 中的 `SESSION_SECRET` 簽章。
@@ -123,17 +128,36 @@ Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 
 
 ## 角色與權限 (Roles & Permissions) / Governance
 
-應用程式強制執行基於資料庫角色的資料權限邊界：
+應用程式強制執行基於資料庫角色的資料權限邊界。這正是企業系統（ERP / BPM / 內部後台工具）所仰賴的存取控制與監督樣式：role-based access control、逐使用者資料隔離、稽核軌跡（audit trail），以及僅供讀取的治理／合規檢視。
 
 - **成員 (Member)**：只能存取自己的儀表板與交易紀錄。資料在查詢層級即做到單一使用者隔離。
 - **管理員 (Admin)**：視為受信任的合規/治理稽核員。受到伺服器端 `requireAdmin` 守衛保護的 `/admin` 總覽介面僅供讀取。為了方便平台監督，設計上允許管理員在稽核日誌 (Audit Trail) 中看見單筆紀錄細節（例如單筆交易金額與分類）。
-- _上線強化建議 (Production hardening)_：如果在您的安全模型中，不希望管理員看到單筆詳細資料，可以將稽核摘要中的金額隱藏，或限制管理員只能看到彙總數據。
 
 ---
 
-## AI-Augmented Engineering Workflow
+## 駕馭工程 (Harness Engineering)
 
 這個專案採用 Human-in-the-Loop 的 AI 協作方式。AI 工具不只是產生程式碼，而是被用來提高 **架構槓桿、品質保證與開發速度**。
+
+AI agent 是受治理的協作開發者，而非可自行 commit 的自動程式。
+
+- **Human-in-the-loop** — 每個指令與變更都經審查；不自行執行。
+- **Prompt 與 task template** — 每個 session 先定好角色、可動範圍與通過標準（lint／build／check／tests）。
+- **Context 管理** — 範圍限縮在 `src/`；可重用的已提交 skills；離線參考文件。
+- **Skill 與 task 拆解** — 唯讀規劃 → 人工審查 → 單步執行 → 逐步驗證。
+- **生成邊界控制** — Zod 強制 I/O contract；測試 mock PostgreSQL／第三方；HSTS／CSP 依 `dev` 與 prod 切換。
+- **Session handoff** — task 與 session log 讓任何模型從中斷處包含但不限於 token 或 session 耗盡 / 不可預期的崩潰 接手。
+- **交付紀律** — 每次變更都明確掌握需求、風險與影響範圍，並須通過上線前驗證（lint／build／check／tests）才能合併。
+
+### 可衡量的影響
+
+透過將 AI 整合到技術堆疊中，本專案實現了以下目標：
+
+- **速度**：樣板程式碼和標準模式的實現速度提升 5-10 倍，借助 Gemini Code Assist 將 PR 審查時間縮短 30-40%。
+- **品質**：透過 AI 產生的測試框架，實現更高的測試覆蓋率（80% 以上）。以及 Gemini Code Assist 的 PR 審查，從而減少 bug 和程式碼異味。
+- **學習**：透過 AI 指導的實現，快速掌握新工具（Svelte、Sveltekit、Drizzle 等）。
+- **成本**：利用 AI 代理的技能減少程式碼迭代次數並遵循最佳實踐，從而降低成本。
+- **專注**：將工程時間從語法開發轉移到系統架構和使用者體驗。
 
 ### AI Agent Skills（`.agents/skills/`）
 
@@ -162,39 +186,19 @@ MCP 讓 AI 工具可直接和開發基礎設施互動，從而消除上下文切
 
 這些檔案是 AI 輔助開發的專案工作守則，包含主要驗證流程（`pnpm lint` → `pnpm build` → `pnpm check`）、常用指令，以及不同任務應使用的 skills/MCP servers。AI 在修改此專案前應先讀取這些指引。
 
-### AI 交付治理 (AI Delivery Governance)
-
-AI agent 是受治理的協作開發者，而非可自行 commit 的自動程式。
-
-- **Human-in-the-loop** — 每個指令與變更都經審查；不自行執行。
-- **Prompt 與 task template** — 每個 session 先定好角色、可動範圍與通過標準（lint／build／check／tests）。
-- **Context 管理** — 範圍限縮在 `src/`；可重用的已提交 skills；離線參考文件。
-- **Skill 與 task 拆解** — 唯讀規劃 → 人工審查 → 單步執行 → 逐步驗證。
-- **生成邊界控制** — Zod 強制 I/O contract；測試 mock PostgreSQL／第三方；HSTS／CSP 依 `dev` 與 prod 切換。
-- **Session handoff** — task 與 session log 讓任何模型從綠燈基準接手。
-
-交付 pipeline：
+人機協作開發流程：
 
 ```mermaid
 graph TD
     A[AI Code Generation] --> B[Local Verification <br> lint / build / typecheck]
-    B --> C[Vitest Unit Tests]
-    C --> D[Playwright Browser E2E Tests]
-    D --> E[Git Commit & Push]
-    E --> F[CI GitHub Actions]
-    F --> G[SonarQube Quality Gate / Codecov]
-    G --> H[Production Deployment to Vercel]
+    B --> C[User Confirmation]
+    C --> D[Vitest Unit Tests]
+    D --> E[Playwright Browser E2E Tests]
+    E --> F[Git Commit & Push]
+    F --> G[CI GitHub Actions]
+    G --> H[SonarQube Quality Gate / Codecov]
+    H --> I[Production Deployment to Vercel]
 ```
-
-### 可衡量的影響
-
-透過將 AI 整合到技術堆疊中，本專案實現了以下目標：
-
-- **速度**：樣板程式碼和標準模式的實現速度提升 5-10 倍，借助 Gemini Code Assist 將 PR 審查時間縮短 30-40%。
-- **品質**：透過 AI 產生的測試框架，實現更高的測試覆蓋率（80% 以上）。以及 Gemini Code Assist 的 PR 審查，從而減少 bug 和程式碼異味。
-- **學習**：透過 AI 指導的實現，快速掌握新工具（Svelte、Sveltekit、Drizzle 等）。
-- **成本**：利用 AI 代理的技能減少程式碼迭代次數並遵循最佳實踐，從而降低成本。
-- **專注**：將工程時間從語法開發轉移到系統架構和使用者體驗。
 
 ---
 
@@ -226,7 +230,7 @@ pnpm test:e2e          # E2E tests (needs a seeded DB + dev server)
 pnpm build             # Production build
 ```
 
-`.env.example` 的預設 `DATABASE_URL` 與 `compose.yaml` 相符。請將 `SESSION_SECRET` 設成一段足夠長的隨機字串，用來簽署 session cookie。接著開啟 dev server（預設 `http://localhost:5173`），按下 **以 Email 繼續** 即可用 `john@example.com` 登入。
+`.env.example` 的預設 `DATABASE_URL` 與 `compose.yaml` 相符。請將 `SESSION_SECRET` 設成一段足夠長的隨機字串 (如使用指令 `openssl rand -base64 32` 產生)，用來簽署 session cookie。接著開啟 dev server（預設 `http://localhost:5173`），按下 **以 Email 繼續** 即可用 `john@example.com` 登入。
 
 ### Commands
 
@@ -246,7 +250,6 @@ pnpm db:generate   # drizzle-kit generate
 pnpm db:migrate    # drizzle-kit migrate
 pnpm db:push       # drizzle-kit push
 pnpm db:seed       # Seed demo users + sample transactions
-pnpm db:studio     # drizzle-kit studio
 ```
 
 ---
@@ -259,9 +262,10 @@ pnpm db:studio     # drizzle-kit studio
 │   ├── doc-coauthoring/         # 文件共筆 workflow
 │   ├── drizzle/                 # Drizzle schema/query 慣例
 │   ├── karpathy-guidelines/     # Surgical change 與驗證紀律
-│   ├── session-handoff/         # 維護 ai-docs/tasks.md + session-log.md
+│   ├── session-handoff/         # (private, 未提交) 維護 ai-docs/tasks.md + session-log.md
 │   ├── svelte-code-writer/      # Svelte MCP/CLI 查詢與 autofix workflow
 │   └── svelte-core-bestpractices/
+├── .codex/                      # Codex AI configuration
 ├── .github/workflows/ci.yml     # GitHub Actions：install、test、Codecov、SonarQube
 ├── .husky/                      # Git hooks（pre-commit, commit-msg）
 ├── .opencode/                   # OpenCode AI configuration
@@ -269,7 +273,8 @@ pnpm db:studio     # drizzle-kit studio
 ├── ai-docs/                     # AI task template、task plan、session log
 ├── drizzle/                     # Generated SQL migrations + Drizzle metadata snapshots
 ├── e2e/
-│   └── expense.spec.ts          # Playwright login + transaction CRUD happy path
+│   ├── expense.spec.ts          # Playwright login + transaction CRUD happy path
+│   └── sort.spec.ts             # Playwright 排序 + URL 狀態 e2e 檢查
 ├── messages/                    # Paraglide source messages
 │   ├── en.json                  # 英文翻譯檔
 │   └── zh-tw.json               # 繁體中文翻譯檔
@@ -280,6 +285,7 @@ pnpm db:studio     # drizzle-kit studio
 │   ├── lib/
 │   │   ├── assets/              # Favicon 與 README screenshots
 │   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
+│   │   │   └── ui/              # 自建 Svelte 5 primitives：Button、ConfirmDialog、Field
 │   │   ├── server/
 │   │   │   ├── db/
 │   │   │   │   ├── admin.ts     # Admin-only 查詢（跨使用者統計資料）
@@ -294,12 +300,16 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
 │   │   │   ├── api.ts           # REST API 回應包裝與身分驗證守衛
+│   │   │   ├── rate-limit.ts    # 記憶體內 fixed-window 限流（登入 + API）
 │   │   │   ├── openapi.ts       # 動態從 Zod 產生 OpenAPI 3.1 規範
 │   │   │   ├── schemas.ts       # 共用的 Zod 定義 (表單與 API 共用)
 │   │   │   └── validation.ts    # Action 驗證邏輯，底層依賴 schemas.ts
+│   │   ├── table/               # TanStack 排序：與 URL 同步的 sorted-table store
+│   │   │   └── sorted-table.svelte.ts
 │   │   ├── categories.ts        # 固定 category keys + localized labels
 │   │   ├── constants.ts         # App name、demo email、pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
+│   │   ├── index.ts             # lib barrel re-exports
 │   │   ├── money.ts             # TWD integer formatting/parsing
 │   │   ├── theme.svelte.ts      # Client theme store（light / dark / system）
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
@@ -334,6 +344,7 @@ pnpm db:studio     # drizzle-kit studio
 ├── .prettierignore              # Prettier ignore rules
 ├── .prettierrc                  # Prettier + Svelte/Tailwind plugin config
 ├── AGENTS.md                    # 此 repo 的 AI agent instructions
+├── LICENSE                      # MIT license
 ├── README.md                    # English README
 ├── README-cht.md                # 繁體中文 README
 ├── commitlint.config.mjs        # Conventional commit config
@@ -344,6 +355,7 @@ pnpm db:studio     # drizzle-kit studio
 ├── playwright.config.ts         # Cross-browser e2e configuration
 ├── pnpm-lock.yaml               # Locked dependency graph
 ├── pnpm-workspace.yaml          # pnpm workspace 與 minimum-release-age policy
+├── project.inlang/              # Paraglide / inlang i18n 專案設定
 ├── skills-lock.json             # Locked AI skill/plugin metadata
 ├── sonar-project.properties     # SonarQube project configuration
 ├── svelte.config.js             # SvelteKit config、Vercel adapter、forced runes mode
