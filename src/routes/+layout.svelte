@@ -29,6 +29,9 @@
         </a>
         {#if data.user.role === "admin"}
           <a href={resolve("/admin")} class="whitespace-nowrap hover:underline">{m.nav_admin()}</a>
+          <a href={resolve("/api/docs")} class="whitespace-nowrap text-gray-500 hover:underline"
+            >{m.nav_api_docs()}</a
+          >
         {/if}
       </nav>
       <div

@@ -27,8 +27,16 @@
       header: () => m.field_category()
     },
     { id: "type", accessorFn: (row) => typeLabel(row.type), header: () => m.field_type() },
-    { accessorKey: "amount", header: () => m.field_amount() },
-    { accessorKey: "note", header: () => m.field_note() },
+    {
+      id: "amount",
+      accessorFn: (row) => (row.type === "income" ? row.amount : -row.amount),
+      header: () => m.field_amount()
+    },
+    {
+      id: "note",
+      accessorFn: (row) => row.note || "",
+      header: () => m.field_note()
+    },
     { id: "actions", enableSorting: false, header: () => "" }
   ];
 
@@ -99,9 +107,43 @@
       {m.no_transactions_match()}
     </p>
   {:else}
+    <!-- Mobile Sort Control -->
+    <div class="md:hidden flex items-center justify-end gap-2 mb-2">
+      <select
+        aria-label="Sort field"
+        class="rounded border border-gray-300 py-1 px-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+        onchange={(e) => {
+          const colId = e.currentTarget.value;
+          const header = table.headerGroups[0].headers.find((h) => h.id === colId);
+          if (header) header.column.toggleSorting(table.sorting[0]?.desc ?? true);
+        }}
+      >
+        {#each table.headerGroups[0].headers as header (header.id)}
+          {#if header.column.getCanSort()}
+            <option value={header.id} selected={table.sorting[0]?.id === header.id}>
+              {headerLabel(header)}
+            </option>
+          {/if}
+        {/each}
+      </select>
+      <button
+        type="button"
+        aria-label="Sort direction"
+        class="rounded border border-gray-300 px-2 py-1 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+        onclick={() => {
+          const currentId = table.sorting[0]?.id;
+          const currentDesc = table.sorting[0]?.desc;
+          const header = table.headerGroups[0].headers.find((h) => h.id === currentId);
+          if (header) header.column.toggleSorting(!currentDesc);
+        }}
+      >
+        {table.sorting[0]?.desc ? "▼" : "▲"}
+      </button>
+    </div>
+
     <!-- Mobile List View -->
     <ul
-      class="md:hidden divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800"
+      class="md:hidden divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800 mb-6"
     >
       {#each table.rows as row (row.original.id)}
         {@const tx = row.original}
@@ -110,10 +152,10 @@
             <p class="font-medium">{categoryLabel(tx.category)}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {tx.occurredOn}{#if tx.note}
-                · {tx.note}{/if}
+                · <span class="truncate">{tx.note}</span>{/if}
             </p>
           </div>
-          <div class="flex shrink-0 items-center gap-4">
+          <div class="flex shrink-0 flex-col items-end gap-1">
             <span
               class={[
                 "font-semibold tabular-nums",
@@ -124,27 +166,29 @@
             >
               {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
             </span>
-            <a
-              href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
-              class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
-            >
-              {m.action_edit()}
-            </a>
-            <form
-              method="POST"
-              action="?/delete"
-              class="shrink-0"
-              use:enhance={({ cancel }) => {
-                if (!confirm(m.confirm_delete_transaction())) {
-                  cancel();
-                }
-              }}
-            >
-              <input type="hidden" name="id" value={tx.id} />
-              <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
-                >{m.action_delete()}</button
+            <div class="flex items-center gap-3">
+              <a
+                href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
+                class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
               >
-            </form>
+                {m.action_edit()}
+              </a>
+              <form
+                method="POST"
+                action="?/delete"
+                class="shrink-0"
+                use:enhance={({ cancel }) => {
+                  if (!confirm(m.confirm_delete_transaction())) {
+                    cancel();
+                  }
+                }}
+              >
+                <input type="hidden" name="id" value={tx.id} />
+                <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
+                  >{m.action_delete()}</button
+                >
+              </form>
+            </div>
           </div>
         </li>
       {/each}
@@ -162,7 +206,7 @@
             <tr>
               {#each headerGroup.headers as header (header.id)}
                 <th
-                  class="px-4 py-3 font-medium"
+                  class="px-2 py-3 font-medium"
                   aria-sort={header.column.getCanSort()
                     ? header.column.getIsSorted() === "asc"
                       ? "ascending"
@@ -203,9 +247,9 @@
           {#each table.rows as row (row.original.id)}
             {@const tx = row.original}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-              <td class="px-4 py-3">{tx.occurredOn}</td>
-              <td class="px-4 py-3 font-medium">{categoryLabel(tx.category)}</td>
-              <td class="px-4 py-3">
+              <td class="px-2 py-3">{tx.occurredOn}</td>
+              <td class="px-2 py-3 font-medium">{categoryLabel(tx.category)}</td>
+              <td class="px-2 py-3">
                 <span
                   class={tx.type === "income"
                     ? "text-green-600 dark:text-green-400"
@@ -214,7 +258,7 @@
                   {typeLabel(tx.type)}
                 </span>
               </td>
-              <td class="px-4 py-3">
+              <td class="px-2 py-3">
                 <span
                   class={[
                     "font-semibold tabular-nums",
@@ -227,10 +271,10 @@
                 </span>
               </td>
               <td
-                class="px-4 py-3 text-gray-500 dark:text-gray-400 w-full max-w-0 truncate"
+                class="px-2 py-3 text-gray-500 dark:text-gray-400 w-full max-w-0 truncate"
                 title={tx.note || ""}>{tx.note || ""}</td
               >
-              <td class="px-4 py-3 text-right w-1 whitespace-nowrap">
+              <td class="px-2 py-3 text-right w-1 whitespace-nowrap">
                 <div class="flex items-center justify-end gap-3 shrink-0">
                   <a
                     href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}

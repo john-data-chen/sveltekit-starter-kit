@@ -29,7 +29,10 @@ test("John signs in, adds an expense, then deletes it", async ({ page, isMobile 
   // 2. Add a new expense tagged with a unique note. The random suffix guarantees uniqueness
   // even across fast repeated runs (Date.now() alone can collide within the same millisecond).
   const note = `e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  await page.goto("/transactions/new");
+  await expect(async () => {
+    await page.goto("/transactions/new");
+    await expect(page).toHaveURL(/\/transactions\/new/);
+  }).toPass({ timeout: 15_000 });
   const addTransaction = page.locator('form:has(input[name="amount"]) button[type="submit"]');
   // Re-fill inside the retry so a hydration reset of the inputs can't leave a stale value.
   await expect(async () => {
@@ -42,14 +45,15 @@ test("John signs in, adds an expense, then deletes it", async ({ page, isMobile 
 
   // 3. The new row is listed.
   const row = isMobile
-    ? page.locator("li", { hasText: note })
-    : page.locator("tr", { hasText: note });
+    ? page.locator("li").filter({ hasText: note })
+    : page.locator("tr").filter({ hasText: note });
   await expect(row).toBeVisible();
 
   // 4. Delete it, then confirm it is gone. Scope to the row's delete form (the layout also
   // renders a logout form on authed pages, so a bare submit selector would be ambiguous).
   await row.locator('form[action="?/delete"] button[type="submit"]').click();
-  await expect(
-    isMobile ? page.locator("li", { hasText: note }) : page.locator("tr", { hasText: note })
-  ).toHaveCount(0);
+  const rowAfterDelete = isMobile
+    ? page.locator("li", { hasText: note })
+    : page.locator("tr", { hasText: note });
+  await expect(rowAfterDelete).toHaveCount(0);
 });
