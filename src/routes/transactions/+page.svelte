@@ -1,13 +1,74 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import { resolve } from "$app/paths";
+  import {
+    createTable,
+    getCoreRowModel,
+    getSortedRowModel,
+    createColumnHelper,
+    type Updater,
+    type SortingState
+  } from "@tanstack/table-core";
   import { categoryLabel } from "$lib/categories";
   import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
   import type { PageProps } from "./$types";
+  import { readSort, writeSort } from "$lib/table/sort";
 
   let { data }: PageProps = $props();
+
+  let initialSort = readSort($page.url.searchParams);
+  if (initialSort.length === 0) {
+    initialSort = [{ id: "occurredOn", desc: true }];
+  }
+  let sorting = $state(initialSort);
+
+  function handleSortingChange(updaterOrValue: Updater<SortingState>) {
+    sorting = typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
+    const newParams = writeSort($page.url.searchParams, sorting);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    goto(("?" + newParams.toString()) as any, {
+      replaceState: true,
+      keepFocus: true,
+      noScroll: true
+    });
+  }
+
+  const columnHelper = createColumnHelper<(typeof data.transactions)[0]>();
+  const columns = [
+    columnHelper.accessor("occurredOn", { header: () => m.field_date() }),
+    columnHelper.accessor("category", { header: () => m.field_category() }),
+    columnHelper.accessor("type", { header: () => m.field_type() }),
+    columnHelper.accessor("amount", { header: () => m.field_amount() }),
+    columnHelper.accessor("note", { header: () => m.field_note() }),
+    columnHelper.display({ id: "actions", enableSorting: false })
+  ];
+
+  let table = $derived.by(() => {
+    const t = createTable({
+      data: data.transactions,
+      columns,
+      state: {},
+      onStateChange: () => {},
+      onSortingChange: handleSortingChange,
+      renderFallbackValue: null,
+      getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel()
+    });
+    t.setOptions((prev) => ({
+      ...prev,
+      state: { ...t.initialState, sorting }
+    }));
+    return t;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function renderHeader(headerDef: any, context: any) {
+    return typeof headerDef === "function" ? headerDef(context) : headerDef;
+  }
 </script>
 
 <svelte:head><title>{pageTitle(m.nav_transactions())}</title></svelte:head>
@@ -69,52 +130,114 @@
       {m.no_transactions_match()}
     </p>
   {:else}
-    <ul
-      class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800"
-    >
-      {#each data.transactions as tx (tx.id)}
-        <li class="flex items-center justify-between gap-4 p-4">
-          <div class="min-w-0">
-            <p class="font-medium">{categoryLabel(tx.category)}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {tx.occurredOn}{#if tx.note}
-                · {tx.note}{/if}
-            </p>
-          </div>
-          <div class="flex shrink-0 items-center gap-4">
-            <span
-              class={[
-                "font-semibold tabular-nums",
-                tx.type === "income"
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400"
-              ]}
-            >
-              {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
-            </span>
-            <a
-              href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
-              class="text-sm text-gray-500 hover:underline dark:text-gray-400"
-            >
-              {m.action_edit()}
-            </a>
-            <form
-              method="POST"
-              action="?/delete"
-              use:enhance={({ cancel }) => {
-                if (!confirm(m.confirm_delete_transaction())) {
-                  cancel();
-                }
-              }}
-            >
-              <input type="hidden" name="id" value={tx.id} />
-              <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
-                >{m.action_delete()}</button
-              >
-            </form>
-          </div>
-        </li>
-      {/each}
-    </ul>
+    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead
+          class="border-b border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
+        >
+          {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+            <tr>
+              {#each headerGroup.headers as header (header.id)}
+                <th
+                  class="px-4 py-3 font-medium"
+                  aria-sort={header.column.getCanSort()
+                    ? header.column.getIsSorted() === "asc"
+                      ? "ascending"
+                      : header.column.getIsSorted() === "desc"
+                        ? "descending"
+                        : "none"
+                    : undefined}
+                >
+                  {#if !header.isPlaceholder}
+                    {#if header.column.getCanSort()}
+                      <button
+                        class="flex w-full items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100"
+                        onclick={header.column.getToggleSortingHandler()}
+                      >
+                        {renderHeader(header.column.columnDef.header, header.getContext())}
+                        <span class="text-xs text-gray-400">
+                          {#if header.column.getIsSorted() === "asc"}
+                            ▲
+                          {:else if header.column.getIsSorted() === "desc"}
+                            ▼
+                          {:else}
+                            ⇅
+                          {/if}
+                        </span>
+                      </button>
+                    {:else}
+                      <span class="flex items-center gap-1">
+                        {#if typeof header.column.columnDef.header === "string"}
+                          {header.column.columnDef.header}
+                        {:else}
+                          {renderHeader(header.column.columnDef.header, header.getContext())}
+                        {/if}
+                      </span>
+                    {/if}
+                  {/if}
+                </th>
+              {/each}
+            </tr>
+          {/each}
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+          {#each table.getRowModel().rows as row (row.original.id)}
+            {@const tx = row.original}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              <td class="px-4 py-3">{tx.occurredOn}</td>
+              <td class="px-4 py-3 font-medium">{categoryLabel(tx.category)}</td>
+              <td class="px-4 py-3">
+                <span
+                  class={tx.type === "income"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"}
+                >
+                  {tx.type === "income" ? "+" : "-"}
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <span
+                  class={[
+                    "font-semibold tabular-nums",
+                    tx.type === "income"
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  ]}
+                >
+                  {formatTWD(tx.amount)}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{tx.note || ""}</td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex items-center justify-end gap-3">
+                  <a
+                    href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
+                    class="text-sm text-gray-500 hover:underline dark:text-gray-400"
+                  >
+                    {m.action_edit()}
+                  </a>
+                  <form
+                    method="POST"
+                    action="?/delete"
+                    use:enhance={({ cancel }) => {
+                      if (!confirm(m.confirm_delete_transaction())) {
+                        cancel();
+                      }
+                    }}
+                  >
+                    <input type="hidden" name="id" value={tx.id} />
+                    <button
+                      type="submit"
+                      class="text-sm text-red-500 hover:underline dark:text-red-400"
+                      >{m.action_delete()}</button
+                    >
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   {/if}
 </section>

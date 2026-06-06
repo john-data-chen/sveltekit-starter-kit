@@ -75,5 +75,7 @@
   "audit_col_summary": "Summary",
   "action_create": "Create",
   "action_update": "Update",
+  "action_sort_asc": "Smallest first",
+  "action_sort_desc": "Largest first",
   "admin_activity_empty": "No recent activity."
 }

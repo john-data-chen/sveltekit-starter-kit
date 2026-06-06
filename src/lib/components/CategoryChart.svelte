@@ -10,17 +10,30 @@
 
   let { items, total }: { items: Slice[]; total: number } = $props();
 
+  let sortAscending = $state(false);
+
   // Fixed palette; assigned by index. Pure CSS — no charting dependency.
   const palette = ["#0ea5e9", "#f97316", "#22c55e", "#a855f7", "#ef4444", "#eab308", "#14b8a6"];
 
+  let itemsWithColors = $derived(
+    items.map((item, i) => ({
+      ...item,
+      color: palette[i % palette.length]
+    }))
+  );
+
+  let sortedItems = $derived.by(() => {
+    return sortAscending ? [...itemsWithColors].reverse() : itemsWithColors;
+  });
+
   let slices = $derived.by(() => {
     let acc = 0;
-    return items.map((item, i) => {
+    return sortedItems.map((item) => {
       const start = total > 0 ? (acc / total) * 100 : 0;
       acc += item.total;
       const end = total > 0 ? (acc / total) * 100 : 0;
       const pct = total > 0 ? Math.round((item.total / total) * 100) : 0;
-      return { ...item, color: palette[i % palette.length], start, end, pct };
+      return { ...item, start, end, pct };
     });
   });
 
@@ -34,6 +47,16 @@
 {#if items.length === 0}
   <p class="text-sm text-gray-500 dark:text-gray-400">{m.no_expenses_this_month()}</p>
 {:else}
+  <div class="mb-4 flex justify-end">
+    <button
+      type="button"
+      onclick={() => (sortAscending = !sortAscending)}
+      class="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+    >
+      {sortAscending ? m.action_sort_asc() : m.action_sort_desc()}
+      <span aria-hidden="true">{sortAscending ? "▲" : "▼"}</span>
+    </button>
+  </div>
   <div class="flex flex-wrap items-center gap-6">
     <div class="relative size-40 shrink-0">
       <div class="size-40 rounded-full" style:background={gradient}></div>

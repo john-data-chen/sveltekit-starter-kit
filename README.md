@@ -88,6 +88,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 - **Roles & Permissions (Governance)** — "member" role (default) has access to their own dashboard and transactions. "admin" role grants access to a global `/admin` Governance view to oversee platform usage.
 - **Audit Log / Activity Trail** — best-effort logging of user mutations (create, update, delete) visible in the Admin Governance view.
 - **Transactions CRUD** — record income/expense entries (amount, type, category, date, optional note).
+- **Sortable data-tables (TanStack)** — Transactions and Admin data tables are fully sortable, with state seamlessly synced to the URL.
 - **List & filter** — filter transactions by category and by month; filter state lives in the URL.
 - **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency).
 - **Per-user data isolation** — every query is scoped to the signed-in user; you only ever see your own data.
