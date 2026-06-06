@@ -1,7 +1,5 @@
 import adapter from "@sveltejs/adapter-vercel";
 
-const dev = process.env.NODE_ENV !== "production";
-
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   compilerOptions: {
