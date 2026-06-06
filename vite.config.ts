@@ -21,7 +21,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      exclude: ["src/lib/paraglide/**", "**/*.spec.ts", "**/*.test.ts"]
+      exclude: ["src/lib/paraglide/**", "**/*.spec.ts", "**/*.test.ts", "ai-docs/**"]
     }
   }
 });
