@@ -136,6 +136,7 @@
                         >
                           {headerLabel(header)}
                           <span class="text-xs text-gray-400" aria-hidden="true">
+                            {userTable.sorting && ""}
                             {#if header.column.getIsSorted() === "asc"}
                               ▲
                             {:else if header.column.getIsSorted() === "desc"}
@@ -225,6 +226,7 @@
                         >
                           {headerLabel(header)}
                           <span class="text-xs text-gray-400" aria-hidden="true">
+                            {auditTable.sorting && ""}
                             {#if header.column.getIsSorted() === "asc"}
                               ▲
                             {:else if header.column.getIsSorted() === "desc"}

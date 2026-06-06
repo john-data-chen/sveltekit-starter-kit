@@ -41,18 +41,19 @@
 
 ### 架構
 
-| 類型       | 選擇                                           | 理由                                                                |
-| ---------- | ---------------------------------------------- | ------------------------------------------------------------------- |
-| Framework  | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                              |
-| Styling    | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                  |
-| Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                           |
-| DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                |
-| Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                          |
-| Authz/RBAC | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制           |
-| Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod |
-| Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                          |
-| i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文               |
-| Deploy     | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                             |
+| 類型       | 選擇                                           | 理由                                                                    |
+| ---------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
+| Framework  | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                                  |
+| Styling    | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                      |
+| Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                               |
+| DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                    |
+| Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                              |
+| Authz/RBAC | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制               |
+| Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod     |
+| Tables     | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染 |
+| Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                              |
+| i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文                   |
+| Deploy     | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                 |
 
 ### 品質保證
 
@@ -90,7 +91,7 @@
 - **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（數目、類型、類別、日期、備註）。
 - **Sortable data-tables (TanStack)** — 交易清單與管理員報表皆採用 TanStack Table 實作排序功能，並且排序狀態會與 URL 同步。
 - **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
-- **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖。
+- **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
 - **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
 - **i18n** — 英文與繁體中文（Paraglide JS）。

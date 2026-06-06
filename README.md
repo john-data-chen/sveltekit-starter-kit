@@ -50,6 +50,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 | Auth       | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                         |
 | Authz/RBAC | Route-level role guards (`requireAdmin`)       | Strict access control based on DB-backed user roles (`admin` vs `member`)                  |
 | Validation | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input |
+| Tables     | `@tanstack/table-core`                         | Headless, URL-synchronized sorting, rendered via pure Svelte components                    |
 | Charts     | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                    |
 | i18n       | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                          |
 | Deploy     | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver                                        |
@@ -90,7 +91,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 - **Transactions CRUD** — record income/expense entries (amount, type, category, date, optional note).
 - **Sortable data-tables (TanStack)** — Transactions and Admin data tables are fully sortable, with state seamlessly synced to the URL.
 - **List & filter** — filter transactions by category and by month; filter state lives in the URL.
-- **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency).
+- **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency, supports large/small toggle).
 - **Per-user data isolation** — every query is scoped to the signed-in user; you only ever see your own data.
 - **Currency** — TWD only, stored as integers (no decimals).
 - **i18n** — English and Traditional Chinese (Paraglide JS).

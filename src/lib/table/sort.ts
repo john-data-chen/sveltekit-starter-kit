@@ -1,17 +1,17 @@
 import type { SortingState } from "@tanstack/table-core";
 
 export function readSort(searchParams: URLSearchParams, prefix = ""): SortingState {
-  const sortBy = searchParams.get(`${prefix}sortBy`);
-  const sortDesc = searchParams.get(`${prefix}sortDesc`);
+  const sort = searchParams.get(`${prefix}sort`);
+  const dir = searchParams.get(`${prefix}dir`);
 
-  if (!sortBy) {
+  if (!sort) {
     return [];
   }
 
   return [
     {
-      id: sortBy,
-      desc: sortDesc === "true"
+      id: sort,
+      desc: dir === "desc"
     }
   ];
 }
@@ -24,14 +24,14 @@ export function writeSort(
   const newParams = new URLSearchParams(searchParams);
 
   if (sorting.length === 0) {
-    newParams.delete(`${prefix}sortBy`);
-    newParams.delete(`${prefix}sortDesc`);
+    newParams.delete(`${prefix}sort`);
+    newParams.delete(`${prefix}dir`);
   } else {
-    newParams.set(`${prefix}sortBy`, sorting[0].id);
+    newParams.set(`${prefix}sort`, sorting[0].id);
     if (sorting[0].desc) {
-      newParams.set(`${prefix}sortDesc`, "true");
+      newParams.set(`${prefix}dir`, "desc");
     } else {
-      newParams.delete(`${prefix}sortDesc`);
+      newParams.set(`${prefix}dir`, "asc");
     }
   }
 

@@ -29,7 +29,7 @@
     { id: "type", accessorFn: (row) => typeLabel(row.type), header: () => m.field_type() },
     { accessorKey: "amount", header: () => m.field_amount() },
     { accessorKey: "note", header: () => m.field_note() },
-    { id: "actions", enableSorting: false }
+    { id: "actions", enableSorting: false, header: () => "" }
   ];
 
   const table = createSortedTable<Tx>({
@@ -99,7 +99,61 @@
       {m.no_transactions_match()}
     </p>
   {:else}
-    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+    <!-- Mobile List View -->
+    <ul
+      class="md:hidden divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800"
+    >
+      {#each table.rows as row (row.original.id)}
+        {@const tx = row.original}
+        <li class="flex items-center justify-between gap-4 p-4">
+          <div class="min-w-0">
+            <p class="font-medium">{categoryLabel(tx.category)}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {tx.occurredOn}{#if tx.note}
+                · {tx.note}{/if}
+            </p>
+          </div>
+          <div class="flex shrink-0 items-center gap-4">
+            <span
+              class={[
+                "font-semibold tabular-nums",
+                tx.type === "income"
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
+              ]}
+            >
+              {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
+            </span>
+            <a
+              href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
+              class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
+            >
+              {m.action_edit()}
+            </a>
+            <form
+              method="POST"
+              action="?/delete"
+              class="shrink-0"
+              use:enhance={({ cancel }) => {
+                if (!confirm(m.confirm_delete_transaction())) {
+                  cancel();
+                }
+              }}
+            >
+              <input type="hidden" name="id" value={tx.id} />
+              <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
+                >{m.action_delete()}</button
+              >
+            </form>
+          </div>
+        </li>
+      {/each}
+    </ul>
+
+    <!-- Desktop Table View -->
+    <div
+      class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800"
+    >
       <table class="w-full text-left text-sm whitespace-nowrap">
         <thead
           class="border-b border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
@@ -126,6 +180,7 @@
                       >
                         {headerLabel(header)}
                         <span class="text-xs text-gray-400" aria-hidden="true">
+                          {table.sorting && ""}
                           {#if header.column.getIsSorted() === "asc"}
                             ▲
                           {:else if header.column.getIsSorted() === "desc"}
@@ -171,18 +226,22 @@
                   {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
                 </span>
               </td>
-              <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{tx.note || ""}</td>
-              <td class="px-4 py-3 text-right">
-                <div class="flex items-center justify-end gap-3">
+              <td
+                class="px-4 py-3 text-gray-500 dark:text-gray-400 w-full max-w-0 truncate"
+                title={tx.note || ""}>{tx.note || ""}</td
+              >
+              <td class="px-4 py-3 text-right w-1 whitespace-nowrap">
+                <div class="flex items-center justify-end gap-3 shrink-0">
                   <a
                     href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
-                    class="text-sm text-gray-500 hover:underline dark:text-gray-400"
+                    class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
                   >
                     {m.action_edit()}
                   </a>
                   <form
                     method="POST"
                     action="?/delete"
+                    class="shrink-0"
                     use:enhance={({ cancel }) => {
                       if (!confirm(m.confirm_delete_transaction())) {
                         cancel();

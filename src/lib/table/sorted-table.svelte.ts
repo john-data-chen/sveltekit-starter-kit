@@ -18,6 +18,7 @@ import { readSort, writeSort } from "./sort";
 export interface SortedTable<T> {
   readonly headerGroups: HeaderGroup<T>[];
   readonly rows: Row<T>[];
+  readonly sorting: SortingState;
 }
 
 interface SortedTableConfig<T extends RowData> {
@@ -80,6 +81,9 @@ export function createSortedTable<T extends RowData>(config: SortedTableConfig<T
     },
     get rows() {
       return view.rows;
+    },
+    get sorting() {
+      return sorting;
     }
   };
 }
