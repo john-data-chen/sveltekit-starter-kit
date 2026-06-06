@@ -59,6 +59,23 @@ export const MonthString = z
 export const TransactionListQuery = z
   .object({
     category: z.string().optional(),
-    month: MonthString.optional()
+    month: MonthString.optional(),
+    limit: z.coerce.number().int().nonnegative().default(20),
+    offset: z.coerce.number().int().nonnegative().default(0)
   })
   .meta({ id: "TransactionListQuery" });
+
+export const PaginationInfo = z
+  .object({
+    total: z.number().int().nonnegative(),
+    limit: z.number().int().positive(),
+    offset: z.number().int().nonnegative()
+  })
+  .meta({ id: "PaginationInfo" });
+
+export const TransactionListResponse = z
+  .object({
+    data: z.array(TransactionResponse),
+    pagination: PaginationInfo
+  })
+  .meta({ id: "TransactionListResponse" });

@@ -1,5 +1,7 @@
 import adapter from "@sveltejs/adapter-vercel";
 
+const dev = process.env.NODE_ENV !== "production";
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   compilerOptions: {
@@ -11,6 +13,21 @@ const config = {
     // talks to PostgreSQL over TCP via `postgres` (the edge runtime can't). See
     // https://svelte.dev/docs/kit/adapter-vercel for runtime/region options.
     adapter: adapter(),
+
+    csp: {
+      mode: "nonce",
+      directives: {
+        "default-src": ["self"],
+        "script-src": ["self", "https://va.vercel-scripts.com"],
+        "style-src": ["self", "unsafe-inline"],
+        "img-src": ["self", "data:"],
+        "font-src": ["self", "data:"],
+        "connect-src": ["self", "https://va.vercel-scripts.com"],
+        "frame-ancestors": ["none"],
+        "object-src": ["none"],
+        "base-uri": ["self"]
+      }
+    },
 
     typescript: {
       config: (config) => ({

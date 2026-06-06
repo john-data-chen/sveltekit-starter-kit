@@ -26,7 +26,9 @@ export function getOpenApiSpec() {
         TransactionUpdate: schemas.TransactionUpdate.toJSONSchema(),
         TransactionResponse: schemas.TransactionResponse.toJSONSchema(),
         ErrorResponse: schemas.ErrorResponse.toJSONSchema(),
-        TransactionListQuery: schemas.TransactionListQuery.toJSONSchema()
+        TransactionListQuery: schemas.TransactionListQuery.toJSONSchema(),
+        PaginationInfo: schemas.PaginationInfo.toJSONSchema(),
+        TransactionListResponse: schemas.TransactionListResponse.toJSONSchema()
       },
       responses: {
         Unauthorized: {
@@ -67,17 +69,28 @@ export function getOpenApiSpec() {
               schema: { type: "string" },
               required: false,
               description: "Format: YYYY-MM"
+            },
+            {
+              name: "limit",
+              in: "query",
+              schema: { type: "integer", default: 20 },
+              required: false,
+              description: "Max number of results to return (max 100)"
+            },
+            {
+              name: "offset",
+              in: "query",
+              schema: { type: "integer", default: 0 },
+              required: false,
+              description: "Number of results to skip"
             }
           ],
           responses: {
             "200": {
-              description: "A list of transactions",
+              description: "A paginated list of transactions inside an envelope",
               content: {
                 "application/json": {
-                  schema: {
-                    type: "array",
-                    items: { $ref: "#/components/schemas/TransactionResponse" }
-                  }
+                  schema: { $ref: "#/components/schemas/TransactionListResponse" }
                 }
               }
             },

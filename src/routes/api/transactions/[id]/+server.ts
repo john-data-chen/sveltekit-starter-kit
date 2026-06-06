@@ -1,4 +1,4 @@
-import { apiError, requireApiUser } from "$lib/server/api";
+import { apiError, requireApiUser, requireRateLimit } from "$lib/server/api";
 import { recordAudit } from "$lib/server/db/audit";
 import { getTransaction, updateTransaction, deleteTransaction } from "$lib/server/db/queries";
 import { TransactionUpdate, TransactionCreate, serializeTransaction } from "$lib/server/schemas";
@@ -20,6 +20,7 @@ export async function GET(event: RequestEvent) {
 }
 
 export async function PATCH(event: RequestEvent) {
+  requireRateLimit(event, "api-transactions-mutate");
   const user = requireApiUser(event.locals);
   const id = Number(event.params.id);
   if (!Number.isInteger(id)) {
@@ -71,6 +72,7 @@ export async function PATCH(event: RequestEvent) {
 }
 
 export async function DELETE(event: RequestEvent) {
+  requireRateLimit(event, "api-transactions-mutate");
   const user = requireApiUser(event.locals);
   const id = Number(event.params.id);
   if (!Number.isInteger(id)) {

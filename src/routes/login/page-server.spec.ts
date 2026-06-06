@@ -1,4 +1,5 @@
 import { findLoginUserByEmail, logLoginInfrastructureError } from "$lib/server/login";
+import { resetRateLimitStore } from "$lib/server/rate-limit";
 import type { Cookies } from "@sveltejs/kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -42,12 +43,18 @@ async function submitLogin(email: string | undefined, cookies: Cookies = createC
     body: form
   });
 
-  return (actions.default as LoginAction)({ request, cookies } as Parameters<LoginAction>[0]);
+  return (actions.default as LoginAction)({
+    request,
+    cookies,
+    getClientAddress: vi.fn(() => "127.0.0.1"),
+    setHeaders: vi.fn()
+  } as unknown as Parameters<LoginAction>[0]);
 }
 
 beforeEach(() => {
   vi.mocked(findLoginUserByEmail).mockReset();
   vi.mocked(logLoginInfrastructureError).mockReset();
+  resetRateLimitStore();
 });
 
 describe("login action", () => {
@@ -116,6 +123,27 @@ describe("login action", () => {
       "session cookie setup failed",
       expect.any(Error)
     );
+  });
+
+  it("returns a 429 too many requests failure when rate limit is exceeded", async () => {
+    vi.mocked(findLoginUserByEmail).mockResolvedValue({ type: "found", userId: 42 });
+
+    // Submit 10 successful logins (limit is 10)
+    for (let i = 0; i < 10; i++) {
+      const { cookies } = createCookies();
+      // We expect redirect (303) on success
+      await expect(submitLogin("john@example.com", cookies)).rejects.toMatchObject({
+        status: 303
+      });
+    }
+
+    // The 11th login attempt should fail with 429
+    const { cookies } = createCookies();
+    const result = await submitLogin("john@example.com", cookies);
+    expect(result).toMatchObject({
+      status: 429,
+      data: { email: "", message: expect.any(String) }
+    });
   });
 });
 

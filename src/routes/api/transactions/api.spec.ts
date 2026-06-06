@@ -9,7 +9,7 @@ import { GET, POST } from "./+server";
 import { GET as GET_ID, PATCH, DELETE } from "./[id]/+server";
 
 vi.mock("$lib/server/db/queries", () => ({
-  listTransactions: vi.fn(),
+  listTransactionsPaged: vi.fn(),
   getTransaction: vi.fn(),
   createTransaction: vi.fn(),
   updateTransaction: vi.fn(),
@@ -30,6 +30,8 @@ vi.mock("@sveltejs/kit", async (importOriginal) => {
   };
 });
 
+import { resetRateLimitStore } from "$lib/server/rate-limit";
+
 function createMockEvent(
   user: any = { id: 1, name: "Test", role: "member" },
   params = {},
@@ -42,13 +44,16 @@ function createMockEvent(
     url,
     request: {
       json: vi.fn().mockResolvedValue(body)
-    }
+    },
+    getClientAddress: vi.fn(() => "127.0.0.1"),
+    setHeaders: vi.fn()
   } as unknown as RequestEvent;
 }
 
 describe("API: /api/transactions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetRateLimitStore();
   });
 
   describe("GET /api/transactions", () => {
@@ -61,7 +66,7 @@ describe("API: /api/transactions", () => {
       });
     });
 
-    it("returns 200 with list of transactions", async () => {
+    it("returns 200 with enveloped list of transactions and defaults", async () => {
       const event = createMockEvent();
       const mockTx: Transaction = {
         id: 1,
@@ -73,27 +78,33 @@ describe("API: /api/transactions", () => {
         note: null,
         createdAt: new Date()
       };
-      vi.mocked(queries.listTransactions).mockResolvedValue([mockTx]);
+      vi.mocked(queries.listTransactionsPaged).mockResolvedValue({ rows: [mockTx], total: 1 });
 
       const res = await GET(event);
       expect(res.status).toBe(200);
       const body = await res.json();
-      expect(body).toHaveLength(1);
-      expect(() => TransactionResponse.parse(body[0])).not.toThrow();
-      expect(body).toEqual([{ ...mockTx, createdAt: mockTx.createdAt.toISOString() }]);
-      expect(queries.listTransactions).toHaveBeenCalledWith(1, {});
+      expect(body.data).toHaveLength(1);
+      expect(() => TransactionResponse.parse(body.data[0])).not.toThrow();
+      expect(body.data).toEqual([{ ...mockTx, createdAt: mockTx.createdAt.toISOString() }]);
+      expect(body.pagination).toEqual({ total: 1, limit: 20, offset: 0 });
+      expect(queries.listTransactionsPaged).toHaveBeenCalledWith(1, {
+        limit: 20,
+        offset: 0
+      });
     });
 
     it("parses query parameters and passes them", async () => {
-      const url = new URL("http://localhost?category=Food&month=2023-01");
+      const url = new URL("http://localhost?category=Food&month=2023-01&limit=50&offset=10");
       const event = createMockEvent(undefined, {}, url);
-      vi.mocked(queries.listTransactions).mockResolvedValue([]);
+      vi.mocked(queries.listTransactionsPaged).mockResolvedValue({ rows: [], total: 0 });
 
       const res = await GET(event);
       expect(res.status).toBe(200);
-      expect(queries.listTransactions).toHaveBeenCalledWith(1, {
+      expect(queries.listTransactionsPaged).toHaveBeenCalledWith(1, {
         category: "Food",
-        month: "2023-01"
+        month: "2023-01",
+        limit: 50,
+        offset: 10
       });
     });
 

@@ -2,6 +2,7 @@ import { DEMO_EMAIL } from "$lib/constants";
 import * as m from "$lib/paraglide/messages";
 import { setSessionCookie } from "$lib/server/auth";
 import { findLoginUserByEmail, logLoginInfrastructureError } from "$lib/server/login";
+import { rateLimit } from "$lib/server/rate-limit";
 import { parseLoginEmail } from "$lib/server/validation";
 import { fail, redirect } from "@sveltejs/kit";
 
@@ -12,7 +13,16 @@ export const load: PageServerLoad = () => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, cookies }) => {
+  default: async ({ request, cookies, getClientAddress, setHeaders }) => {
+    const ip = getClientAddress();
+    const limitResult = rateLimit(`login:${ip}`, { windowMs: 60 * 1000, max: 10 });
+    if (!limitResult.success) {
+      setHeaders({
+        "Retry-After": String(limitResult.retryAfter)
+      });
+      return fail(429, { email: "", message: m.login_error_service_unavailable() });
+    }
+
     const form = await request.formData();
     const parsed = parseLoginEmail(form);
 

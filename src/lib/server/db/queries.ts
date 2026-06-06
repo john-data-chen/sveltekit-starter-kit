@@ -151,3 +151,47 @@ export async function getMonthlyStats(userId: number, month: string): Promise<Mo
 
   return { income, expense, balance: income - expense, expenseByCategory };
 }
+
+export interface ListPagedFilters extends ListFilters {
+  limit?: number;
+  offset?: number;
+}
+
+/** List a user's transactions with pagination, returning rows and total count. */
+export async function listTransactionsPaged(
+  userId: number,
+  filters: ListPagedFilters = {}
+): Promise<{ rows: Transaction[]; total: number }> {
+  const conditions = [eq(transactions.userId, userId)];
+
+  if (filters.category) {
+    conditions.push(eq(transactions.category, filters.category));
+  }
+  if (filters.month) {
+    const { start, end } = monthRange(filters.month);
+    conditions.push(gte(transactions.occurredOn, start), lt(transactions.occurredOn, end));
+  }
+
+  const [countResult] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(transactions)
+    .where(and(...conditions));
+
+  const total = Number(countResult?.count ?? 0);
+
+  const query = db
+    .select()
+    .from(transactions)
+    .where(and(...conditions))
+    .orderBy(desc(transactions.occurredOn), desc(transactions.id));
+
+  const rows = await (filters.limit !== undefined
+    ? filters.offset !== undefined
+      ? query.limit(filters.limit).offset(filters.offset)
+      : query.limit(filters.limit)
+    : filters.offset !== undefined
+      ? query.offset(filters.offset)
+      : query);
+
+  return { rows, total };
+}

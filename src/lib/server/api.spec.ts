@@ -1,7 +1,9 @@
 import type { SessionUser } from "$lib/server/auth";
-import { describe, expect, it } from "vitest";
+import type { RequestEvent } from "@sveltejs/kit";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { apiError, requireApiUser } from "./api";
+import { apiError, requireApiUser, requireRateLimit } from "./api";
+import { resetRateLimitStore } from "./rate-limit";
 
 describe("requireApiUser", () => {
   it("returns the user if present in locals", () => {
@@ -13,6 +15,42 @@ describe("requireApiUser", () => {
   it("throws a 401 error if user is missing", () => {
     const locals = { user: null } as unknown as App.Locals;
     expect(() => requireApiUser(locals)).toThrowError();
+  });
+});
+
+describe("requireRateLimit", () => {
+  beforeEach(() => {
+    resetRateLimitStore();
+  });
+
+  it("does not throw when requests are within the limit", () => {
+    const mockEvent = {
+      getClientAddress: vi.fn(() => "127.0.0.1"),
+      setHeaders: vi.fn()
+    } as unknown as RequestEvent;
+
+    expect(() => requireRateLimit(mockEvent, "test-api", { windowMs: 1000, max: 2 })).not.toThrow();
+
+    expect(() => requireRateLimit(mockEvent, "test-api", { windowMs: 1000, max: 2 })).not.toThrow();
+  });
+
+  it("throws a 429 error and sets Retry-After header when rate limit is exceeded", () => {
+    const mockEvent = {
+      getClientAddress: vi.fn(() => "127.0.0.1"),
+      setHeaders: vi.fn()
+    } as unknown as RequestEvent;
+
+    // Use up the limit (max 1)
+    requireRateLimit(mockEvent, "test-api", { windowMs: 10000, max: 1 });
+
+    // Exceeding request
+    expect(() =>
+      requireRateLimit(mockEvent, "test-api", { windowMs: 10000, max: 1 })
+    ).toThrowError();
+
+    expect(mockEvent.setHeaders).toHaveBeenCalledWith({
+      "Retry-After": expect.any(String)
+    });
   });
 });
 
