@@ -78,5 +78,6 @@
   "action_sort_asc": "Smallest first",
   "action_sort_desc": "Largest first",
   "admin_activity_empty": "No recent activity.",
-  "nav_api_docs": "API Docs"
+  "nav_api_docs": "API Docs",
+  "seo_description": "A secure, multi-user expense tracker starter kit built with SvelteKit, showcasing modern full-stack web engineering, Zod API validation, rate limiting, and clean UI aesthetics."
 }

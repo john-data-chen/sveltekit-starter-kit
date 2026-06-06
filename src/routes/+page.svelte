@@ -19,7 +19,7 @@
         name="month"
         value={data.month}
         onchange={(event) => event.currentTarget.form?.requestSubmit()}
-        class="rounded border border-gray-300 p-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+        class="rounded border border-gray-300 p-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
       />
     </form>
   </div>

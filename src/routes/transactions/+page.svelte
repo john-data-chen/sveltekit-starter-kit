@@ -113,7 +113,7 @@
     <div class="md:hidden flex items-center justify-end gap-2 mb-2">
       <select
         aria-label="Sort field"
-        class="rounded border border-gray-300 py-1 px-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+        class="rounded border border-gray-300 py-1 px-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
         onchange={(e) => {
           const colId = e.currentTarget.value;
           const header = table.headerGroups[0].headers.find((h) => h.id === colId);

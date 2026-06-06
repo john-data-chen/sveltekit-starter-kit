@@ -14,7 +14,7 @@
   aria-label={m.theme_label()}
   value={theme.preference}
   onchange={(event) => theme.set(event.currentTarget.value as ThemePreference)}
-  class="rounded border border-gray-200 px-2 py-1 text-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800"
+  class="rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
 >
   {#each THEME_ORDER as option (option)}
     <option value={option}>{labels[option]}</option>

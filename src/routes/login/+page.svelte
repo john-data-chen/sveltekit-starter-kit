@@ -8,7 +8,42 @@
   let { data, form }: PageProps = $props();
 </script>
 
-<svelte:head><title>{pageTitle(m.sign_in())}</title></svelte:head>
+<svelte:head>
+  <title>{pageTitle(m.sign_in())}</title>
+  <meta name="description" content={m.seo_description()} />
+  <link rel="canonical" href="https://sveltekit-starter-kit.vercel.app/login" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sveltekit-starter-kit.vercel.app/login" />
+  <meta property="og:title" content={pageTitle(m.sign_in())} />
+  <meta property="og:description" content={m.seo_description()} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:url" content="https://sveltekit-starter-kit.vercel.app/login" />
+  <meta name="twitter:title" content={pageTitle(m.sign_in())} />
+  <meta name="twitter:description" content={m.seo_description()} />
+
+  <!-- JSON-LD WebApplication schema -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html "<" +
+    'script type="application/ld+json">' +
+    `
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Expense Tracker",
+      "url": "https://sveltekit-starter-kit.vercel.app",
+      "description": "A secure, multi-user expense tracker showing modern SvelteKit best practices.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All"
+    }
+  ` +
+    "</" +
+    "script>"}
+</svelte:head>
 
 <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
   <header class="text-center">

@@ -43,21 +43,23 @@
 
 評估過引入第三方 UI 元件庫，最終選擇建立內部的 Svelte 5 primitives 層 — 理由：維持極少依賴的原則、無依賴成本的抽象化、符合無障礙標準（a11y-correct）的原生 `<dialog>`，以及利用 Svelte 5 snippets 達到純 HTML 屬性傳遞（不需透過 bind prop-drilling）。
 
-| 類型       | 選擇                                           | 理由                                                                    |
-| ---------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
-| Framework  | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                                  |
-| Styling    | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                      |
-| Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                               |
-| DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                    |
-| Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                              |
-| Authz/RBAC | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制               |
-| Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod     |
-| REST API   | 完整的 CRUD API + JSON 回應封裝                | 分離的 REST 層以利外部系統整合或手機端應用呼叫                          |
-| API Docs   | Scalar UI + Zod 4 原生 OpenAPI 匯出            | 直接由 Zod 模型動態產生的零阻力互動式 API 文件                          |
-| Tables     | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染 |
-| Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                              |
-| i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文                   |
-| Deploy     | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                 |
+| 類型          | 選擇                                           | 理由                                                                       |
+| ------------- | ---------------------------------------------- | -------------------------------------------------------------------------- |
+| Framework     | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                                     |
+| Styling       | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                         |
+| Database      | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                                  |
+| DB Driver     | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                       |
+| Auth          | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                                 |
+| Authz/RBAC    | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制                  |
+| Rate Limiting | 記憶體內的 fixed-window 限流（登入 + API）     | Best-effort 防暴力破解/濫用；多實例環境改用 Vercel KV / Redis              |
+| Security      | Nonce CSP + HSTS + 強化的回應標頭              | 縱深防禦；僅 Scalar `/api/docs` 放寬 CSP，dev 模式移除 CSP 以支援 Vite HMR |
+| Validation    | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod        |
+| REST API      | 完整的 CRUD API + JSON 回應封裝                | 分離的 REST 層以利外部系統整合或手機端應用呼叫                             |
+| API Docs      | Scalar UI + Zod 4 原生 OpenAPI 匯出            | 直接由 Zod 模型動態產生的零阻力互動式 API 文件                             |
+| Tables        | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染    |
+| Charts        | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                                 |
+| i18n          | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文                      |
+| Deploy        | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                    |
 
 ### 品質保證
 
@@ -85,6 +87,14 @@
 | Husky + lint-staged         | pre-commit 品質檢查                               |
 | commitlint + Commitizen     | Conventional commits，維持乾淨 commit history     |
 
+### 架構決策紀錄 (ADR)
+
+| 決策                                                   | 原因                                                                             |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| 自建 Svelte 5 UI primitives，不用元件庫                | 更少依賴、更小 bundle、原生 a11y（`<dialog>`/`<select>`）、乾淨的 runes/snippets |
+| Vercel Node 用 pooled `postgres` TCP driver（非 Edge） | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                |
+| Zod schema = 單一真相來源                              | 一份 schema → 驗證 + TS 型別 + OpenAPI 3.1；零落差                               |
+
 ---
 
 ## 功能
@@ -98,10 +108,14 @@
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
 - **REST API + OpenAPI 互動文件** — 提供完整的 CRUD endpoints (`/api/transactions`, `/api/stats`)，重度利用 Zod 模型來動態對應出即時的 OpenAPI 3.1 規範。同時於 `/api/docs` 掛載了 Scalar UI 以供互動式探索。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
+- **限流 (Rate limiting)** — best-effort 記憶體內 fixed-window 限流：登入每 IP 每分鐘上限 10 次，已驗證的 API 寫入每 IP 每分鐘上限 100 次，超過時回傳 `429` 並附上 `Retry-After` header。（serverless 環境下應改用 Vercel KV / Upstash Redis 讓多實例共享狀態。）
+- **安全強化 (Security hardening)** — 每個 HTML 回應都帶有 nonce-based Content-Security-Policy，以及 `X-Content-Type-Options`、`X-Frame-Options: DENY`、`Referrer-Policy`、`Permissions-Policy`；production 另啟用 `Strict-Transport-Security`。僅 Scalar `/api/docs` 頁面放寬 CSP，dev 模式則移除 CSP 以支援 Vite HMR。
+- **API 分頁 (Pagination)** — `GET /api/transactions` 接受 `limit`（預設 20，上限 100）與 `offset`，並回傳 `{ data, pagination: { total, limit, offset } }` 封裝。
 - **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
 - **i18n** — 英文與繁體中文（Paraglide JS）。
 - **Theme switching** — 淺色 / 深色 / 系統。
 - **Responsive design** — 手機小螢幕排版優先，也支援電腦大螢幕排版。
+- **SEO 與可被搜尋性** — 登入著陸頁提供在地化的 meta description（`seo_description`）、canonical URL、theme-color、Open Graph 與 Twitter Card 標籤，以及 JSON-LD `WebApplication` 結構化資料；並從 `static/` 提供 `sitemap.xml` 與 `robots.txt` 的 `Sitemap:` 指令。
 
 Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 中的 `SESSION_SECRET` 簽章。
 
@@ -147,6 +161,30 @@ MCP 讓 AI 工具可直接和開發基礎設施互動，從而消除上下文切
 ### AI Guidelines（`AGENTS.md` / `CLAUDE.md`）
 
 這些檔案是 AI 輔助開發的專案工作守則，包含主要驗證流程（`pnpm lint` → `pnpm build` → `pnpm check`）、常用指令，以及不同任務應使用的 skills/MCP servers。AI 在修改此專案前應先讀取這些指引。
+
+### AI 交付治理 (AI Delivery Governance)
+
+AI agent 是受治理的協作開發者，而非可自行 commit 的自動程式。
+
+- **Human-in-the-loop** — 每個指令與變更都經審查；不自行執行。
+- **Prompt 與 task template** — 每個 session 先定好角色、可動範圍與通過標準（lint／build／check／tests）。
+- **Context 管理** — 範圍限縮在 `src/`；可重用的已提交 skills；離線參考文件。
+- **Skill 與 task 拆解** — 唯讀規劃 → 人工審查 → 單步執行 → 逐步驗證。
+- **生成邊界控制** — Zod 強制 I/O contract；測試 mock PostgreSQL／第三方；HSTS／CSP 依 `dev` 與 prod 切換。
+- **Session handoff** — task 與 session log 讓任何模型從綠燈基準接手。
+
+交付 pipeline：
+
+```mermaid
+graph TD
+    A[AI Code Generation] --> B[Local Verification <br> lint / build / typecheck]
+    B --> C[Vitest Unit Tests]
+    C --> D[Playwright Browser E2E Tests]
+    D --> E[Git Commit & Push]
+    E --> F[CI GitHub Actions]
+    F --> G[SonarQube Quality Gate / Codecov]
+    G --> H[Production Deployment to Vercel]
+```
 
 ### 可衡量的影響
 
@@ -286,7 +324,8 @@ pnpm db:studio     # drizzle-kit studio
 │   │   └── layout.css           # Tailwind v4 import 與 global styles
 │   └── *.spec.ts                # 與 source modules colocated 的 unit/integration specs
 ├── static/
-│   └── robots.txt               # Public static asset
+│   ├── robots.txt               # 爬蟲規則 + sitemap 指令
+│   └── sitemap.xml              # 供搜尋引擎使用的公開 sitemap
 ├── .env.example                 # DATABASE_URL + SESSION_SECRET template
 ├── .mcp.json                    # Svelte MCP server registration
 ├── .npmrc                       # pnpm/node package manager settings

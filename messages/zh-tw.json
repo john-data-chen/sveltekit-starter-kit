@@ -78,5 +78,6 @@
   "action_sort_asc": "金額小到大",
   "action_sort_desc": "金額大到小",
   "admin_activity_empty": "目前沒有近期活動。",
-  "nav_api_docs": "API 文件"
+  "nav_api_docs": "API 文件",
+  "seo_description": "一個安全的多使用者線上記帳本與 SvelteKit 全端開發範本，展示現代前端與全端架構最佳實作、Zod API 驗證、速率限制與精緻的介面設計。"
 }
