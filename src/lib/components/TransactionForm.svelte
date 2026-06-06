@@ -4,6 +4,9 @@
   import { categoriesFor, categoryLabel, type TransactionType } from "$lib/categories";
   import * as m from "$lib/paraglide/messages";
   import type { TransactionFormValues } from "$lib/transaction";
+  import Button from "$lib/components/ui/Button.svelte";
+  import Field from "$lib/components/ui/Field.svelte";
+  import { inputClass } from "$lib/components/ui/field";
 
   let {
     values,
@@ -48,22 +51,17 @@
     </div>
   </fieldset>
 
-  <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_category()}</span>
-    <select
-      name="category"
-      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
-    >
+  <Field label={m.field_category()}>
+    <select name="category" class={inputClass}>
       {#each categories as category (category)}
         <option value={category} selected={category === values.category}
           >{categoryLabel(category)}</option
         >
       {/each}
     </select>
-  </label>
+  </Field>
 
-  <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_amount()}</span>
+  <Field label={m.field_amount()}>
     <input
       type="number"
       name="amount"
@@ -72,43 +70,24 @@
       inputmode="numeric"
       value={values.amount}
       required
-      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
+      class={inputClass}
     />
-  </label>
+  </Field>
 
-  <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_date()}</span>
-    <input
-      type="date"
-      name="occurredOn"
-      value={values.occurredOn}
-      required
-      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
-    />
-  </label>
+  <Field label={m.field_date()}>
+    <input type="date" name="occurredOn" value={values.occurredOn} required class={inputClass} />
+  </Field>
 
-  <label class="grid gap-1">
-    <span class="text-sm text-gray-500 dark:text-gray-400">{m.field_note()}</span>
-    <input
-      type="text"
-      name="note"
-      value={values.note}
-      maxlength="200"
-      class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
-    />
-  </label>
+  <Field label={m.field_note()}>
+    <input type="text" name="note" value={values.note} maxlength="200" class={inputClass} />
+  </Field>
 
   <div class="flex gap-3">
-    <button
-      type="submit"
-      class="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
-    >
+    <Button type="submit" variant="primary">
       {submitLabel}
-    </button>
-    <a
-      href={resolve(cancelHref)}
-      class="px-4 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400"
-      >{m.action_cancel()}</a
-    >
+    </Button>
+    <Button variant="ghost" href={resolve(cancelHref)}>
+      {m.action_cancel()}
+    </Button>
   </div>
 </form>
