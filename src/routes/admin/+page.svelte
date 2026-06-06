@@ -26,7 +26,7 @@
         const catLabel = categoryLabel(cat);
         const tType = isIncome ? m.type_income() : m.type_expense();
         const num = Number(amt);
-        const fAmt = isNaN(num) ? `NT$${amt}` : formatTWD(num);
+        const fAmt = Number.isNaN(num) ? `NT$${amt}` : formatTWD(num);
         const sign = isIncome ? "+" : "-";
 
         const text =
