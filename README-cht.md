@@ -41,17 +41,19 @@
 
 ### 架構
 
-| 類型       | 選擇                                           | 理由                                                                |
-| ---------- | ---------------------------------------------- | ------------------------------------------------------------------- |
-| Framework  | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                              |
-| Styling    | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                  |
-| Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                           |
-| DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                |
-| Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                          |
-| Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod |
-| Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                          |
-| i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文               |
-| Deploy     | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                             |
+| 類型       | 選擇                                           | 理由                                                                    |
+| ---------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
+| Framework  | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                                  |
+| Styling    | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                      |
+| Database   | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                               |
+| DB Driver  | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                    |
+| Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                              |
+| Authz/RBAC | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制               |
+| Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod     |
+| Tables     | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染 |
+| Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                              |
+| i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文                   |
+| Deploy     | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                 |
 
 ### 品質保證
 
@@ -83,10 +85,13 @@
 
 ## 功能
 
-- **Password-less email login** — 內建三個帳號（`john@example.com`、`sophia@example.com`、`mark@example.com`）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
+- **Password-less email login** — 內建三個帳號（`john@example.com` (Admin)、`sophia@example.com` (Member)、`mark@example.com` (Member)）；表單預填 `john@example.com`，按一次即可登入。`userId` 會存放在 signed `httpOnly` session cookie。
+- **角色與權限 (Roles & Permissions)** — "member"（預設）只能看見並操作自己的記帳資料；"admin" 則可存取 `/admin` 管理介面，總覽所有使用者的平台使用狀況（Governance）。
+- **稽核日誌 (Audit Log)** — 紀錄使用者變更（新增、修改、刪除），顯示於管理員 Governance 介面中。
 - **Transactions CRUD** — 可新增、查看、編輯、刪除收入/支出紀錄（數目、類型、類別、日期、備註）。
+- **Sortable data-tables (TanStack)** — 交易清單與管理員報表皆採用 TanStack Table 實作排序功能，並且排序狀態會與 URL 同步。
 - **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
-- **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖。
+- **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
 - **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
 - **i18n** — 英文與繁體中文（Paraglide JS）。
@@ -94,6 +99,16 @@
 - **Responsive design** — 手機小螢幕排版優先，也支援電腦大螢幕排版。
 
 Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 中的 `SESSION_SECRET` 簽章。
+
+---
+
+## 角色與權限 (Roles & Permissions) / Governance
+
+應用程式強制執行基於資料庫角色的資料權限邊界：
+
+- **成員 (Member)**：只能存取自己的儀表板與交易紀錄。資料在查詢層級即做到單一使用者隔離。
+- **管理員 (Admin)**：視為受信任的合規/治理稽核員。受到伺服器端 `requireAdmin` 守衛保護的 `/admin` 總覽介面僅供讀取。為了方便平台監督，設計上允許管理員在稽核日誌 (Audit Trail) 中看見單筆紀錄細節（例如單筆交易金額與分類）。
+- _上線強化建議 (Production hardening)_：如果在您的安全模型中，不希望管理員看到單筆詳細資料，可以將稽核摘要中的金額隱藏，或限制管理員只能看到彙總數據。
 
 ---
 
@@ -224,9 +239,11 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── components/          # CategoryChart, LocaleSwitcher, ThemeToggle, TransactionForm
 │   │   ├── server/
 │   │   │   ├── db/
+│   │   │   │   ├── admin.ts     # Admin-only 查詢（跨使用者統計資料）
+│   │   │   │   ├── audit.ts     # 稽核日誌查詢
 │   │   │   │   ├── index.ts     # 使用 DATABASE_URL 的 Drizzle client
 │   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
-│   │   │   │   ├── schema.ts    # users / transactions tables 與 transaction_type enum
+│   │   │   │   ├── schema.ts    # users / transactions / audit_logs tables
 │   │   │   │   ├── schema.spec.ts
 │   │   │   │   └── seed.ts      # Demo users 與 transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
@@ -242,6 +259,7 @@ pnpm db:studio     # drizzle-kit studio
 │   │   ├── theme.ts             # Server-safe theme constants and helpers
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
+│   │   ├── admin/               # 管理員專用的 Governance 介面，顯示所有使用者的統計摘要
 │   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/

@@ -26,7 +26,7 @@ export async function resolveSessionUser(
   try {
     const { db } = await import("$lib/server/db");
     const [user] = await db
-      .select({ id: users.id, name: users.name, avatar: users.avatar })
+      .select({ id: users.id, name: users.name, avatar: users.avatar, role: users.role })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);

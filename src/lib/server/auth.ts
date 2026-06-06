@@ -2,12 +2,14 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";
+import type { UserRole } from "$lib/server/db/schema";
 import type { Cookies } from "@sveltejs/kit";
 
 export interface SessionUser {
   id: number;
   name: string;
   avatar: string;
+  role: UserRole;
 }
 
 const COOKIE_NAME = "session";

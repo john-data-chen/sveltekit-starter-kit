@@ -1,9 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-
   "nav_dashboard": "Dashboard",
   "nav_transactions": "Transactions",
-
   "sign_in": "Sign in",
   "sign_out": "Sign out",
   "login_heading": "Expense Tracker",
@@ -14,14 +12,11 @@
   "login_error_email_invalid": "Please enter a valid email address.",
   "login_error_no_account": "No account found for that email.",
   "login_error_service_unavailable": "Sign-in is temporarily unavailable. Please try again later.",
-
   "stat_balance": "Balance",
   "expenses_by_category": "Expenses by category",
   "no_expenses_this_month": "No expenses for this month.",
-
   "type_income": "Income",
   "type_expense": "Expense",
-
   "new_transaction_button": "+ New",
   "all_categories": "All categories",
   "filter_apply": "Apply",
@@ -30,7 +25,6 @@
   "action_edit": "Edit",
   "action_delete": "Delete",
   "confirm_delete_transaction": "Delete this transaction?",
-
   "new_transaction_title": "New transaction",
   "edit_transaction_title": "Edit transaction",
   "add_transaction": "Add transaction",
@@ -42,19 +36,15 @@
   "field_month": "Month",
   "field_note": "Note (optional)",
   "action_cancel": "Cancel",
-
   "validation_choose_type": "Please choose a type.",
   "validation_choose_category": "Please choose a valid category for this type.",
   "validation_amount_positive": "Amount must be a positive whole number.",
   "validation_choose_date": "Please choose a valid date.",
-
   "error_transaction_not_found": "Transaction not found",
-
   "theme_label": "Theme",
   "theme_dark": "🌙 Dark",
   "theme_light": "☀️ Light",
   "theme_system": "🖥️ System",
-
   "category_salary": "Salary",
   "category_bonus": "Bonus",
   "category_investment": "Investment",
@@ -66,6 +56,26 @@
   "category_shopping": "Shopping",
   "category_medical": "Medical",
   "category_other_expense": "Other Expense",
-
-  "locale_label": "Language"
+  "locale_label": "Language",
+  "nav_admin": "Admin",
+  "admin_title": "Admin Overview",
+  "admin_users_heading": "Users",
+  "admin_col_user": "User",
+  "admin_role": "Role",
+  "role_member": "Member",
+  "role_admin": "Admin",
+  "admin_col_transactions": "Transactions",
+  "admin_col_income": "Total Income",
+  "admin_col_expense": "Total Expense",
+  "admin_empty": "No users found.",
+  "admin_activity_heading": "Recent Activity",
+  "audit_col_time": "Time",
+  "audit_col_actor": "Actor",
+  "audit_col_action": "Action",
+  "audit_col_summary": "Summary",
+  "action_create": "Create",
+  "action_update": "Update",
+  "action_sort_asc": "Smallest first",
+  "action_sort_desc": "Largest first",
+  "admin_activity_empty": "No recent activity."
 }

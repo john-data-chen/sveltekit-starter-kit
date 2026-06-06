@@ -1,4 +1,5 @@
 import { today } from "$lib/date";
+import { recordAudit } from "$lib/server/db/audit";
 import { createTransaction } from "$lib/server/db/queries";
 import { requireUser } from "$lib/server/guards";
 import { parseTransactionForm } from "$lib/server/validation";
@@ -20,7 +21,14 @@ export const actions: Actions = {
       return fail(400, { values: result.values, error: result.error });
     }
 
-    await createTransaction(user.id, result.data);
+    const tx = await createTransaction(user.id, result.data);
+    await recordAudit(
+      user.id,
+      "create",
+      "transaction",
+      tx.id,
+      `${tx.type} ${tx.category} ${tx.amount}`
+    );
     redirect(303, "/transactions");
   }
 };
