@@ -43,21 +43,23 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 Evaluated adopting a UI component library; chose an internal Svelte 5 primitives layer instead — rationale: minimal-dependency narrative, abstraction without dependency cost, a11y-correct native `<dialog>`, and Svelte 5 snippets for pure HTML passthrough (no bind prop-drilling).
 
-| Type       | Choice                                         | Rationale                                                                                  |
-| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Framework  | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions                           |
-| Styling    | Tailwind CSS v4 (Vite plugin)                  | Utility-first, zero-runtime, fast builds via the v4 Vite plugin                            |
-| Database   | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM                             |
-| DB Driver  | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime                          |
-| Auth       | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                         |
-| Authz/RBAC | Route-level role guards (`requireAdmin`)       | Strict access control based on DB-backed user roles (`admin` vs `member`)                  |
-| Validation | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input |
-| REST API   | Full CRUD endpoints + JSON response envelopes  | Separated REST layer to facilitate external integrations or mobile clients                 |
-| API Docs   | Scalar UI + native Zod 4 OpenAPI extraction    | Zero-friction interactive documentation generated dynamically from Zod schemas             |
-| Tables     | `@tanstack/table-core`                         | Headless, URL-synchronized sorting, rendered via pure Svelte components                    |
-| Charts     | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                    |
-| i18n       | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                          |
-| Deploy     | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver                                        |
+| Type          | Choice                                         | Rationale                                                                                   |
+| ------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Framework     | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions                            |
+| Styling       | Tailwind CSS v4 (Vite plugin)                  | Utility-first, zero-runtime, fast builds via the v4 Vite plugin                             |
+| Database      | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM                              |
+| DB Driver     | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime                           |
+| Auth          | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                          |
+| Authz/RBAC    | Route-level role guards (`requireAdmin`)       | Strict access control based on DB-backed user roles (`admin` vs `member`)                   |
+| Rate Limiting | In-memory fixed-window limiter (login + API)   | Best-effort brute-force/abuse throttling; swap to Vercel KV / Redis for multi-instance      |
+| Security      | Nonce CSP + HSTS + hardened response headers   | Defense-in-depth; relaxed CSP only for Scalar `/api/docs`, CSP stripped in dev for Vite HMR |
+| Validation    | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input  |
+| REST API      | Full CRUD endpoints + JSON response envelopes  | Separated REST layer to facilitate external integrations or mobile clients                  |
+| API Docs      | Scalar UI + native Zod 4 OpenAPI extraction    | Zero-friction interactive documentation generated dynamically from Zod schemas              |
+| Tables        | `@tanstack/table-core`                         | Headless, URL-synchronized sorting, rendered via pure Svelte components                     |
+| Charts        | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                     |
+| i18n          | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                           |
+| Deploy        | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver                                         |
 
 ### Quality Assurance
 
@@ -85,6 +87,14 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 | Husky + lint-staged        | Pre-commit quality enforcement                          |
 | commitlint + Commitizen    | Conventional commits for a clean history                |
 
+### Architecture Decision Records (ADR)
+
+| Decision                                               | Why                                                                                   |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Own Svelte 5 UI primitives, not a component library    | Fewer deps, smaller bundle, native a11y (`<dialog>`/`<select>`), clean runes/snippets |
+| Pooled `postgres` TCP driver on Vercel Node (not Edge) | Reliable pooling, no proxy, identical local Docker Postgres                           |
+| Zod schema = single source of truth                    | One schema → validation + TS types + OpenAPI 3.1; no drift                            |
+
 ---
 
 ## Features
@@ -98,10 +108,14 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 - **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency, supports large/small toggle).
 - **REST API + OpenAPI Documentation** — full CRUD endpoints (`/api/transactions`, `/api/stats`) heavily utilizing Zod models which dynamically map to a live OpenAPI 3.1 schema. Scalar UI is mounted at `/api/docs` for interactive exploration.
 - **Per-user data isolation** — every query is scoped to the signed-in user; you only ever see your own data.
+- **Rate limiting** — best-effort in-memory fixed-window throttling: login is capped at 10 attempts/min per IP, and authenticated API mutations at 100 req/min per IP, returning `429` with a `Retry-After` header. (On serverless, swap the in-memory store for Vercel KV / Upstash Redis to share state across instances.)
+- **Security hardening** — every HTML response carries a nonce-based Content-Security-Policy plus `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, and `Permissions-Policy`; `Strict-Transport-Security` is enabled in production. CSP is relaxed only for the Scalar `/api/docs` page and stripped in dev to support Vite HMR.
+- **API pagination** — `GET /api/transactions` accepts `limit` (default 20, clamped to 100) and `offset`, and returns a `{ data, pagination: { total, limit, offset } }` envelope.
 - **Currency** — TWD only, stored as integers (no decimals).
 - **i18n** — English and Traditional Chinese (Paraglide JS).
 - **Theme switching** — light / dark / system.
 - **Responsive design** — mobile-first, scales to desktop.
+- **SEO & discoverability** — the login landing page ships a localized meta description (`seo_description`), canonical URL, theme-color, Open Graph + Twitter Card tags, and JSON-LD `WebApplication` structured data; a `sitemap.xml` plus a `robots.txt` `Sitemap:` directive are served from `static/`.
 
 Categories are fixed lists in `src/lib/categories.ts`; the session cookie is signed with `SESSION_SECRET` from `.env`.
 
@@ -147,6 +161,30 @@ MCP lets AI tools interact directly with development infrastructure, removing co
 ### AI Guidelines (`AGENTS.md` / `CLAUDE.md`)
 
 Project-specific instructions for AI assistants: the mandatory verification workflow (`pnpm lint` → `pnpm build` → `pnpm check`), commands, and which skills/MCP servers to use for which tasks. AI tools should read this file first when working on the repo.
+
+### AI Delivery Governance
+
+AI agents are governed co-developers, not autonomous committers.
+
+- **Human-in-the-loop** — every command + edit reviewed; nothing runs autonomously.
+- **Prompt & task templates** — every session fixes role, allowed scope, and pass criteria (lint / build / check / tests) up front.
+- **Context management** — scoped to `src/`; reusable committed skills; offline reference docs.
+- **Skill & task decomposition** — read-only plan → human review → one step at a time → per-step validation.
+- **Generation boundaries** — Zod enforces the I/O contract; tests mock PostgreSQL / third-party; HSTS / CSP gated by `dev` vs prod.
+- **Session handoff** — task + session logs let any model resume from a green baseline.
+
+Delivery pipeline:
+
+```mermaid
+graph TD
+    A[AI Code Generation] --> B[Local Verification <br> lint / build / typecheck]
+    B --> C[Vitest Unit Tests]
+    C --> D[Playwright Browser E2E Tests]
+    D --> E[Git Commit & Push]
+    E --> F[CI GitHub Actions]
+    F --> G[SonarQube Quality Gate / Codecov]
+    G --> H[Production Deployment to Vercel]
+```
 
 ### Measurable Impact
 
@@ -286,7 +324,8 @@ pnpm db:studio     # drizzle-kit studio
 │   │   └── layout.css           # Tailwind v4 import and global styles
 │   └── *.spec.ts                # Unit/integration specs colocated with source modules
 ├── static/
-│   └── robots.txt               # Public static asset
+│   ├── robots.txt               # Crawl rules + sitemap directive
+│   └── sitemap.xml              # Public sitemap for search engines
 ├── .env.example                 # DATABASE_URL + SESSION_SECRET template
 ├── .mcp.json                    # Svelte MCP server registration
 ├── .npmrc                       # pnpm/node package manager settings
