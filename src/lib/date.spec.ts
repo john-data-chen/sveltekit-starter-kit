@@ -43,10 +43,10 @@ describe("date helpers", () => {
 
     const formattedEn = formatDateTime(d, "en-US");
     expect(formattedEn).toContain("Jun 3, 2026");
-    expect(formattedEn).toContain("6:40");
+    expect(formattedEn).toContain("18:40");
 
     const formattedZh = formatDateTime(d, "zh-TW");
-    expect(formattedZh).toContain("2026年6月3日");
-    expect(formattedZh).toContain("6:40");
+    expect(formattedZh).toContain("2026/6/3");
+    expect(formattedZh).toContain("18:40");
   });
 });

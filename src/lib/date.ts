@@ -31,6 +31,7 @@ export function formatDateTime(value: Date | string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
+    hour12: false,
     timeZone: "Asia/Taipei"
   }).format(new Date(value));
 }
