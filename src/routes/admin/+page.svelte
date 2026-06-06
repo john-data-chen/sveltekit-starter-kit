@@ -10,7 +10,9 @@
   let { data }: PageProps = $props();
 
   function parseAuditSummary(summary: string | null) {
-    if (!summary) return { text: "-", isIncome: null };
+    if (!summary) {
+      return { text: "-", isIncome: null };
+    }
     if (summary.startsWith("income ") || summary.startsWith("expense ")) {
       const isIncome = summary.startsWith("income ");
       const typeStr = isIncome ? "income" : "expense";
