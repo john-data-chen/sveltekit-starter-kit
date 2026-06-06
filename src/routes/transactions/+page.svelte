@@ -1,74 +1,43 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   import { resolve } from "$app/paths";
-  import {
-    createTable,
-    getCoreRowModel,
-    getSortedRowModel,
-    createColumnHelper,
-    type Updater,
-    type SortingState
-  } from "@tanstack/table-core";
+  import { type ColumnDef } from "@tanstack/table-core";
   import { categoryLabel } from "$lib/categories";
   import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
+  import { createSortedTable, headerLabel } from "$lib/table/sorted-table.svelte";
   import type { PageProps } from "./$types";
-  import { readSort, writeSort } from "$lib/table/sort";
 
   let { data }: PageProps = $props();
 
-  let initialSort = readSort($page.url.searchParams);
-  if (initialSort.length === 0) {
-    initialSort = [{ id: "occurredOn", desc: true }];
-  }
-  let sorting = $state(initialSort);
+  type Tx = (typeof data.transactions)[number];
 
-  function handleSortingChange(updaterOrValue: Updater<SortingState>) {
-    sorting = typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
-    const newParams = writeSort($page.url.searchParams, sorting);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    goto(("?" + newParams.toString()) as any, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true
-    });
+  function typeLabel(type: Tx["type"]): string {
+    return type === "income" ? m.type_income() : m.type_expense();
   }
 
-  const columnHelper = createColumnHelper<(typeof data.transactions)[0]>();
-  const columns = [
-    columnHelper.accessor("occurredOn", { header: () => m.field_date() }),
-    columnHelper.accessor("category", { header: () => m.field_category() }),
-    columnHelper.accessor("type", { header: () => m.field_type() }),
-    columnHelper.accessor("amount", { header: () => m.field_amount() }),
-    columnHelper.accessor("note", { header: () => m.field_note() }),
-    columnHelper.display({ id: "actions", enableSorting: false })
+  // Category and type sort by their localized label, so the order matches what
+  // the user actually sees (important under zh-tw); amount sorts numerically.
+  const columns: ColumnDef<Tx, unknown>[] = [
+    { accessorKey: "occurredOn", header: () => m.field_date() },
+    {
+      id: "category",
+      accessorFn: (row) => categoryLabel(row.category),
+      header: () => m.field_category()
+    },
+    { id: "type", accessorFn: (row) => typeLabel(row.type), header: () => m.field_type() },
+    { accessorKey: "amount", header: () => m.field_amount() },
+    { accessorKey: "note", header: () => m.field_note() },
+    { id: "actions", enableSorting: false }
   ];
 
-  let table = $derived.by(() => {
-    const t = createTable({
-      data: data.transactions,
-      columns,
-      state: {},
-      onStateChange: () => {},
-      onSortingChange: handleSortingChange,
-      renderFallbackValue: null,
-      getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel()
-    });
-    t.setOptions((prev) => ({
-      ...prev,
-      state: { ...t.initialState, sorting }
-    }));
-    return t;
+  const table = createSortedTable<Tx>({
+    data: () => data.transactions,
+    columns,
+    prefix: "t.",
+    defaultSort: [{ id: "occurredOn", desc: true }]
   });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function renderHeader(headerDef: any, context: any) {
-    return typeof headerDef === "function" ? headerDef(context) : headerDef;
-  }
 </script>
 
 <svelte:head><title>{pageTitle(m.nav_transactions())}</title></svelte:head>
@@ -135,7 +104,7 @@
         <thead
           class="border-b border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
         >
-          {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+          {#each table.headerGroups as headerGroup (headerGroup.id)}
             <tr>
               {#each headerGroup.headers as header (header.id)}
                 <th
@@ -151,11 +120,12 @@
                   {#if !header.isPlaceholder}
                     {#if header.column.getCanSort()}
                       <button
+                        type="button"
                         class="flex w-full items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100"
                         onclick={header.column.getToggleSortingHandler()}
                       >
-                        {renderHeader(header.column.columnDef.header, header.getContext())}
-                        <span class="text-xs text-gray-400">
+                        {headerLabel(header)}
+                        <span class="text-xs text-gray-400" aria-hidden="true">
                           {#if header.column.getIsSorted() === "asc"}
                             ▲
                           {:else if header.column.getIsSorted() === "desc"}
@@ -166,13 +136,7 @@
                         </span>
                       </button>
                     {:else}
-                      <span class="flex items-center gap-1">
-                        {#if typeof header.column.columnDef.header === "string"}
-                          {header.column.columnDef.header}
-                        {:else}
-                          {renderHeader(header.column.columnDef.header, header.getContext())}
-                        {/if}
-                      </span>
+                      <span>{headerLabel(header)}</span>
                     {/if}
                   {/if}
                 </th>
@@ -181,7 +145,7 @@
           {/each}
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-          {#each table.getRowModel().rows as row (row.original.id)}
+          {#each table.rows as row (row.original.id)}
             {@const tx = row.original}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
               <td class="px-4 py-3">{tx.occurredOn}</td>
@@ -192,7 +156,7 @@
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"}
                 >
-                  {tx.type === "income" ? "+" : "-"}
+                  {typeLabel(tx.type)}
                 </span>
               </td>
               <td class="px-4 py-3">
@@ -204,7 +168,7 @@
                       : "text-red-600 dark:text-red-400"
                   ]}
                 >
-                  {formatTWD(tx.amount)}
+                  {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
                 </span>
               </td>
               <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{tx.note || ""}</td>

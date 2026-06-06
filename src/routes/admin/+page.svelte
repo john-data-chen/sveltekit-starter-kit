@@ -1,108 +1,64 @@
 <script lang="ts">
+  import { type ColumnDef } from "@tanstack/table-core";
+  import { categoryLabel } from "$lib/categories";
   import { pageTitle } from "$lib/constants";
   import { formatDateTime } from "$lib/date";
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
   import { getLocale } from "$lib/paraglide/runtime";
-  import { categoryLabel } from "$lib/categories";
+  import { createSortedTable, headerLabel } from "$lib/table/sorted-table.svelte";
   import type { PageProps } from "./$types";
-
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
-  import {
-    createTable,
-    getCoreRowModel,
-    getSortedRowModel,
-    createColumnHelper,
-    type Updater,
-    type SortingState
-  } from "@tanstack/table-core";
-  import { readSort, writeSort } from "$lib/table/sort";
 
   let { data }: PageProps = $props();
 
-  let uSort = $state(readSort($page.url.searchParams, "u."));
-  let aSort = $state(readSort($page.url.searchParams, "a."));
+  type UserRow = (typeof data.users)[number];
+  type AuditRow = (typeof data.recentAudits)[number];
 
-  function handleUSortChange(updater: Updater<SortingState>) {
-    uSort = typeof updater === "function" ? updater(uSort) : updater;
-    const newParams = writeSort($page.url.searchParams, uSort, "u.");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    goto(("?" + newParams.toString()) as any, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true
-    });
+  function roleLabel(role: UserRow["role"]): string {
+    return role === "admin" ? m.role_admin() : m.role_member();
   }
 
-  function handleASortChange(updater: Updater<SortingState>) {
-    aSort = typeof updater === "function" ? updater(aSort) : updater;
-    const newParams = writeSort($page.url.searchParams, aSort, "a.");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    goto(("?" + newParams.toString()) as any, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true
-    });
+  function actionLabel(action: AuditRow["action"]): string {
+    if (action === "create") {
+      return m.action_create();
+    }
+    return action === "delete" ? m.action_delete() : m.action_update();
   }
 
-  const uHelper = createColumnHelper<(typeof data.users)[0]>();
-  const uColumns = [
-    uHelper.accessor("name", { header: () => m.admin_col_user() }),
-    uHelper.accessor("role", { header: () => m.admin_role() }),
-    uHelper.accessor("transactionCount", { header: () => m.admin_col_transactions() }),
-    uHelper.accessor("totalIncome", { id: "income", header: () => m.admin_col_income() }),
-    uHelper.accessor("totalExpense", { id: "expense", header: () => m.admin_col_expense() })
+  const NUMERIC_USER_COLS = new Set(["transactionCount", "income", "expense"]);
+
+  // Label-based columns (role, action) sort by their localized text so the order
+  // matches what is shown; numeric/date columns sort by their raw value.
+  const userColumns: ColumnDef<UserRow, unknown>[] = [
+    { accessorKey: "name", header: () => m.admin_col_user() },
+    { id: "role", accessorFn: (row) => roleLabel(row.role), header: () => m.admin_role() },
+    { accessorKey: "transactionCount", header: () => m.admin_col_transactions() },
+    { id: "income", accessorKey: "totalIncome", header: () => m.admin_col_income() },
+    { id: "expense", accessorKey: "totalExpense", header: () => m.admin_col_expense() }
   ];
 
-  let uTable = $derived.by(() => {
-    const t = createTable({
-      data: data.users,
-      columns: uColumns,
-      state: {},
-      onStateChange: () => {},
-      onSortingChange: handleUSortChange,
-      renderFallbackValue: null,
-      getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel()
-    });
-    t.setOptions((prev) => ({
-      ...prev,
-      state: { ...t.initialState, sorting: uSort }
-    }));
-    return t;
-  });
-
-  const aHelper = createColumnHelper<(typeof data.recentAudits)[0]>();
-  const aColumns = [
-    aHelper.accessor("createdAt", { id: "time", header: () => m.audit_col_time() }),
-    aHelper.accessor((row) => row.actor.name, { id: "actor", header: () => m.audit_col_actor() }),
-    aHelper.accessor("action", { header: () => m.audit_col_action() }),
-    aHelper.display({ id: "summary", header: () => m.audit_col_summary(), enableSorting: false })
+  const auditColumns: ColumnDef<AuditRow, unknown>[] = [
+    { id: "time", accessorKey: "createdAt", header: () => m.audit_col_time() },
+    { id: "actor", accessorFn: (row) => row.actor.name, header: () => m.audit_col_actor() },
+    {
+      id: "action",
+      accessorFn: (row) => actionLabel(row.action),
+      header: () => m.audit_col_action()
+    },
+    { id: "summary", enableSorting: false, header: () => m.audit_col_summary() }
   ];
 
-  let aTable = $derived.by(() => {
-    const t = createTable({
-      data: data.recentAudits,
-      columns: aColumns,
-      state: {},
-      onStateChange: () => {},
-      onSortingChange: handleASortChange,
-      renderFallbackValue: null,
-      getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel()
-    });
-    t.setOptions((prev) => ({
-      ...prev,
-      state: { ...t.initialState, sorting: aSort }
-    }));
-    return t;
+  const userTable = createSortedTable<UserRow>({
+    data: () => data.users,
+    columns: userColumns,
+    prefix: "u."
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function renderHeader(headerDef: any, context: any) {
-    return typeof headerDef === "function" ? headerDef(context) : headerDef;
-  }
+  const auditTable = createSortedTable<AuditRow>({
+    data: () => data.recentAudits,
+    columns: auditColumns,
+    prefix: "a."
+  });
 
   function parseAuditSummary(summary: string | null) {
     if (!summary) {
@@ -152,15 +108,14 @@
           <thead
             class="border-b border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400"
           >
-            {#each uTable.getHeaderGroups() as headerGroup (headerGroup.id)}
+            {#each userTable.headerGroups as headerGroup (headerGroup.id)}
               <tr>
                 {#each headerGroup.headers as header (header.id)}
                   <th
-                    class="px-3 py-2 font-medium {header.column.id === 'transactionCount' ||
-                    header.column.id === 'income' ||
-                    header.column.id === 'expense'
-                      ? 'text-right'
-                      : ''}"
+                    class={[
+                      "px-3 py-2 font-medium",
+                      NUMERIC_USER_COLS.has(header.column.id) && "text-right"
+                    ]}
                     aria-sort={header.column.getCanSort()
                       ? header.column.getIsSorted() === "asc"
                         ? "ascending"
@@ -172,16 +127,15 @@
                     {#if !header.isPlaceholder}
                       {#if header.column.getCanSort()}
                         <button
-                          class="flex w-full items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100 {header
-                            .column.id === 'transactionCount' ||
-                          header.column.id === 'income' ||
-                          header.column.id === 'expense'
-                            ? 'justify-end'
-                            : ''}"
+                          type="button"
+                          class={[
+                            "flex w-full items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100",
+                            NUMERIC_USER_COLS.has(header.column.id) && "justify-end"
+                          ]}
                           onclick={header.column.getToggleSortingHandler()}
                         >
-                          {renderHeader(header.column.columnDef.header, header.getContext())}
-                          <span class="text-xs text-gray-400">
+                          {headerLabel(header)}
+                          <span class="text-xs text-gray-400" aria-hidden="true">
                             {#if header.column.getIsSorted() === "asc"}
                               ▲
                             {:else if header.column.getIsSorted() === "desc"}
@@ -192,15 +146,7 @@
                           </span>
                         </button>
                       {:else}
-                        <span
-                          class="flex items-center gap-1 {header.column.id === 'transactionCount' ||
-                          header.column.id === 'income' ||
-                          header.column.id === 'expense'
-                            ? 'justify-end'
-                            : ''}"
-                        >
-                          {renderHeader(header.column.columnDef.header, header.getContext())}
-                        </span>
+                        <span>{headerLabel(header)}</span>
                       {/if}
                     {/if}
                   </th>
@@ -209,10 +155,10 @@
             {/each}
           </thead>
           <tbody>
-            {#each uTable.getRowModel().rows as row (row.original.id)}
+            {#each userTable.rows as row (row.original.id)}
               {@const user = row.original}
               <tr
-                class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
                 <td class="whitespace-nowrap px-3 py-2">
                   <span class="mr-1">{user.avatar}</span>
@@ -226,7 +172,7 @@
                       ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'
                       : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}"
                   >
-                    {user.role === "admin" ? m.role_admin() : m.role_member()}
+                    {roleLabel(user.role)}
                   </span>
                 </td>
                 <td class="whitespace-nowrap px-3 py-2 text-right tabular-nums"
@@ -257,7 +203,7 @@
           <thead
             class="border-b border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400"
           >
-            {#each aTable.getHeaderGroups() as headerGroup (headerGroup.id)}
+            {#each auditTable.headerGroups as headerGroup (headerGroup.id)}
               <tr>
                 {#each headerGroup.headers as header (header.id)}
                   <th
@@ -273,11 +219,12 @@
                     {#if !header.isPlaceholder}
                       {#if header.column.getCanSort()}
                         <button
+                          type="button"
                           class="flex w-full items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100"
                           onclick={header.column.getToggleSortingHandler()}
                         >
-                          {renderHeader(header.column.columnDef.header, header.getContext())}
-                          <span class="text-xs text-gray-400">
+                          {headerLabel(header)}
+                          <span class="text-xs text-gray-400" aria-hidden="true">
                             {#if header.column.getIsSorted() === "asc"}
                               ▲
                             {:else if header.column.getIsSorted() === "desc"}
@@ -288,9 +235,7 @@
                           </span>
                         </button>
                       {:else}
-                        <span class="flex items-center gap-1">
-                          {renderHeader(header.column.columnDef.header, header.getContext())}
-                        </span>
+                        <span>{headerLabel(header)}</span>
                       {/if}
                     {/if}
                   </th>
@@ -299,11 +244,11 @@
             {/each}
           </thead>
           <tbody>
-            {#each aTable.getRowModel().rows as row (row.original.id)}
+            {#each auditTable.rows as row (row.original.id)}
               {@const audit = row.original}
               {@const summary = parseAuditSummary(audit.summary)}
               <tr
-                class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
                 <td class="whitespace-nowrap px-3 py-2 text-gray-500">
                   {formatDateTime(audit.createdAt, getLocale())}
@@ -321,11 +266,7 @@
                         ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                         : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}"
                   >
-                    {audit.action === "create"
-                      ? m.action_create()
-                      : audit.action === "delete"
-                        ? m.action_delete()
-                        : m.action_update()}
+                    {actionLabel(audit.action)}
                   </span>
                 </td>
                 <td
