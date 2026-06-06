@@ -41,6 +41,8 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 
 ### Architecture
 
+Evaluated adopting a UI component library; chose an internal Svelte 5 primitives layer instead — rationale: minimal-dependency narrative, abstraction without dependency cost, a11y-correct native `<dialog>`, and Svelte 5 snippets for pure HTML passthrough (no bind prop-drilling).
+
 | Type       | Choice                                         | Rationale                                                                                  |
 | ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Framework  | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions                           |

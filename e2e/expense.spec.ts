@@ -13,9 +13,6 @@ import { expect, test } from "@playwright/test";
 //   the action is retried until the expected navigation actually commits. `waitForURL` (not a
 //   bare URL assertion) ensures the previous navigation is fully settled before the next step.
 test("John signs in, adds an expense, then deletes it", async ({ page, isMobile }) => {
-  // The Delete button triggers a native confirm() — auto-accept it.
-  page.on("dialog", (dialog) => dialog.accept());
-
   // 1. Sign in (email is pre-filled with john@example.com). The login form submits natively so
   // the session cookie is set on a top-level navigation (WebKit does not persist it from an
   // enhance fetch response). Retry the click until "/" is reached.
@@ -49,9 +46,13 @@ test("John signs in, adds an expense, then deletes it", async ({ page, isMobile 
     : page.locator("tr").filter({ hasText: note });
   await expect(row).toBeVisible();
 
-  // 4. Delete it, then confirm it is gone. Scope to the row's delete form (the layout also
   // renders a logout form on authed pages, so a bare submit selector would be ambiguous).
   await row.locator('form[action="?/delete"] button[type="submit"]').click();
+  const dialog = page.locator("dialog[open]");
+  await expect(dialog).toBeVisible();
+  // The confirm button is the second button in the dialog action bar.
+  await dialog.locator("button").nth(1).click();
+
   const rowAfterDelete = isMobile
     ? page.locator("li", { hasText: note })
     : page.locator("tr", { hasText: note });

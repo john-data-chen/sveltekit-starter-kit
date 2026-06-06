@@ -7,9 +7,15 @@
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
   import { createSortedTable, headerLabel } from "$lib/table/sorted-table.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
+  import ConfirmDialog from "$lib/components/ui/ConfirmDialog.svelte";
+  import { inputClass } from "$lib/components/ui/field";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+
+  let deleteDialogOpen = $state(false);
+  let pendingDeleteForm = $state<HTMLFormElement | null>(null);
 
   type Tx = (typeof data.transactions)[number];
 
@@ -53,21 +59,15 @@
 <section class="grid gap-6">
   <div class="flex items-center justify-between">
     <h1 class="text-xl font-bold">{m.nav_transactions()}</h1>
-    <a
-      href={resolve("/transactions/new")}
-      class="rounded bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
-    >
+    <Button href={resolve("/transactions/new")}>
       {m.new_transaction_button()}
-    </a>
+    </Button>
   </div>
 
   <form method="GET" class="flex flex-wrap items-end gap-3">
     <label class="grid gap-1 text-sm">
       <span class="text-gray-500 dark:text-gray-400">{m.field_category()}</span>
-      <select
-        name="category"
-        class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
-      >
+      <select name="category" class={inputClass}>
         <option value="" selected={data.filters.category === ""}>{m.all_categories()}</option>
         {#each data.categoryOptions as category (category)}
           <option value={category} selected={data.filters.category === category}
@@ -79,25 +79,15 @@
 
     <label class="grid gap-1 text-sm">
       <span class="text-gray-500 dark:text-gray-400">{m.field_month()}</span>
-      <input
-        type="month"
-        name="month"
-        value={data.filters.month}
-        class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
-      />
+      <input type="month" name="month" value={data.filters.month} class={inputClass} />
     </label>
 
-    <button
-      type="submit"
-      class="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-    >
+    <Button type="submit" variant="secondary">
       {m.filter_apply()}
-    </button>
-    <a
-      href={resolve("/transactions")}
-      class="px-2 py-2 text-sm text-gray-500 hover:underline dark:text-gray-400"
-      >{m.filter_clear()}</a
-    >
+    </Button>
+    <Button variant="ghost" href={resolve("/transactions")} class="px-2">
+      {m.filter_clear()}
+    </Button>
   </form>
 
   {#if data.transactions.length === 0}
@@ -107,6 +97,18 @@
       {m.no_transactions_match()}
     </p>
   {:else}
+    <ConfirmDialog
+      bind:open={deleteDialogOpen}
+      title={m.action_delete()}
+      message={m.confirm_delete_transaction()}
+      confirmLabel={m.action_delete()}
+      cancelLabel={m.action_cancel()}
+      onconfirm={() => pendingDeleteForm?.requestSubmit()}
+      oncancel={() => {
+        pendingDeleteForm = null;
+      }}
+    />
+
     <!-- Mobile Sort Control -->
     <div class="md:hidden flex items-center justify-end gap-2 mb-2">
       <select
@@ -167,26 +169,29 @@
               {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
             </span>
             <div class="flex items-center gap-3">
-              <a
+              <Button
+                variant="ghost"
                 href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
-                class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
+                class="shrink-0 px-0 py-0"
               >
                 {m.action_edit()}
-              </a>
+              </Button>
               <form
                 method="POST"
                 action="?/delete"
                 class="shrink-0"
-                use:enhance={({ cancel }) => {
-                  if (!confirm(m.confirm_delete_transaction())) {
+                use:enhance={({ cancel, formElement }) => {
+                  if (pendingDeleteForm !== formElement) {
                     cancel();
+                    pendingDeleteForm = formElement;
+                    deleteDialogOpen = true;
+                  } else {
+                    pendingDeleteForm = null;
                   }
                 }}
               >
                 <input type="hidden" name="id" value={tx.id} />
-                <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
-                  >{m.action_delete()}</button
-                >
+                <Button type="submit" variant="danger">{m.action_delete()}</Button>
               </form>
             </div>
           </div>
@@ -276,28 +281,29 @@
               >
               <td class="px-2 py-3 text-right w-1 whitespace-nowrap">
                 <div class="flex items-center justify-end gap-3 shrink-0">
-                  <a
+                  <Button
+                    variant="ghost"
                     href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
-                    class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
+                    class="shrink-0 px-0 py-0"
                   >
                     {m.action_edit()}
-                  </a>
+                  </Button>
                   <form
                     method="POST"
                     action="?/delete"
                     class="shrink-0"
-                    use:enhance={({ cancel }) => {
-                      if (!confirm(m.confirm_delete_transaction())) {
+                    use:enhance={({ cancel, formElement }) => {
+                      if (pendingDeleteForm !== formElement) {
                         cancel();
+                        pendingDeleteForm = formElement;
+                        deleteDialogOpen = true;
+                      } else {
+                        pendingDeleteForm = null;
                       }
                     }}
                   >
                     <input type="hidden" name="id" value={tx.id} />
-                    <button
-                      type="submit"
-                      class="text-sm text-red-500 hover:underline dark:text-red-400"
-                      >{m.action_delete()}</button
-                    >
+                    <Button type="submit" variant="danger">{m.action_delete()}</Button>
                   </form>
                 </div>
               </td>

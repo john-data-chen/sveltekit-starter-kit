@@ -1,6 +1,8 @@
 <script lang="ts">
   import { pageTitle } from "$lib/constants";
   import * as m from "$lib/paraglide/messages";
+  import Button from "$lib/components/ui/Button.svelte";
+  import { inputClass } from "$lib/components/ui/field";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
@@ -36,14 +38,11 @@
         value={form?.email ?? data.defaultEmail}
         required
         autocomplete="email"
-        class="rounded border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-900"
+        class={inputClass}
       />
     </label>
-    <button
-      type="submit"
-      class="rounded bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
-    >
+    <Button type="submit">
       {m.continue_with_email()}
-    </button>
+    </Button>
   </form>
 </main>

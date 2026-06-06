@@ -7,6 +7,7 @@
   import favicon from "$lib/assets/favicon.svg";
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
   import * as m from "$lib/paraglide/messages";
   import type { LayoutProps } from "./$types";
 
@@ -42,12 +43,9 @@
         <span aria-hidden="true" class="shrink-0">{data.user.avatar}</span>
         <span class="whitespace-nowrap font-medium">{data.user.name}</span>
         <form method="POST" action="/logout" class="shrink-0" use:enhance>
-          <button
-            type="submit"
-            class="whitespace-nowrap rounded border border-gray-200 px-3 py-1 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-          >
+          <Button type="submit" variant="secondary" class="whitespace-nowrap px-3 py-1">
             {m.sign_out()}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
