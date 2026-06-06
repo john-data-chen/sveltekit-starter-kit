@@ -1,4 +1,4 @@
-import { type TransactionType, isTransactionType, isValidCategory } from "$lib/categories";
+import { isTransactionType, isValidCategory } from "$lib/categories";
 import { isValidDate } from "$lib/date";
 import { parseAmount } from "$lib/money";
 import * as m from "$lib/paraglide/messages";

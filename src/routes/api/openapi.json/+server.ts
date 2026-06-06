@@ -3,7 +3,7 @@ import { json } from "@sveltejs/kit";
 
 import type { RequestEvent } from "./$types";
 
-export function GET(event: RequestEvent) {
+export function GET(_event: RequestEvent) {
   const spec = getOpenApiSpec();
   return json(spec);
 }

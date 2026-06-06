@@ -1,6 +1,6 @@
 import type { RequestEvent } from "@sveltejs/kit";
 
-export function GET(event: RequestEvent) {
+export function GET(_event: RequestEvent) {
   const html = `<!DOCTYPE html>
 <html>
   <head>
