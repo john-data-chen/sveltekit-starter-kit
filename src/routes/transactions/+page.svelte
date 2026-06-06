@@ -27,8 +27,16 @@
       header: () => m.field_category()
     },
     { id: "type", accessorFn: (row) => typeLabel(row.type), header: () => m.field_type() },
-    { accessorKey: "amount", header: () => m.field_amount() },
-    { accessorKey: "note", header: () => m.field_note() },
+    {
+      id: "amount",
+      accessorFn: (row) => (row.type === "income" ? row.amount : -row.amount),
+      header: () => m.field_amount()
+    },
+    {
+      id: "note",
+      accessorFn: (row) => row.note || "",
+      header: () => m.field_note()
+    },
     { id: "actions", enableSorting: false, header: () => "" }
   ];
 
@@ -162,7 +170,7 @@
             <tr>
               {#each headerGroup.headers as header (header.id)}
                 <th
-                  class="px-4 py-3 font-medium"
+                  class="px-2 py-3 font-medium"
                   aria-sort={header.column.getCanSort()
                     ? header.column.getIsSorted() === "asc"
                       ? "ascending"
@@ -203,9 +211,9 @@
           {#each table.rows as row (row.original.id)}
             {@const tx = row.original}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-              <td class="px-4 py-3">{tx.occurredOn}</td>
-              <td class="px-4 py-3 font-medium">{categoryLabel(tx.category)}</td>
-              <td class="px-4 py-3">
+              <td class="px-2 py-3">{tx.occurredOn}</td>
+              <td class="px-2 py-3 font-medium">{categoryLabel(tx.category)}</td>
+              <td class="px-2 py-3">
                 <span
                   class={tx.type === "income"
                     ? "text-green-600 dark:text-green-400"
@@ -214,7 +222,7 @@
                   {typeLabel(tx.type)}
                 </span>
               </td>
-              <td class="px-4 py-3">
+              <td class="px-2 py-3">
                 <span
                   class={[
                     "font-semibold tabular-nums",
@@ -227,10 +235,10 @@
                 </span>
               </td>
               <td
-                class="px-4 py-3 text-gray-500 dark:text-gray-400 w-full max-w-0 truncate"
+                class="px-2 py-3 text-gray-500 dark:text-gray-400 w-full max-w-0 truncate"
                 title={tx.note || ""}>{tx.note || ""}</td
               >
-              <td class="px-4 py-3 text-right w-1 whitespace-nowrap">
+              <td class="px-2 py-3 text-right w-1 whitespace-nowrap">
                 <div class="flex items-center justify-end gap-3 shrink-0">
                   <a
                     href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
