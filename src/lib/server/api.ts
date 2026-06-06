@@ -16,5 +16,5 @@ export function apiJson<T>(data: T, init?: ResponseInit): Response {
 
 /** Return a formatted JSON error response. */
 export function apiError(status: number, message: string): Response {
-  return json({ error: message }, { status });
+  return json({ message }, { status });
 }

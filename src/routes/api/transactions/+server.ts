@@ -1,7 +1,7 @@
 import { apiError, apiJson, requireApiUser } from "$lib/server/api";
 import { recordAudit } from "$lib/server/db/audit";
 import { createTransaction, listTransactions } from "$lib/server/db/queries";
-import { TransactionCreate, TransactionListQuery } from "$lib/server/schemas";
+import { TransactionCreate, TransactionListQuery, serializeTransaction } from "$lib/server/schemas";
 import type { RequestEvent } from "@sveltejs/kit";
 
 export async function GET(event: RequestEvent) {
@@ -16,7 +16,7 @@ export async function GET(event: RequestEvent) {
   }
 
   const transactions = await listTransactions(user.id, queryResult.data);
-  return apiJson(transactions);
+  return apiJson(transactions.map(serializeTransaction));
 }
 
 export async function POST(event: RequestEvent) {
@@ -41,5 +41,5 @@ export async function POST(event: RequestEvent) {
     `${transaction.type} in ${transaction.category} for ${transaction.amount}`
   );
 
-  return apiJson(transaction, { status: 201 });
+  return apiJson(serializeTransaction(transaction), { status: 201 });
 }

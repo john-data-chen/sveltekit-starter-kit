@@ -1,7 +1,7 @@
 import { apiError, apiJson, requireApiUser } from "$lib/server/api";
 import { recordAudit } from "$lib/server/db/audit";
 import { getTransaction, updateTransaction, deleteTransaction } from "$lib/server/db/queries";
-import { TransactionUpdate } from "$lib/server/schemas";
+import { TransactionUpdate, TransactionCreate, serializeTransaction } from "$lib/server/schemas";
 import type { RequestEvent } from "@sveltejs/kit";
 
 export async function GET(event: RequestEvent) {
@@ -16,7 +16,7 @@ export async function GET(event: RequestEvent) {
     return apiError(404, "Transaction not found");
   }
 
-  return apiJson(transaction);
+  return apiJson(serializeTransaction(transaction));
 }
 
 export async function PATCH(event: RequestEvent) {
@@ -49,7 +49,12 @@ export async function PATCH(event: RequestEvent) {
     note: result.data.note !== undefined ? result.data.note : existing.note
   };
 
-  const updated = await updateTransaction(user.id, id, updatedInput);
+  const validation = TransactionCreate.safeParse(updatedInput);
+  if (!validation.success) {
+    return apiError(400, validation.error.issues[0].message);
+  }
+
+  const updated = await updateTransaction(user.id, id, validation.data);
   if (!updated) {
     return apiError(404, "Transaction not found");
   }
@@ -62,7 +67,7 @@ export async function PATCH(event: RequestEvent) {
     `${updated.type} in ${updated.category} for ${updated.amount}`
   );
 
-  return apiJson(updated);
+  return apiJson(serializeTransaction(updated));
 }
 
 export async function DELETE(event: RequestEvent) {

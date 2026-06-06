@@ -30,6 +30,6 @@ describe("apiError", () => {
     const response = apiError(400, "Bad Request");
     expect(response.status).toBe(400);
     const data = await response.json();
-    expect(data).toEqual({ error: "Bad Request" });
+    expect(data).toEqual({ message: "Bad Request" });
   });
 });

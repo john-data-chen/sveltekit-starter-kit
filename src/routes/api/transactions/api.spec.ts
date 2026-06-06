@@ -97,12 +97,12 @@ describe("API: /api/transactions", () => {
       };
       const event = createMockEvent(undefined, {}, undefined, body);
 
-      const mockTx = { id: 100, ...body };
+      const mockTx = { id: 100, createdAt: new Date(), ...body };
       vi.mocked(queries.createTransaction).mockResolvedValue(mockTx as any);
 
       const res = await POST(event);
       expect(res.status).toBe(201);
-      expect(await res.json()).toEqual(mockTx);
+      expect(await res.json()).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
       expect(queries.createTransaction).toHaveBeenCalledWith(1, body);
       expect(audit.recordAudit).toHaveBeenCalled();
     });
@@ -124,11 +124,11 @@ describe("API: /api/transactions", () => {
 
     it("returns 200 with the transaction", async () => {
       const event = createMockEvent(undefined, { id: "1" });
-      const mockTx = { id: 1, type: "expense" };
+      const mockTx = { id: 1, type: "expense", createdAt: new Date() };
       vi.mocked(queries.getTransaction).mockResolvedValue(mockTx as any);
       const res = await GET_ID(event);
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual(mockTx);
+      expect(await res.json()).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
     });
   });
 
@@ -141,7 +141,8 @@ describe("API: /api/transactions", () => {
         type: "expense",
         category: "Food",
         occurredOn: "2023-01-01",
-        note: ""
+        note: "",
+        createdAt: new Date()
       };
       const updated = { ...existing, amount: 20 };
 
@@ -150,7 +151,7 @@ describe("API: /api/transactions", () => {
 
       const res = await PATCH(event);
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual(updated);
+      expect(await res.json()).toEqual({ ...updated, createdAt: updated.createdAt.toISOString() });
       expect(queries.updateTransaction).toHaveBeenCalledWith(
         1,
         1,

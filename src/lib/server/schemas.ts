@@ -1,35 +1,53 @@
+import { isValidCategory } from "$lib/categories";
+import { isValidDate } from "$lib/date";
+import type { Transaction } from "$lib/server/db/schema";
 import { z } from "zod";
 
-export const TransactionCreate = z
-  .object({
-    type: z.enum(["income", "expense"]),
-    category: z.string(),
-    amount: z.number().positive(),
-    occurredOn: z.string(),
-    note: z.string().nullable()
-  })
-  .meta({ id: "TransactionCreate" });
+export function serializeTransaction(t: Transaction) {
+  return {
+    id: t.id,
+    userId: t.userId,
+    type: t.type,
+    category: t.category,
+    amount: t.amount,
+    occurredOn: t.occurredOn,
+    note: t.note,
+    createdAt: t.createdAt.toISOString()
+  };
+}
 
-export const TransactionUpdate = TransactionCreate.partial().meta({ id: "TransactionUpdate" });
+const TransactionCreateBase = z.object({
+  type: z.enum(["income", "expense"]),
+  category: z.string(),
+  amount: z.number().int().positive(),
+  occurredOn: z.string().refine(isValidDate, "Invalid date"),
+  note: z.string().nullable()
+});
+
+export const TransactionCreate = TransactionCreateBase.superRefine((data, ctx) => {
+  if (!isValidCategory(data.type, data.category)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid category", path: ["category"] });
+  }
+}).meta({ id: "TransactionCreate" });
+
+export const TransactionUpdate = TransactionCreateBase.partial().meta({ id: "TransactionUpdate" });
 
 export const TransactionResponse = z
   .object({
-    id: z.string(),
-    userId: z.string(),
+    id: z.number().int(),
+    userId: z.number().int(),
     type: z.string(),
     category: z.string(),
-    amount: z.number(),
+    amount: z.number().int(),
     occurredOn: z.string(),
     note: z.string().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string()
+    createdAt: z.string().datetime()
   })
   .meta({ id: "TransactionResponse" });
 
 export const ErrorResponse = z
   .object({
-    error: z.string(),
-    message: z.string().optional()
+    message: z.string()
   })
   .meta({ id: "ErrorResponse" });
 

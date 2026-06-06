@@ -107,7 +107,97 @@
       {m.no_transactions_match()}
     </p>
   {:else}
-    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+    <!-- Mobile Sort Control -->
+    <div class="md:hidden flex items-center justify-end gap-2 mb-2">
+      <select
+        aria-label="Sort field"
+        class="rounded border border-gray-300 py-1 px-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+        onchange={(e) => {
+          const colId = e.currentTarget.value;
+          const header = table.headerGroups[0].headers.find((h) => h.id === colId);
+          if (header) header.column.toggleSorting(table.sorting[0]?.desc ?? true);
+        }}
+      >
+        {#each table.headerGroups[0].headers as header (header.id)}
+          {#if header.column.getCanSort()}
+            <option value={header.id} selected={table.sorting[0]?.id === header.id}>
+              {headerLabel(header)}
+            </option>
+          {/if}
+        {/each}
+      </select>
+      <button
+        type="button"
+        aria-label="Sort direction"
+        class="rounded border border-gray-300 px-2 py-1 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+        onclick={() => {
+          const currentId = table.sorting[0]?.id;
+          const currentDesc = table.sorting[0]?.desc;
+          const header = table.headerGroups[0].headers.find((h) => h.id === currentId);
+          if (header) header.column.toggleSorting(!currentDesc);
+        }}
+      >
+        {table.sorting[0]?.desc ? "▼" : "▲"}
+      </button>
+    </div>
+
+    <!-- Mobile List View -->
+    <ul
+      class="md:hidden divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800 mb-6"
+    >
+      {#each table.rows as row (row.original.id)}
+        {@const tx = row.original}
+        <li class="flex items-center justify-between gap-4 p-4">
+          <div class="min-w-0">
+            <p class="font-medium">{categoryLabel(tx.category)}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {tx.occurredOn}{#if tx.note}
+                · <span class="truncate">{tx.note}</span>{/if}
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-col items-end gap-1">
+            <span
+              class={[
+                "font-semibold tabular-nums",
+                tx.type === "income"
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
+              ]}
+            >
+              {tx.type === "income" ? "+" : "-"}{formatTWD(tx.amount)}
+            </span>
+            <div class="flex items-center gap-3">
+              <a
+                href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}
+                class="text-sm text-gray-500 hover:underline dark:text-gray-400 shrink-0"
+              >
+                {m.action_edit()}
+              </a>
+              <form
+                method="POST"
+                action="?/delete"
+                class="shrink-0"
+                use:enhance={({ cancel }) => {
+                  if (!confirm(m.confirm_delete_transaction())) {
+                    cancel();
+                  }
+                }}
+              >
+                <input type="hidden" name="id" value={tx.id} />
+                <button type="submit" class="text-sm text-red-500 hover:underline dark:text-red-400"
+                  >{m.action_delete()}</button
+                >
+              </form>
+            </div>
+          </div>
+        </li>
+      {/each}
+    </ul>
+
+    <!-- Desktop Table View -->
+    <div
+      class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800"
+    >
       <table class="w-full text-left text-sm whitespace-nowrap">
         <thead
           class="border-b border-gray-200 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400"
