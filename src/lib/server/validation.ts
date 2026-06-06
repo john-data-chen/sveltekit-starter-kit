@@ -6,6 +6,8 @@ import type { TransactionInput } from "$lib/server/db/queries";
 import type { TransactionFormValues } from "$lib/transaction";
 import { z } from "zod";
 
+import { TransactionCreate } from "./schemas";
+
 export type TransactionFormResult =
   | { ok: true; data: TransactionInput }
   | { ok: false; values: TransactionFormValues; error: string };
@@ -44,15 +46,14 @@ const transactionSchema = z
       ctx.addIssue({ code: "custom", message: m.validation_choose_date() });
     }
   })
-  .transform(
-    (values): TransactionInput => ({
-      type: values.type as TransactionType,
-      category: values.category,
-      amount: parseAmount(values.amount) as number,
-      occurredOn: values.occurredOn,
-      note: values.note.trim() || null
-    })
-  );
+  .transform((values) => ({
+    type: values.type,
+    category: values.category,
+    amount: parseAmount(values.amount) as number,
+    occurredOn: values.occurredOn,
+    note: values.note.trim() || null
+  }))
+  .pipe(TransactionCreate);
 
 /** Validate a transaction form submission against the fixed category lists. */
 export function parseTransactionForm(form: FormData): TransactionFormResult {

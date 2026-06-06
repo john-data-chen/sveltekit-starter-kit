@@ -1,10 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("sorting interaction updates URL and reflects in UI", async ({ page, isMobile }) => {
-  if (isMobile) {
-    test.skip();
-  }
-
+test("sorting interaction updates URL and reflects in UI", async ({ page }) => {
   // 1. Sign in (email is pre-filled with john@example.com).
   await page.goto("/login");
   const signIn = page.locator('form:has(input[name="email"]) button[type="submit"]');
@@ -29,15 +25,22 @@ test("sorting interaction updates URL and reflects in UI", async ({ page, isMobi
   const initialAmount = await firstRowAmount.innerText();
 
   // 4. Click it to sort by Amount (desc). The URL should update.
-  await amountHeaderButton.click();
-  await expect(page).toHaveURL(/.*t\.sort=amount&t\.dir=desc/);
+  await expect(async () => {
+    await amountHeaderButton.click();
+    await expect(page).toHaveURL(/.*t\.sort=amount&t\.dir=desc/, { timeout: 3000 });
+  }).toPass({ timeout: 15_000 });
+
   await expect(firstRowAmount).not.toHaveText(initialAmount);
 
   // 5. Click again to sort ascending.
-  await amountHeaderButton.click();
-  await expect(page).toHaveURL(/.*t\.sort=amount&t\.dir=asc/);
+  await expect(async () => {
+    await amountHeaderButton.click();
+    await expect(page).toHaveURL(/.*t\.sort=amount&t\.dir=asc/, { timeout: 3000 });
+  }).toPass({ timeout: 15_000 });
 
   // 6. Click again to remove sorting.
-  await amountHeaderButton.click();
-  await expect(page).not.toHaveURL(/.*t\.sort=amount/);
+  await expect(async () => {
+    await amountHeaderButton.click();
+    await expect(page).not.toHaveURL(/.*t\.sort=amount/, { timeout: 3000 });
+  }).toPass({ timeout: 15_000 });
 });

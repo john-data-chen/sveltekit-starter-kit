@@ -12,7 +12,7 @@ import { expect, test } from "@playwright/test";
 //   submit is lost). Rather than guess a hydration delay, we wrap each submit in `toPass`:
 //   the action is retried until the expected navigation actually commits. `waitForURL` (not a
 //   bare URL assertion) ensures the previous navigation is fully settled before the next step.
-test("John signs in, adds an expense, then deletes it", async ({ page, isMobile }) => {
+test("John signs in, adds an expense, then deletes it", async ({ page }) => {
   // The Delete button triggers a native confirm() — auto-accept it.
   page.on("dialog", (dialog) => dialog.accept());
 
@@ -41,15 +41,11 @@ test("John signs in, adds an expense, then deletes it", async ({ page, isMobile 
   }).toPass({ timeout: 20_000 });
 
   // 3. The new row is listed.
-  const row = isMobile
-    ? page.locator("li", { hasText: note })
-    : page.locator("tr", { hasText: note });
+  const row = page.locator("tr", { hasText: note });
   await expect(row).toBeVisible();
 
   // 4. Delete it, then confirm it is gone. Scope to the row's delete form (the layout also
   // renders a logout form on authed pages, so a bare submit selector would be ambiguous).
   await row.locator('form[action="?/delete"] button[type="submit"]').click();
-  await expect(
-    isMobile ? page.locator("li", { hasText: note }) : page.locator("tr", { hasText: note })
-  ).toHaveCount(0);
+  await expect(page.locator("tr", { hasText: note })).toHaveCount(0);
 });

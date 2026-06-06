@@ -50,6 +50,8 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 | Auth       | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                         |
 | Authz/RBAC | Route-level role guards (`requireAdmin`)       | Strict access control based on DB-backed user roles (`admin` vs `member`)                  |
 | Validation | Zod (server-side schemas)                      | Runtime validation at form-action boundaries — TS at compile time, Zod for untrusted input |
+| REST API   | Full CRUD endpoints + JSON response envelopes  | Separated REST layer to facilitate external integrations or mobile clients                 |
+| API Docs   | Scalar UI + native Zod 4 OpenAPI extraction    | Zero-friction interactive documentation generated dynamically from Zod schemas             |
 | Tables     | `@tanstack/table-core`                         | Headless, URL-synchronized sorting, rendered via pure Svelte components                    |
 | Charts     | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                    |
 | i18n       | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                          |
@@ -92,6 +94,7 @@ A production-grade SvelteKit starter kit built around a real multi-user **expens
 - **Sortable data-tables (TanStack)** — Transactions and Admin data tables are fully sortable, with state seamlessly synced to the URL.
 - **List & filter** — filter transactions by category and by month; filter state lives in the URL.
 - **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency, supports large/small toggle).
+- **REST API + OpenAPI Documentation** — full CRUD endpoints (`/api/transactions`, `/api/stats`) heavily utilizing Zod models which dynamically map to a live OpenAPI 3.1 schema. Scalar UI is mounted at `/api/docs` for interactive exploration.
 - **Per-user data isolation** — every query is scoped to the signed-in user; you only ever see your own data.
 - **Currency** — TWD only, stored as integers (no decimals).
 - **i18n** — English and Traditional Chinese (Paraglide JS).
@@ -250,7 +253,10 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   ├── guards.ts        # requireUser protected-route helper
 │   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
-│   │   │   └── validation.ts    # Zod schemas: transaction form + login email
+│   │   │   ├── api.ts           # REST API response wrappers and auth guard
+│   │   │   ├── openapi.ts       # Dynamic Zod -> OpenAPI 3.1 generator
+│   │   │   ├── schemas.ts       # Shared Zod definitions (forms + API)
+│   │   │   └── validation.ts    # Action validation, utilizing schemas.ts
 │   │   ├── categories.ts        # Fixed category keys + localized labels
 │   │   ├── constants.ts         # App name, demo email, pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
@@ -260,6 +266,11 @@ pnpm db:studio     # drizzle-kit studio
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
 │   │   ├── admin/               # Governance view (admin-only) with cross-user aggregate stats
+│   │   ├── api/                 # REST endpoints
+│   │   │   ├── docs/            # Scalar API reference UI
+│   │   │   ├── openapi.json/    # Dynamically generated OpenAPI 3.1 schema
+│   │   │   ├── stats/           # REST endpoint for dashboard aggregates
+│   │   │   └── transactions/    # REST endpoints for transaction CRUD
 │   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/

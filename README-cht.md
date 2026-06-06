@@ -50,6 +50,8 @@
 | Auth       | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                              |
 | Authz/RBAC | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制               |
 | Validation | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod     |
+| REST API   | 完整的 CRUD API + JSON 回應封裝                | 分離的 REST 層以利外部系統整合或手機端應用呼叫                          |
+| API Docs   | Scalar UI + Zod 4 原生 OpenAPI 匯出            | 直接由 Zod 模型動態產生的零阻力互動式 API 文件                          |
 | Tables     | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染 |
 | Charts     | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                              |
 | i18n       | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable messages；支援英文與繁體中文                   |
@@ -92,6 +94,7 @@
 - **Sortable data-tables (TanStack)** — 交易清單與管理員報表皆採用 TanStack Table 實作排序功能，並且排序狀態會與 URL 同步。
 - **List & filter** — 可依 類型 與 月份 篩選交易紀錄；查詢條件會保存在 URL。
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
+- **REST API + OpenAPI 互動文件** — 提供完整的 CRUD endpoints (`/api/transactions`, `/api/stats`)，重度利用 Zod 模型來動態對應出即時的 OpenAPI 3.1 規範。同時於 `/api/docs` 掛載了 Scalar UI 以供互動式探索。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
 - **Currency** — 僅支援 TWD，金額以整數儲存，不使用小數。
 - **i18n** — 英文與繁體中文（Paraglide JS）。
@@ -250,7 +253,10 @@ pnpm db:studio     # drizzle-kit studio
 │   │   │   ├── guards.ts        # requireUser protected-route helper
 │   │   │   ├── login.ts         # Password-less email lookup
 │   │   │   ├── session.ts       # Cookie -> database-backed SessionUser resolver
-│   │   │   └── validation.ts    # Zod schemas：交易表單 + 登入 email
+│   │   │   ├── api.ts           # REST API 回應包裝與身分驗證守衛
+│   │   │   ├── openapi.ts       # 動態從 Zod 產生 OpenAPI 3.1 規範
+│   │   │   ├── schemas.ts       # 共用的 Zod 定義 (表單與 API 共用)
+│   │   │   └── validation.ts    # Action 驗證邏輯，底層依賴 schemas.ts
 │   │   ├── categories.ts        # 固定 category keys + localized labels
 │   │   ├── constants.ts         # App name、demo email、pageTitle helper
 │   │   ├── date.ts              # YYYY-MM / YYYY-MM-DD helpers
@@ -260,6 +266,11 @@ pnpm db:studio     # drizzle-kit studio
 │   │   └── transaction.ts       # Transaction form value types
 │   ├── routes/
 │   │   ├── admin/               # 管理員專用的 Governance 介面，顯示所有使用者的統計摘要
+│   │   ├── api/                 # REST endpoints
+│   │   │   ├── docs/            # Scalar API 參考文件 UI
+│   │   │   ├── openapi.json/    # 動態產生的 OpenAPI 3.1 規範
+│   │   │   ├── stats/           # 供儀表板使用的彙總 REST endpoint
+│   │   │   └── transactions/    # 用於交易紀錄 CRUD 的 REST endpoints
 │   │   ├── login/               # Password-less email sign-in page/action + route spec
 │   │   ├── logout/              # Sign-out action
 │   │   ├── transactions/
