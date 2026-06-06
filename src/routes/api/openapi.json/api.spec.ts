@@ -5,7 +5,9 @@ import { GET } from "./+server";
 
 describe("API: /api/openapi.json", () => {
   it("returns a valid OpenAPI document", async () => {
-    const event = {} as RequestEvent;
+    const event = {
+      locals: { user: { id: 1, role: "admin" } }
+    } as unknown as RequestEvent;
     const res = await GET(event);
     expect(res.status).toBe(200);
 

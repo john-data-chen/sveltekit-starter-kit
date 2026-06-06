@@ -1,4 +1,5 @@
 import * as queries from "$lib/server/db/queries";
+import { ErrorResponse } from "$lib/server/schemas";
 import type { RequestEvent } from "@sveltejs/kit";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -44,15 +45,21 @@ describe("API: /api/stats", () => {
     expect(queries.getMonthlyStats).toHaveBeenCalledWith(1, "2023-01");
   });
 
-  it("returns 400 for missing month", async () => {
+  it("returns 400 for missing month and matches ErrorResponse shape", async () => {
     const event = createMockEvent(undefined, new URL("http://localhost"));
     const res = await GET(event);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(() => ErrorResponse.parse(body)).not.toThrow();
+    expect(body).toHaveProperty("message");
   });
 
-  it("returns 400 for invalid month format", async () => {
+  it("returns 400 for invalid month format and matches ErrorResponse shape", async () => {
     const event = createMockEvent(undefined, new URL("http://localhost?month=invalid"));
     const res = await GET(event);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(() => ErrorResponse.parse(body)).not.toThrow();
+    expect(body).toHaveProperty("message");
   });
 });

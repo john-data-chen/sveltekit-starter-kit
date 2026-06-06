@@ -1,7 +1,13 @@
 import * as schemas from "./schemas";
 
+let memoizedSpec: any = null;
+
 export function getOpenApiSpec() {
-  return {
+  if (memoizedSpec) {
+    return memoizedSpec;
+  }
+
+  memoizedSpec = {
     openapi: "3.1.0",
     info: {
       title: "Expense Tracker API",
@@ -207,4 +213,6 @@ export function getOpenApiSpec() {
       }
     }
   };
+
+  return memoizedSpec;
 }

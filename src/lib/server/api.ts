@@ -9,9 +9,13 @@ export function requireApiUser(locals: App.Locals): SessionUser {
   return locals.user;
 }
 
-/** Standard JSON response payload wrapper for API responses. */
-export function apiJson<T>(data: T, init?: ResponseInit): Response {
-  return json(data, init);
+/** Return the signed-in user if they have the admin role, or throw a 403 error. */
+export function requireApiAdmin(locals: App.Locals): SessionUser {
+  const user = requireApiUser(locals);
+  if (user.role !== "admin") {
+    error(403, { message: "Forbidden" });
+  }
+  return user;
 }
 
 /** Return a formatted JSON error response. */

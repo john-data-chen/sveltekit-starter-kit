@@ -1,5 +1,7 @@
 import * as audit from "$lib/server/db/audit";
 import * as queries from "$lib/server/db/queries";
+import type { Transaction } from "$lib/server/db/schema";
+import { ErrorResponse, TransactionResponse } from "$lib/server/schemas";
 import type { RequestEvent } from "@sveltejs/kit";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -50,18 +52,35 @@ describe("API: /api/transactions", () => {
   });
 
   describe("GET /api/transactions", () => {
-    it("throws 401 if unauthorized", async () => {
+    it("throws 401 if unauthorized and matches ErrorResponse shape", async () => {
       const event = createMockEvent(null);
-      await expect(GET(event)).rejects.toMatchObject({ status: 401 });
+      // Because we mock SvelteKit's error() to throw, we assert the thrown payload
+      await expect(GET(event)).rejects.toMatchObject({
+        status: 401,
+        message: { message: "Unauthorized" }
+      });
     });
 
     it("returns 200 with list of transactions", async () => {
       const event = createMockEvent();
-      vi.mocked(queries.listTransactions).mockResolvedValue([]);
+      const mockTx: Transaction = {
+        id: 1,
+        userId: 1,
+        type: "expense",
+        category: "Food",
+        amount: 10,
+        occurredOn: "2023-01-01",
+        note: null,
+        createdAt: new Date()
+      };
+      vi.mocked(queries.listTransactions).mockResolvedValue([mockTx]);
 
       const res = await GET(event);
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual([]);
+      const body = await res.json();
+      expect(body).toHaveLength(1);
+      expect(() => TransactionResponse.parse(body[0])).not.toThrow();
+      expect(body).toEqual([{ ...mockTx, createdAt: mockTx.createdAt.toISOString() }]);
       expect(queries.listTransactions).toHaveBeenCalledWith(1, {});
     });
 
@@ -78,11 +97,14 @@ describe("API: /api/transactions", () => {
       });
     });
 
-    it("returns 400 for invalid query parameters", async () => {
+    it("returns 400 for invalid query parameters and matches ErrorResponse shape", async () => {
       const url = new URL("http://localhost?month=invalid");
       const event = createMockEvent(undefined, {}, url);
       const res = await GET(event);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(() => ErrorResponse.parse(body)).not.toThrow();
+      expect(body).toHaveProperty("message");
     });
   });
 
@@ -97,61 +119,92 @@ describe("API: /api/transactions", () => {
       };
       const event = createMockEvent(undefined, {}, undefined, body);
 
-      const mockTx = { id: 100, createdAt: new Date(), ...body };
-      vi.mocked(queries.createTransaction).mockResolvedValue(mockTx as any);
+      const mockTx: Transaction = {
+        id: 100,
+        userId: 1,
+        type: "expense",
+        category: "Food",
+        amount: 10,
+        occurredOn: "2023-01-01",
+        note: "Lunch",
+        createdAt: new Date()
+      };
+      vi.mocked(queries.createTransaction).mockResolvedValue(mockTx);
 
       const res = await POST(event);
       expect(res.status).toBe(201);
-      expect(await res.json()).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
+      const responseBody = await res.json();
+      expect(() => TransactionResponse.parse(responseBody)).not.toThrow();
+      expect(responseBody).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
       expect(queries.createTransaction).toHaveBeenCalledWith(1, body);
       expect(audit.recordAudit).toHaveBeenCalled();
     });
 
-    it("returns 400 for invalid body", async () => {
+    it("returns 400 for invalid body and matches ErrorResponse shape", async () => {
       const event = createMockEvent(undefined, {}, undefined, { type: "invalid" });
       const res = await POST(event);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(() => ErrorResponse.parse(body)).not.toThrow();
+      expect(body).toHaveProperty("message");
     });
   });
 
   describe("GET /api/transactions/[id]", () => {
-    it("returns 404 if not found", async () => {
+    it("returns 404 if not found and matches ErrorResponse shape", async () => {
       const event = createMockEvent(undefined, { id: "999" });
       vi.mocked(queries.getTransaction).mockResolvedValue(null);
       const res = await GET_ID(event);
       expect(res.status).toBe(404);
+      const body = await res.json();
+      expect(() => ErrorResponse.parse(body)).not.toThrow();
+      expect(body).toHaveProperty("message");
     });
 
     it("returns 200 with the transaction", async () => {
       const event = createMockEvent(undefined, { id: "1" });
-      const mockTx = { id: 1, type: "expense", createdAt: new Date() };
-      vi.mocked(queries.getTransaction).mockResolvedValue(mockTx as any);
+      const mockTx: Transaction = {
+        id: 1,
+        userId: 1,
+        type: "expense",
+        category: "Food",
+        amount: 10,
+        occurredOn: "2023-01-01",
+        note: null,
+        createdAt: new Date()
+      };
+      vi.mocked(queries.getTransaction).mockResolvedValue(mockTx);
       const res = await GET_ID(event);
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
+      const body = await res.json();
+      expect(() => TransactionResponse.parse(body)).not.toThrow();
+      expect(body).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
     });
   });
 
   describe("PATCH /api/transactions/[id]", () => {
     it("updates the transaction and records audit", async () => {
       const event = createMockEvent(undefined, { id: "1" }, undefined, { amount: 20 });
-      const existing = {
+      const existing: Transaction = {
         id: 1,
+        userId: 1,
         amount: 10,
         type: "expense",
         category: "Food",
         occurredOn: "2023-01-01",
-        note: "",
+        note: null,
         createdAt: new Date()
       };
-      const updated = { ...existing, amount: 20 };
+      const updated: Transaction = { ...existing, amount: 20 };
 
-      vi.mocked(queries.getTransaction).mockResolvedValue(existing as any);
-      vi.mocked(queries.updateTransaction).mockResolvedValue(updated as any);
+      vi.mocked(queries.getTransaction).mockResolvedValue(existing);
+      vi.mocked(queries.updateTransaction).mockResolvedValue(updated);
 
       const res = await PATCH(event);
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual({ ...updated, createdAt: updated.createdAt.toISOString() });
+      const body = await res.json();
+      expect(() => TransactionResponse.parse(body)).not.toThrow();
+      expect(body).toEqual({ ...updated, createdAt: updated.createdAt.toISOString() });
       expect(queries.updateTransaction).toHaveBeenCalledWith(
         1,
         1,

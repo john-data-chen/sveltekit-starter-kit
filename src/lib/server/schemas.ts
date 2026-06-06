@@ -51,12 +51,14 @@ export const ErrorResponse = z
   })
   .meta({ id: "ErrorResponse" });
 
+export const MonthString = z
+  .string()
+  .regex(/^\d{4}-\d{2}$/, "Format must be YYYY-MM")
+  .meta({ id: "MonthString" });
+
 export const TransactionListQuery = z
   .object({
     category: z.string().optional(),
-    month: z
-      .string()
-      .regex(/^\d{4}-\d{2}$/, "Format must be YYYY-MM")
-      .optional()
+    month: MonthString.optional()
   })
   .meta({ id: "TransactionListQuery" });

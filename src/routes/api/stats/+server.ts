@@ -1,9 +1,7 @@
-import { apiError, apiJson, requireApiUser } from "$lib/server/api";
+import { apiError, requireApiUser } from "$lib/server/api";
 import { getMonthlyStats } from "$lib/server/db/queries";
-import type { RequestEvent } from "@sveltejs/kit";
-import { z } from "zod";
-
-const monthSchema = z.string().regex(/^\d{4}-\d{2}$/, "Format must be YYYY-MM");
+import { MonthString } from "$lib/server/schemas";
+import { json, type RequestEvent } from "@sveltejs/kit";
 
 export async function GET(event: RequestEvent) {
   const user = requireApiUser(event.locals);
@@ -13,11 +11,11 @@ export async function GET(event: RequestEvent) {
     return apiError(400, "Missing month parameter");
   }
 
-  const result = monthSchema.safeParse(month);
+  const result = MonthString.safeParse(month);
   if (!result.success) {
     return apiError(400, result.error.issues[0].message);
   }
 
   const stats = await getMonthlyStats(user.id, result.data);
-  return apiJson(stats);
+  return json(stats);
 }

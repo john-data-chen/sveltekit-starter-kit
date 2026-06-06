@@ -1,7 +1,7 @@
 import type { SessionUser } from "$lib/server/auth";
 import { describe, expect, it } from "vitest";
 
-import { apiError, apiJson, requireApiUser } from "./api";
+import { apiError, requireApiUser } from "./api";
 
 describe("requireApiUser", () => {
   it("returns the user if present in locals", () => {
@@ -13,15 +13,6 @@ describe("requireApiUser", () => {
   it("throws a 401 error if user is missing", () => {
     const locals = { user: null } as unknown as App.Locals;
     expect(() => requireApiUser(locals)).toThrowError();
-  });
-});
-
-describe("apiJson", () => {
-  it("wraps data in a JSON response", async () => {
-    const response = apiJson({ success: true });
-    expect(response.status).toBe(200);
-    const data = await response.json();
-    expect(data).toEqual({ success: true });
   });
 });
 
