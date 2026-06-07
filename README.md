@@ -36,20 +36,19 @@ It is deliberately scoped to showcase the competencies a product team hires for:
 
 ---
 
-| Metric         | Result                                                                                |
-| -------------- | ------------------------------------------------------------------------------------- |
-| Test Coverage  | See **codecov** badge above — measured via Vitest (unit + integration)                |
-| Code Quality   | See **SonarQube Quality Gate** badge above (Security, Reliability, Maintainability)   |
-| E2E Validation | Cross-browser via Playwright (Chrome / Safari / Edge / Mobile Chrome / Mobile Safari) |
-| CI/CD Pipeline | GitHub Actions → Gemini PR Review + SonarQube + Codecov → Vercel                      |
+| Metric         | Result                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| Test Coverage  | See **codecov** badge above — 95+% via Vitest (unit + integration)                               |
+| Code Quality   | See **SonarQube Quality Gate** badge above (Security, Reliability, Maintainability, all A level) |
+| Lighthouse     | Production Lighthouse audit of the dashboard — **all 90+ scores**                                |
+| E2E Validation | Cross-browser via Playwright (Chrome / Safari / Edge / Mobile Chrome / Mobile Safari)            |
+| CI/CD pipeline | GitHub Actions → Gemini PR Review + SonarQube + Codecov → Vercel                                 |
 
 ---
 
-## Performance (Lighthouse)
+## Production Lighthouse audit of the dashboard
 
-<img src="./src/lib/assets/screenshots/dashboard-lighthouse-score.png" alt="Lighthouse audit of the dashboard: Performance 100, Accessibility 90, Best Practices 100, SEO 91" width="460">
-
-Production Lighthouse audit of the dashboard — **Performance 100, Accessibility 90, Best Practices 100, SEO 91 (all 90+)**. These scores come from deliberate frontend choices: SSR with fine-grained Svelte 5 reactivity, a zero-dependency pure-CSS donut chart, Tailwind v4 zero-runtime styling, and tree-shakeable Paraglide i18n. Performance is treated as a verifiable delivery criterion, not an afterthought.
+<img src="./src/lib/assets/screenshots/dashboard-lighthouse-score.png" alt="Lighthouse audit of the dashboard: all 90+ scores" width="460">
 
 ---
 
