@@ -11,21 +11,26 @@ It demonstrates technical decision-making, quality engineering, and AI-assisted 
 It is deliberately scoped to showcase the competencies a product team hires for: typed, modular **TypeScript / Node.js**; intentional **API, data-flow, and RBAC** design; **PostgreSQL** with ORM-driven **schema migrations** and runtime validation; **AI-assisted (Harness) engineering**; and disciplined, verifiable delivery.
 
 **[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — press **Continue With Email** to sign in instantly as a seeded demo user.
+**[Live API Docs](https://sveltekit-starter-kit.vercel.app/api/docs)** — interactive OpenAPI 3.1 reference (Scalar UI).
 
 繁體中文版本請見 **[README-cht.md](./README-cht.md)**.
 
 <table>
   <tr>
-    <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="Passwordless email login screen, pre-filled with a demo account" width="200"></td>
-    <td align="center"><img src="./src/lib/assets/screenshots/dashboard.png" alt="Dashboard showing monthly income, expense, balance and a pure-CSS category donut chart" width="200"></td>
-    <td align="center"><img src="./src/lib/assets/screenshots/transactions.png" alt="Transaction list with category and month filters, plus edit and delete actions" width="200"></td>
-    <td align="center"><img src="./src/lib/assets/screenshots/add-new-record.png" alt="New transaction form with type, category, amount, date and optional note fields" width="200"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="Passwordless email login screen, pre-filled with a demo account" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/dashboard.png" alt="Dashboard showing monthly income, expense, balance and a pure-CSS category donut chart" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/transactions.png" alt="Transaction list with category and month filters, plus edit and delete actions" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/add-new-record.png" alt="New transaction form with type, category, amount, date and optional note fields" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/admin.png" alt="Admin Governance view: per-user transaction counts, total income and expense across all members, plus a recent-activity audit trail" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/api-docs.png" alt="Scalar UI for the Expense Tracker API: OpenAPI 3.1 spec with cookie auth, client libraries, and the List transactions endpoint" width="140"></td>
   </tr>
   <tr>
     <td align="center"><b>Login</b></td>
     <td align="center"><b>Dashboard</b></td>
     <td align="center"><b>Transactions</b></td>
     <td align="center"><b>Add Record</b></td>
+    <td align="center"><b>Admin</b></td>
+    <td align="center"><b>API Docs</b></td>
   </tr>
 </table>
 
@@ -37,6 +42,14 @@ It is deliberately scoped to showcase the competencies a product team hires for:
 | Code Quality   | See **SonarQube Quality Gate** badge above (Security, Reliability, Maintainability)   |
 | E2E Validation | Cross-browser via Playwright (Chrome / Safari / Edge / Mobile Chrome / Mobile Safari) |
 | CI/CD Pipeline | GitHub Actions → Gemini PR Review + SonarQube + Codecov → Vercel                      |
+
+---
+
+## Performance (Lighthouse)
+
+<img src="./src/lib/assets/screenshots/dashboard-lighthouse-score.png" alt="Lighthouse audit of the dashboard: Performance 100, Accessibility 90, Best Practices 100, SEO 91" width="460">
+
+Production Lighthouse audit of the dashboard — **Performance 100, Accessibility 90, Best Practices 100, SEO 91 (all 90+)**. These scores come from deliberate frontend choices: SSR with fine-grained Svelte 5 reactivity, a zero-dependency pure-CSS donut chart, Tailwind v4 zero-runtime styling, and tree-shakeable Paraglide i18n. Performance is treated as a verifiable delivery criterion, not an afterthought.
 
 ---
 
@@ -132,6 +145,16 @@ The application enforces a strict data-permission boundary backed by database us
 
 - **Member**: Can only access their own dashboard and transactions. Data is isolated per-user at the query level.
 - **Admin**: Operates as a trusted compliance/governance auditor. Server-side `requireAdmin` guards protect the `/admin` read-only overview. By design, the audit trail exposes line-item visibility (e.g., individual transaction amounts and categories) to admins to facilitate platform oversight.
+
+The Admin Governance view aggregates per-user activity (transaction counts, total income/expense across all members) alongside an audit trail of create/update/delete events — the cross-user oversight and compliance visibility that enterprise admin tooling (ERP / BPM / internal systems) depends on.
+
+---
+
+## REST API & OpenAPI Documentation
+
+**[Live API Docs →](https://sveltekit-starter-kit.vercel.app/api/docs)** — interactive OpenAPI 3.1 reference (Scalar UI).
+
+A dedicated REST layer (`/api/transactions`, `/api/stats`) exposes full CRUD with cookie-based auth, per-user data isolation, pagination, and `429` rate limiting — the same API, data-flow, and permission boundaries a frontend, mobile client, or external integration would consume. Every endpoint's request/response shape is defined once as a **Zod schema** (the single source of truth), which drives runtime validation _and_ the live OpenAPI 3.1 spec at `/api/openapi.json`, rendered via Scalar at `/api/docs`. The docs are generated from the schema, so they never drift from the implementation.
 
 ---
 
