@@ -252,6 +252,24 @@ pnpm db:push       # drizzle-kit push
 pnpm db:seed       # Seed demo users + sample transactions
 ```
 
+### 測試架構
+
+- **雙專案模式**: `server`（Node.js，後端工具與 API）與 `client`（JSDOM，Svelte 元件與 runes）。
+- **命名規範**:
+  - `*.spec.ts`: 於 `server` 環境執行。
+  - `*.svelte.spec.ts`: 於 `client`（JSDOM）環境執行。
+- **常用指令**:
+  - `pnpm test`: 執行所有 Vitest 單元測試。
+  - `pnpm test:coverage`: 執行測試覆蓋率（門檻 >=80%）。
+  - `pnpm test:e2e`: 執行 Playwright 瀏覽器 E2E 測試。
+- **元件測試範例**:
+  ```ts
+  import { render, screen } from "@testing-library/svelte";
+  import Button from "./Button.svelte";
+  render(Button, { props: { children: () => "Click" } });
+  expect(screen.getByRole("button", { name: "Click" })).toBeTruthy();
+  ```
+
 ---
 
 ## Project Structure
