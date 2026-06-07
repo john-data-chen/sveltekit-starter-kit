@@ -258,6 +258,24 @@ pnpm db:push       # drizzle-kit push
 pnpm db:seed       # Seed demo users + sample transactions
 ```
 
+### Testing Architecture
+
+- **Dual Projects**: `server` (Node.js, for API/utilities) and `client` (JSDOM, Svelte components & runes).
+- **Naming Conventions**:
+  - `*.spec.ts`: Executed in `server` environment.
+  - `*.svelte.spec.ts`: Executed in `client` (JSDOM) environment.
+- **Commands**:
+  - `pnpm test`: Run all unit tests.
+  - `pnpm test:coverage`: Run coverage with >=80% thresholds.
+  - `pnpm test:e2e`: Run Playwright E2E browser tests.
+- **Client Test Example**:
+  ```ts
+  import { render, screen } from "@testing-library/svelte";
+  import Button from "./Button.svelte";
+  render(Button, { props: { children: () => "Click" } });
+  expect(screen.getByRole("button", { name: "Click" })).toBeTruthy();
+  ```
+
 ---
 
 ## Project Structure
