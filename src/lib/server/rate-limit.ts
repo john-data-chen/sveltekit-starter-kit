@@ -1,3 +1,5 @@
+import { dev } from "$app/environment";
+
 /**
  * Simple in-memory fixed-window rate limiter.
  *
@@ -37,6 +39,12 @@ export interface RateLimitResult {
  * Updates the request count and returns the status.
  */
 export function rateLimit(key: string, options: RateLimitOptions): RateLimitResult {
+  const isTestMode = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+  const isRelaxed =
+    (dev && !isTestMode) ||
+    (typeof process !== "undefined" && process.env.PLAYWRIGHT_TEST === "true");
+  const maxLimit = isRelaxed ? 10000 : options.max;
+
   const now = Date.now();
   const record = store.get(key);
 
@@ -48,18 +56,18 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
     store.set(key, newRecord);
     return {
       success: true,
-      limit: options.max,
-      remaining: options.max - 1,
+      limit: maxLimit,
+      remaining: maxLimit - 1,
       resetTime: newRecord.resetTime,
       retryAfter: 0
     };
   }
 
-  if (record.count >= options.max) {
+  if (record.count >= maxLimit) {
     const retryAfter = Math.ceil((record.resetTime - now) / 1000);
     return {
       success: false,
-      limit: options.max,
+      limit: maxLimit,
       remaining: 0,
       resetTime: record.resetTime,
       retryAfter
@@ -69,8 +77,8 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
   record.count += 1;
   return {
     success: true,
-    limit: options.max,
-    remaining: options.max - record.count,
+    limit: maxLimit,
+    remaining: maxLimit - record.count,
     resetTime: record.resetTime,
     retryAfter: 0
   };

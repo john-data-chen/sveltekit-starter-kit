@@ -104,7 +104,93 @@
     {#if data.users.length === 0}
       <p class="text-gray-500 dark:text-gray-400">{m.admin_empty()}</p>
     {:else}
-      <div class="overflow-x-auto">
+      <!-- Mobile Sort Control -->
+      <div class="mb-2 flex items-center justify-end gap-2 md:hidden">
+        <select
+          aria-label="Sort field"
+          class="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+          onchange={(e) => {
+            const colId = e.currentTarget.value;
+            const header = userTable.headerGroups[0].headers.find((h) => h.id === colId);
+            if (header) header.column.toggleSorting(userTable.sorting[0]?.desc ?? true);
+          }}
+        >
+          {#each userTable.headerGroups[0].headers as header (header.id)}
+            {#if header.column.getCanSort()}
+              <option value={header.id} selected={userTable.sorting[0]?.id === header.id}>
+                {headerLabel(header)}
+              </option>
+            {/if}
+          {/each}
+        </select>
+        <button
+          type="button"
+          aria-label="Sort direction"
+          class="rounded border border-gray-300 px-2 py-1 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+          onclick={() => {
+            const currentId = userTable.sorting[0]?.id;
+            const currentDesc = userTable.sorting[0]?.desc;
+            const header = userTable.headerGroups[0].headers.find((h) => h.id === currentId);
+            if (header) header.column.toggleSorting(!currentDesc);
+          }}
+        >
+          {userTable.sorting[0]?.desc ? "▼" : "▲"}
+        </button>
+      </div>
+
+      <!-- Mobile List View -->
+      <ul
+        class="mb-6 divide-y divide-gray-100 rounded-lg border border-gray-200 md:hidden dark:divide-gray-800 dark:border-gray-800"
+      >
+        {#each userTable.rows as row (row.original.id)}
+          {@const user = row.original}
+          <li class="flex flex-col gap-2 p-4">
+            <div class="flex items-center justify-between">
+              <div class="flex min-w-0 items-center gap-2">
+                <span class="shrink-0 text-lg">{user.avatar}</span>
+                <div class="min-w-0">
+                  <p class="truncate font-medium">{user.name}</p>
+                  <p class="truncate text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                </div>
+              </div>
+              <span
+                class="inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium {user.role ===
+                'admin'
+                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}"
+              >
+                {roleLabel(user.role)}
+              </span>
+            </div>
+            <div
+              class="grid grid-cols-3 gap-2 border-t border-gray-50 pt-2 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400"
+            >
+              <div>
+                <p class="text-gray-400">{m.admin_col_transactions()}</p>
+                <p class="font-semibold text-gray-900 tabular-nums dark:text-gray-100">
+                  {user.transactionCount}
+                </p>
+              </div>
+              <div>
+                <p class="text-gray-400">{m.admin_col_income()}</p>
+                <p class="font-semibold text-green-600 tabular-nums dark:text-green-400">
+                  {formatTWD(user.totalIncome)}
+                </p>
+              </div>
+              <div>
+                <p class="text-gray-400">{m.admin_col_expense()}</p>
+                <p class="font-semibold text-red-600 tabular-nums dark:text-red-400">
+                  {formatTWD(user.totalExpense)}
+                </p>
+              </div>
+            </div>
+          </li>
+        {/each}
+      </ul>
+
+      <div
+        class="hidden overflow-x-auto rounded-lg border border-gray-200 md:block dark:border-gray-800"
+      >
         <table class="w-full text-left text-sm whitespace-nowrap">
           <thead
             class="border-b border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400"
@@ -200,7 +286,87 @@
     {#if data.recentAudits.length === 0}
       <p class="text-gray-500 dark:text-gray-400">{m.admin_activity_empty()}</p>
     {:else}
-      <div class="overflow-x-auto">
+      <!-- Mobile Sort Control -->
+      <div class="mb-2 flex items-center justify-end gap-2 md:hidden">
+        <select
+          aria-label="Sort field"
+          class="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+          onchange={(e) => {
+            const colId = e.currentTarget.value;
+            const header = auditTable.headerGroups[0].headers.find((h) => h.id === colId);
+            if (header) header.column.toggleSorting(auditTable.sorting[0]?.desc ?? true);
+          }}
+        >
+          {#each auditTable.headerGroups[0].headers as header (header.id)}
+            {#if header.column.getCanSort()}
+              <option value={header.id} selected={auditTable.sorting[0]?.id === header.id}>
+                {headerLabel(header)}
+              </option>
+            {/if}
+          {/each}
+        </select>
+        <button
+          type="button"
+          aria-label="Sort direction"
+          class="rounded border border-gray-300 px-2 py-1 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+          onclick={() => {
+            const currentId = auditTable.sorting[0]?.id;
+            const currentDesc = auditTable.sorting[0]?.desc;
+            const header = auditTable.headerGroups[0].headers.find((h) => h.id === currentId);
+            if (header) header.column.toggleSorting(!currentDesc);
+          }}
+        >
+          {auditTable.sorting[0]?.desc ? "▼" : "▲"}
+        </button>
+      </div>
+
+      <!-- Mobile List View -->
+      <ul
+        class="mb-6 divide-y divide-gray-100 rounded-lg border border-gray-200 md:hidden dark:divide-gray-800 dark:border-gray-800"
+      >
+        {#each auditTable.rows as row (row.original.id)}
+          {@const audit = row.original}
+          {@const summary = parseAuditSummary(audit.summary)}
+          <li class="flex flex-col gap-2 p-4">
+            <div class="flex items-center justify-between">
+              <div class="flex min-w-0 items-center gap-2">
+                <span class="shrink-0 text-lg">{audit.actor.avatar}</span>
+                <div class="min-w-0">
+                  <p class="truncate font-medium">{audit.actor.name}</p>
+                  <p class="truncate text-sm text-gray-500 dark:text-gray-400">
+                    {formatDateTime(audit.createdAt, getLocale())}
+                  </p>
+                </div>
+              </div>
+              <span
+                class="inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium {audit.action ===
+                'create'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : audit.action === 'delete'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}"
+              >
+                {actionLabel(audit.action)}
+              </span>
+            </div>
+            <div class="border-t border-gray-50 pt-2 text-sm dark:border-gray-800">
+              <p
+                class="font-medium {summary.isIncome === true
+                  ? 'text-green-600 dark:text-green-400'
+                  : summary.isIncome === false
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-gray-500'}"
+              >
+                {summary.text}
+              </p>
+            </div>
+          </li>
+        {/each}
+      </ul>
+
+      <div
+        class="hidden overflow-x-auto rounded-lg border border-gray-200 md:block dark:border-gray-800"
+      >
         <table class="w-full text-left text-sm whitespace-nowrap">
           <thead
             class="border-b border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400"

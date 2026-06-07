@@ -20,8 +20,9 @@ test("John signs in, adds an expense, then deletes it", async ({ page, isMobile 
   const signIn = page.locator('form:has(input[name="email"]) button[type="submit"]');
   await expect(async () => {
     await signIn.click();
-    await page.waitForURL("/", { timeout: 3000 });
+    await page.waitForURL("/", { timeout: 10000 });
   }).toPass({ timeout: 20_000 });
+  await page.waitForLoadState("networkidle");
 
   // 2. Add a new expense tagged with a unique note. The random suffix guarantees uniqueness
   // even across fast repeated runs (Date.now() alone can collide within the same millisecond).

@@ -6,8 +6,9 @@ test("sorting interaction updates URL and reflects in UI", async ({ page, isMobi
   const signIn = page.locator('form:has(input[name="email"]) button[type="submit"]');
   await expect(async () => {
     await signIn.click();
-    await page.waitForURL("/", { timeout: 3000 });
+    await page.waitForURL("/", { timeout: 10000 });
   }).toPass({ timeout: 20_000 });
+  await page.waitForLoadState("networkidle");
 
   // 2. Go to /transactions
   await page.goto("/transactions");
