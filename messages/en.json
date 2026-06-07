@@ -73,6 +73,7 @@
   "audit_col_actor": "Actor",
   "audit_col_action": "Action",
   "audit_col_summary": "Summary",
+  "audit_deleted_legacy": "Deleted transaction #{id}",
   "action_create": "Create",
   "action_update": "Update",
   "action_sort_asc": "Smallest first",

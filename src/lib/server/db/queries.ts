@@ -102,14 +102,29 @@ export async function updateTransaction(
   return row ?? null;
 }
 
-/** Delete a transaction only if it belongs to the user. Returns the deleted id or null. */
-export async function deleteTransaction(userId: number, id: number): Promise<number | null> {
+export interface DeletedTransaction {
+  id: number;
+  type: TransactionType;
+  category: string;
+  amount: number;
+}
+
+/** Delete a transaction only if it belongs to the user. Returns the deleted transaction details or null. */
+export async function deleteTransaction(
+  userId: number,
+  id: number
+): Promise<DeletedTransaction | null> {
   const [row] = await db
     .delete(transactions)
     .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
-    .returning({ id: transactions.id });
+    .returning({
+      id: transactions.id,
+      type: transactions.type,
+      category: transactions.category,
+      amount: transactions.amount
+    });
 
-  return row?.id ?? null;
+  return row ?? null;
 }
 
 /** Aggregate a user's income / expense / balance and expense-by-category for one month. */

@@ -65,6 +65,10 @@
     if (!summary) {
       return { text: "-", isIncome: null };
     }
+    if (summary.startsWith("Deleted transaction ")) {
+      const legacyId = summary.slice("Deleted transaction ".length);
+      return { text: m.audit_deleted_legacy({ id: legacyId }), isIncome: null };
+    }
     if (summary.startsWith("income ") || summary.startsWith("expense ")) {
       const isIncome = summary.startsWith("income ");
       const typeStr = isIncome ? "income" : "expense";

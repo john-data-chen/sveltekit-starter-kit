@@ -32,14 +32,14 @@ export const actions: Actions = {
     const id = Number(form.get("id"));
     if (Number.isInteger(id) && id > 0) {
       // Ownership is enforced inside deleteTransaction (scoped by userId).
-      const deletedId = await deleteTransaction(user.id, id);
-      if (deletedId) {
+      const deleted = await deleteTransaction(user.id, id);
+      if (deleted) {
         await recordAudit(
           user.id,
           "delete",
           "transaction",
-          deletedId,
-          `Deleted transaction ${deletedId}`
+          deleted.id,
+          `${deleted.type} ${deleted.category} ${deleted.amount}`
         );
       }
     }
