@@ -35,12 +35,19 @@
 
 ---
 
-| 指標           | 結果                                                                              |
-| -------------- | --------------------------------------------------------------------------------- |
-| Test Coverage  | 見上方 **codecov** badge，由 Vitest（unit + integration）量測                     |
-| Code Quality   | 見上方 **SonarQube Quality Gate** badge（Security、Reliability、Maintainability） |
-| E2E Validation | Playwright 跨瀏覽器驗證(Chrome / Safari / Edge / Mobile Chrome / Mobile Safari)   |
-| CI/CD Pipeline | Gemini PR Review + GitHub Actions → SonarQube + Codecov → Vercel                  |
+| 指標           | 結果                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| Test Coverage  | 見上方 **codecov** badge，95+% 由 Vitest（unit + integration）量測                         |
+| Code Quality   | 見上方 **SonarQube Quality Gate** badge（Security、Reliability、Maintainability，全 A 級） |
+| Lighthouse     | Production 環境儀表板 Lighthouse 評分 — **全 90+ 分）**                                    |
+| E2E Validation | Playwright 跨瀏覽器驗證(Chrome / Safari / Edge / Mobile Chrome / Mobile Safari)            |
+| CI/CD Pipeline | Gemini PR Review + GitHub Actions → SonarQube + Codecov → Vercel（自動部署到 Production）  |
+
+---
+
+## 生產環境 Lighthouse 儀表板審查
+
+<img src="./src/lib/assets/screenshots/dashboard-lighthouse-score.png" alt="儀表板 Lighthouse 審查：全部 90+ 項得分" width="460">
 
 ---
 
