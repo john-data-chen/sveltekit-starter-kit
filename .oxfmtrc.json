@@ -11,6 +11,8 @@
   "trailingComma": "none",
   "useTabs": false,
   "embeddedLanguageFormatting": "auto",
+  "svelte": true,
+  "sortTailwindcss": true,
   "experimentalSortImports": {
     "groups": [
       ["side_effect"],
@@ -35,6 +37,8 @@
     "**/.env*",
     "env.example",
     ".agents",
-    "coverage"
+    "coverage",
+    "static",
+    "pnpm-lock.yaml"
   ]
 }

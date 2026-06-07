@@ -4,6 +4,6 @@
   },
   "eslint.validate": ["javascript", "typescript", "svelte"],
   "[svelte]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   }
 }
