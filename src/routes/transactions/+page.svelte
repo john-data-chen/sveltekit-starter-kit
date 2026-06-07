@@ -1,15 +1,16 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
-  import { type ColumnDef } from "@tanstack/table-core";
   import { categoryLabel } from "$lib/categories";
+  import Button from "$lib/components/ui/Button.svelte";
+  import ConfirmDialog from "$lib/components/ui/ConfirmDialog.svelte";
+  import { inputClass } from "$lib/components/ui/field";
   import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
   import { createSortedTable, headerLabel } from "$lib/table/sorted-table.svelte";
-  import Button from "$lib/components/ui/Button.svelte";
-  import ConfirmDialog from "$lib/components/ui/ConfirmDialog.svelte";
-  import { inputClass } from "$lib/components/ui/field";
+  import { type ColumnDef } from "@tanstack/table-core";
+
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -110,10 +111,10 @@
     />
 
     <!-- Mobile Sort Control -->
-    <div class="md:hidden flex items-center justify-end gap-2 mb-2">
+    <div class="mb-2 flex items-center justify-end gap-2 md:hidden">
       <select
         aria-label="Sort field"
-        class="rounded border border-gray-300 py-1 px-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+        class="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
         onchange={(e) => {
           const colId = e.currentTarget.value;
           const header = table.headerGroups[0].headers.find((h) => h.id === colId);
@@ -145,7 +146,7 @@
 
     <!-- Mobile List View -->
     <ul
-      class="md:hidden divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800 mb-6"
+      class="mb-6 divide-y divide-gray-100 rounded-lg border border-gray-200 md:hidden dark:divide-gray-800 dark:border-gray-800"
     >
       {#each table.rows as row (row.original.id)}
         {@const tx = row.original}
@@ -201,7 +202,7 @@
 
     <!-- Desktop Table View -->
     <div
-      class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800"
+      class="hidden overflow-x-auto rounded-lg border border-gray-200 md:block dark:border-gray-800"
     >
       <table class="w-full text-left text-sm whitespace-nowrap">
         <thead
@@ -276,11 +277,11 @@
                 </span>
               </td>
               <td
-                class="px-2 py-3 text-gray-500 dark:text-gray-400 w-full max-w-0 truncate"
+                class="w-full max-w-0 truncate px-2 py-3 text-gray-500 dark:text-gray-400"
                 title={tx.note || ""}>{tx.note || ""}</td
               >
-              <td class="px-2 py-3 text-right w-1 whitespace-nowrap">
-                <div class="flex items-center justify-end gap-3 shrink-0">
+              <td class="w-1 px-2 py-3 text-right whitespace-nowrap">
+                <div class="flex shrink-0 items-center justify-end gap-3">
                   <Button
                     variant="ghost"
                     href={resolve("/transactions/[id]/edit", { id: String(tx.id) })}

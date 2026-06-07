@@ -81,14 +81,14 @@
 
 ### Developer Experience
 
-| 工具                        | 用途                                              |
-| --------------------------- | ------------------------------------------------- |
-| oxlint                      | Rust-based JS/TS linter，比 ESLint 快 50-100 倍   |
-| oxfmt                       | Rust-based formatter，處理 JS/TS/CSS/HTML/JSON/MD |
-| ESLint + Prettier（Svelte） | 專門處理 `.svelte` 檔案的 lint/format             |
-| Vite                        | 近乎即時的 HMR 與快速建置                         |
-| Husky + lint-staged         | pre-commit 品質檢查                               |
-| commitlint + Commitizen     | Conventional commits，維持乾淨 commit history     |
+| 工具                    | 用途                                                     |
+| ----------------------- | -------------------------------------------------------- |
+| oxlint                  | Rust-based JS/TS linter，比 ESLint 快 50-100 倍          |
+| oxfmt                   | Rust-based formatter，處理 JS/TS/CSS/HTML/JSON/MD/Svelte |
+| ESLint（Svelte）        | 專門處理 `.svelte` 檔案的 lint                           |
+| Vite                    | 近乎即時的 HMR 與快速建置                                |
+| Husky + lint-staged     | pre-commit 品質檢查                                      |
+| commitlint + Commitizen | Conventional commits，維持乾淨 commit history            |
 
 ### 架構決策紀錄 (ADR)
 
@@ -239,7 +239,7 @@ pnpm dev           # Start dev server
 pnpm build         # TypeScript compile + Vite build
 pnpm preview       # Preview production build
 pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte)
-pnpm format        # oxfmt --write . (JS/TS/etc) + prettier --write Svelte
+pnpm format        # oxfmt --write .
 pnpm test          # vitest run
 pnpm test:coverage # vitest run --coverage
 pnpm test:e2e      # Playwright e2e
@@ -359,8 +359,6 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── .npmrc                       # pnpm/node package manager settings
 ├── .oxfmtrc.json                # oxfmt formatter config
 ├── .oxlintrc.json               # oxlint JS/TS lint rules
-├── .prettierignore              # Prettier ignore rules
-├── .prettierrc                  # Prettier + Svelte/Tailwind plugin config
 ├── AGENTS.md                    # 此 repo 的 AI agent instructions
 ├── LICENSE                      # MIT license
 ├── README.md                    # English README
@@ -389,21 +387,21 @@ pnpm db:seed       # Seed demo users + sample transactions
 
 ### Oxlint（Rust-based Linter）
 
-| 面向        | 說明                                      |
-| ----------- | ----------------------------------------- |
-| Status      | **Production** — 已啟用 JS/TS linting     |
-| Performance | 比 ESLint 快 50-100 倍                    |
-| Scope       | ESLint + Prettier 僅保留給 `.svelte` 檔案 |
+| 面向        | 說明                                        |
+| ----------- | ------------------------------------------- |
+| Status      | **Production** — 已啟用 JS/TS linting       |
+| Performance | 比 ESLint 快 50-100 倍                      |
+| Scope       | ESLint 檢查 `.svelte`；JS/TS 由 oxlint 處理 |
 
 [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)
 
 ### Oxfmt（Rust-based Formatter）
 
-| 面向        | 說明                                           |
-| ----------- | ---------------------------------------------- |
-| Status      | **Production** — 格式化 JS/TS/CSS/HTML/JSON/MD |
-| Performance | 約比 Prettier 快 30 倍，冷啟動幾乎即時         |
-| Scope       | ESLint + Prettier 僅保留給 `.svelte` 檔案      |
+| 面向        | 說明                                                  |
+| ----------- | ----------------------------------------------------- |
+| Status      | **Production** — 格式化 JS/TS/CSS/HTML/JSON/MD/Svelte |
+| Performance | 約比 Prettier 快 30 倍，冷啟動幾乎即時                |
+| Scope       | 格式化所有支援的檔案，包含 `.svelte`                  |
 
 [Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
 

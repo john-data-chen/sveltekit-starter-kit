@@ -1,14 +1,16 @@
 <script lang="ts">
+  import "./layout.css";
+
   import { dev } from "$app/environment";
   import { enhance } from "$app/forms";
   import { resolve } from "$app/paths";
-  import { injectAnalytics } from "@vercel/analytics/sveltekit";
-  import "./layout.css";
   import favicon from "$lib/assets/favicon.svg";
-  import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
+  import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import * as m from "$lib/paraglide/messages";
+  import { injectAnalytics } from "@vercel/analytics/sveltekit";
+
   import type { LayoutProps } from "./$types";
 
   injectAnalytics({ mode: dev ? "development" : "production" });
@@ -41,9 +43,9 @@
         <LocaleSwitcher />
         <ThemeToggle />
         <span aria-hidden="true" class="shrink-0">{data.user.avatar}</span>
-        <span class="whitespace-nowrap font-medium">{data.user.name}</span>
+        <span class="font-medium whitespace-nowrap">{data.user.name}</span>
         <form method="POST" action="/logout" class="shrink-0" use:enhance>
-          <Button type="submit" variant="secondary" class="whitespace-nowrap px-3 py-1">
+          <Button type="submit" variant="secondary" class="px-3 py-1 whitespace-nowrap">
             {m.sign_out()}
           </Button>
         </form>
@@ -52,6 +54,6 @@
   </header>
   <main class="mx-auto max-w-3xl p-4">{@render children()}</main>
 {:else}
-  <div class="fixed right-4 top-4 z-10 flex gap-2"><LocaleSwitcher /><ThemeToggle /></div>
+  <div class="fixed top-4 right-4 z-10 flex gap-2"><LocaleSwitcher /><ThemeToggle /></div>
   {@render children()}
 {/if}

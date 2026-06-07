@@ -1,9 +1,0 @@
-# Prettier only owns .svelte files in this project (oxfmt formats everything else).
-# These entries are a safety net in case prettier is ever run over the whole tree.
-node_modules
-.svelte-kit
-build
-coverage
-static
-.agents
-pnpm-lock.yaml

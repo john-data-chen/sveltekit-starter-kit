@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { pageTitle } from "$lib/constants";
-  import * as m from "$lib/paraglide/messages";
   import Button from "$lib/components/ui/Button.svelte";
   import { inputClass } from "$lib/components/ui/field";
+  import { pageTitle } from "$lib/constants";
+  import * as m from "$lib/paraglide/messages";
+
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();

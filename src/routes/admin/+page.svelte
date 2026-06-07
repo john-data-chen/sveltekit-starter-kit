@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { type ColumnDef } from "@tanstack/table-core";
   import { categoryLabel } from "$lib/categories";
   import { pageTitle } from "$lib/constants";
   import { formatDateTime } from "$lib/date";
@@ -7,6 +6,8 @@
   import * as m from "$lib/paraglide/messages";
   import { getLocale } from "$lib/paraglide/runtime";
   import { createSortedTable, headerLabel } from "$lib/table/sorted-table.svelte";
+  import { type ColumnDef } from "@tanstack/table-core";
+
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -161,12 +162,12 @@
               <tr
                 class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
-                <td class="whitespace-nowrap px-3 py-2">
+                <td class="px-3 py-2 whitespace-nowrap">
                   <span class="mr-1">{user.avatar}</span>
                   <span class="font-medium">{user.name}</span>
                   <span class="ml-1 text-gray-400">{user.email}</span>
                 </td>
-                <td class="whitespace-nowrap px-3 py-2">
+                <td class="px-3 py-2 whitespace-nowrap">
                   <span
                     class="inline-block rounded-full px-2 py-0.5 text-xs font-medium {user.role ===
                     'admin'
@@ -176,13 +177,13 @@
                     {roleLabel(user.role)}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-3 py-2 text-right tabular-nums"
+                <td class="px-3 py-2 text-right whitespace-nowrap tabular-nums"
                   >{user.transactionCount}</td
                 >
-                <td class="whitespace-nowrap px-3 py-2 text-right tabular-nums"
+                <td class="px-3 py-2 text-right whitespace-nowrap tabular-nums"
                   >{formatTWD(user.totalIncome)}</td
                 >
-                <td class="whitespace-nowrap px-3 py-2 text-right tabular-nums"
+                <td class="px-3 py-2 text-right whitespace-nowrap tabular-nums"
                   >{formatTWD(user.totalExpense)}</td
                 >
               </tr>
@@ -252,14 +253,14 @@
               <tr
                 class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
-                <td class="whitespace-nowrap px-3 py-2 text-gray-500">
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500">
                   {formatDateTime(audit.createdAt, getLocale())}
                 </td>
-                <td class="whitespace-nowrap px-3 py-2">
+                <td class="px-3 py-2 whitespace-nowrap">
                   <span class="mr-1">{audit.actor.avatar}</span>
                   <span>{audit.actor.name}</span>
                 </td>
-                <td class="whitespace-nowrap px-3 py-2">
+                <td class="px-3 py-2 whitespace-nowrap">
                   <span
                     class="inline-block rounded-full px-2 py-0.5 text-xs font-medium {audit.action ===
                     'create'

@@ -2,6 +2,7 @@
   import TransactionForm from "$lib/components/TransactionForm.svelte";
   import { pageTitle } from "$lib/constants";
   import * as m from "$lib/paraglide/messages";
+
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
