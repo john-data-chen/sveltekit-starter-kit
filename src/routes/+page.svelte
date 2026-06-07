@@ -3,6 +3,7 @@
   import { pageTitle } from "$lib/constants";
   import { formatTWD } from "$lib/money";
   import * as m from "$lib/paraglide/messages";
+
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();

@@ -41,7 +41,7 @@
 
 <dialog
   bind:this={dialog}
-  class="backdrop:bg-gray-900/50 dark:backdrop:bg-black/80 rounded-lg border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-800 dark:bg-gray-900 w-full max-w-sm m-auto"
+  class="m-auto w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-xl backdrop:bg-gray-900/50 dark:border-gray-800 dark:bg-gray-900 dark:backdrop:bg-black/80"
   onclose={() => {
     // Synchronize state if dialog is closed via ESC
     if (open) {
@@ -59,7 +59,7 @@
   <div class="grid gap-4">
     <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h2>
     <p class="text-sm text-gray-500 dark:text-gray-400">{message}</p>
-    <div class="flex items-center justify-end gap-3 mt-2">
+    <div class="mt-2 flex items-center justify-end gap-3">
       <Button variant="secondary" onclick={() => close("cancel")}>{cancelLabel}</Button>
       <Button variant="danger" onclick={() => close("confirm")}>{confirmLabel}</Button>
     </div>

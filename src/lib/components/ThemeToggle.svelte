@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as m from "$lib/paraglide/messages";
-  import { theme } from "$lib/theme.svelte";
   import { THEME_ORDER, type ThemePreference } from "$lib/theme";
+  import { theme } from "$lib/theme.svelte";
 
   const labels: Record<ThemePreference, string> = {
     dark: m.theme_dark(),
