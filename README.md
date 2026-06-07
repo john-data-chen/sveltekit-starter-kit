@@ -81,14 +81,14 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 
 ### Developer Experience
 
-| Tool                       | Purpose                                                 |
-| -------------------------- | ------------------------------------------------------- |
-| oxlint                     | Rust-based linter for JS/TS, 50-100x faster than ESLint |
-| oxfmt                      | Rust-based formatter for JS/TS/CSS/HTML/JSON/MD         |
-| ESLint + Prettier (Svelte) | Svelte-aware lint/format for `.svelte` files            |
-| Vite                       | Near-instant HMR and fast production builds             |
-| Husky + lint-staged        | Pre-commit quality enforcement                          |
-| commitlint + Commitizen    | Conventional commits for a clean history                |
+| Tool                    | Purpose                                                 |
+| ----------------------- | ------------------------------------------------------- |
+| oxlint                  | Rust-based linter for JS/TS, 50-100x faster than ESLint |
+| oxfmt                   | Rust-based formatter (JS/TS/CSS/HTML/JSON/MD/Svelte)    |
+| ESLint (Svelte)         | Svelte-aware linting for `.svelte` files                |
+| Vite                    | Near-instant HMR and fast production builds             |
+| Husky + lint-staged     | Pre-commit quality enforcement                          |
+| commitlint + Commitizen | Conventional commits for a clean history                |
 
 ### Architecture Decision Records (ADR)
 
@@ -245,7 +245,7 @@ pnpm dev           # Start dev server
 pnpm build         # TypeScript compile + Vite build
 pnpm preview       # Preview production build
 pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte)
-pnpm format        # oxfmt --write . (JS/TS/etc) + prettier --write Svelte
+pnpm format        # oxfmt --write .
 pnpm test          # vitest run
 pnpm test:coverage # vitest run --coverage
 pnpm test:e2e      # Playwright e2e
@@ -365,8 +365,6 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── .npmrc                       # pnpm/node package manager settings
 ├── .oxfmtrc.json                # oxfmt formatter config
 ├── .oxlintrc.json               # oxlint JS/TS lint rules
-├── .prettierignore              # Prettier ignore rules
-├── .prettierrc                  # Prettier + Svelte/Tailwind plugin config
 ├── AGENTS.md                    # AI agent instructions for this repo
 ├── LICENSE                      # MIT license
 ├── README.md                    # English README
@@ -395,21 +393,21 @@ This project continuously evaluates emerging tools and adopts them based on meas
 
 ### Oxlint (Rust-based Linter)
 
-| Aspect      | Details                                       |
-| ----------- | --------------------------------------------- |
-| Status      | **Production** — JS/TS linting enabled        |
-| Performance | 50-100x faster than ESLint                    |
-| Scope       | ESLint + Prettier retained only for `.svelte` |
+| Aspect      | Details                                        |
+| ----------- | ---------------------------------------------- |
+| Status      | **Production** — JS/TS linting enabled         |
+| Performance | 50-100x faster than ESLint                     |
+| Scope       | ESLint lints `.svelte`; JS/TS linted by oxlint |
 
 [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)
 
 ### Oxfmt (Rust-based Formatter)
 
-| Aspect      | Details                                           |
-| ----------- | ------------------------------------------------- |
-| Status      | **Production** — formats JS/TS/CSS/HTML/JSON/MD   |
-| Performance | ~30x faster than Prettier with instant cold start |
-| Scope       | ESLint + Prettier retained only for `.svelte`     |
+| Aspect      | Details                                                |
+| ----------- | ------------------------------------------------------ |
+| Status      | **Production** — formats JS/TS/CSS/HTML/JSON/MD/Svelte |
+| Performance | ~30x faster than Prettier with instant cold start      |
+| Scope       | Formats all supported files including `.svelte`        |
 
 [Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
 
