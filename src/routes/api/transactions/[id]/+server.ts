@@ -79,8 +79,8 @@ export async function DELETE(event: RequestEvent) {
     return apiError(400, "Invalid ID");
   }
 
-  const deletedId = await deleteTransaction(user.id, id);
-  if (!deletedId) {
+  const deleted = await deleteTransaction(user.id, id);
+  if (!deleted) {
     return apiError(404, "Transaction not found");
   }
 

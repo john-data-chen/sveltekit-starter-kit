@@ -228,7 +228,12 @@ describe("API: /api/transactions", () => {
   describe("DELETE /api/transactions/[id]", () => {
     it("deletes the transaction and records audit", async () => {
       const event = createMockEvent(undefined, { id: "1" });
-      vi.mocked(queries.deleteTransaction).mockResolvedValue(1);
+      vi.mocked(queries.deleteTransaction).mockResolvedValue({
+        id: 1,
+        type: "expense",
+        category: "Food",
+        amount: 999
+      });
 
       const res = await DELETE(event);
       expect(res.status).toBe(204);

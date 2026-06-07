@@ -73,6 +73,7 @@
   "audit_col_actor": "操作者",
   "audit_col_action": "動作",
   "audit_col_summary": "摘要",
+  "audit_deleted_legacy": "已刪除交易 #{id}",
   "action_create": "建立",
   "action_update": "更新",
   "action_sort_asc": "金額小到大",

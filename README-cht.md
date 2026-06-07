@@ -16,16 +16,20 @@
 
 <table>
   <tr>
-    <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="免密碼 email 登入畫面，已預填 demo account" width="200"></td>
-    <td align="center"><img src="./src/lib/assets/screenshots/dashboard.png" alt="Dashboard 顯示月收入、支出、結餘與純 CSS 類別 donut chart" width="200"></td>
-    <td align="center"><img src="./src/lib/assets/screenshots/transactions.png" alt="交易紀錄清單，包含類別與月份篩選，以及編輯與刪除操作" width="200"></td>
-    <td align="center"><img src="./src/lib/assets/screenshots/add-new-record.png" alt="新增交易表單，包含類型、類別、金額、日期與備註欄位" width="200"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="免密碼 email 登入畫面，已預填 demo account" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/dashboard.png" alt="Dashboard 顯示月收入、支出、結餘與純 CSS 類別 donut chart" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/transactions.png" alt="交易紀錄清單，包含類別與月份篩選，以及編輯與刪除操作" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/add-new-record.png" alt="新增交易表單，包含類型、類別、金額、日期與備註欄位" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/admin.png" alt="管理員 Governance 介面：逐使用者交易筆數、所有成員的總收入與支出，以及近期活動稽核軌跡" width="140"></td>
+    <td align="center"><img src="./src/lib/assets/screenshots/api-docs.png" alt="Expense Tracker API 的 Scalar UI：OpenAPI 3.1 規範，含 cookie 驗證、client libraries 與 List transactions endpoint" width="140"></td>
   </tr>
   <tr>
     <td align="center"><b>Login</b></td>
     <td align="center"><b>Dashboard</b></td>
     <td align="center"><b>Transactions</b></td>
     <td align="center"><b>Add Record</b></td>
+    <td align="center"><b>Admin</b></td>
+    <td align="center"><b>API Docs</b></td>
   </tr>
 </table>
 
@@ -132,6 +136,16 @@ Category 固定定義於 `src/lib/categories.ts`；session cookie 使用 `.env` 
 
 - **成員 (Member)**：只能存取自己的儀表板與交易紀錄。資料在查詢層級即做到單一使用者隔離。
 - **管理員 (Admin)**：視為受信任的合規/治理稽核員。受到伺服器端 `requireAdmin` 守衛保護的 `/admin` 總覽介面僅供讀取。為了方便平台監督，設計上允許管理員在稽核日誌 (Audit Trail) 中看見單筆紀錄細節（例如單筆交易金額與分類）。
+
+管理員 Governance 介面彙整逐使用者活動（交易筆數、所有成員的總收入／支出），並搭配新增／修改／刪除事件的稽核軌跡 — 這正是企業後台工具（ERP／BPM／內部系統）所需的跨使用者監督與合規可視性。
+
+---
+
+## REST API 與 OpenAPI 文件
+
+**[Live API 文件 →](https://sveltekit-starter-kit.vercel.app/api/docs)** — 互動式 OpenAPI 3.1 參考文件（Scalar UI）。
+
+獨立的 REST 層（`/api/transactions`、`/api/stats`）提供完整 CRUD，含 cookie-based 驗證、逐使用者資料隔離、分頁與 `429` 限流 — 這正是前端、行動端或外部系統整合會串接的 API／資料流／權限邊界。每個 endpoint 的請求／回應形狀都以單一 **Zod schema** 定義（唯一真相來源），同時驅動執行時驗證與 `/api/openapi.json` 的即時 OpenAPI 3.1 規範，並透過 `/api/docs` 的 Scalar 呈現。文件由 schema 產生，因此永遠不會與實作脫節。
 
 ---
 
