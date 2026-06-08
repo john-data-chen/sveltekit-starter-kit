@@ -103,11 +103,12 @@
 
 ### 架構決策紀錄 (ADR)
 
-| 決策                                                   | 原因                                                                             |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| 自建 Svelte 5 UI primitives，不用元件庫                | 更少依賴、更小 bundle、原生 a11y（`<dialog>`/`<select>`）、乾淨的 runes/snippets |
-| Vercel Node 用 pooled `postgres` TCP driver（非 Edge） | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                |
-| Zod schema = 單一真相來源                              | 一份 schema → 驗證 + TS 型別 + OpenAPI 3.1；零落差                               |
+| 決策                                                   | 原因                                                                                                                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 保留 `svelte.config.js`，不內聯到 `vite.config.ts`     | SvelteKit ≥ 2.62.0 可把設定內聯進 `sveltekit()`（內聯後 `svelte.config.js` 即被忽略），但 `svelte-check`、`eslint-plugin-svelte` 與編輯器仍讀 `svelte.config.js` 取得強制 runes 設定。選慣例與工具鏈，而非少一個檔 |
+| 自建 Svelte 5 UI primitives，不用元件庫                | 更少依賴、更小 bundle、原生 a11y（`<dialog>`/`<select>`）、乾淨的 runes/snippets                                                                                                                                   |
+| Vercel Node 用 pooled `postgres` TCP driver（非 Edge） | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                                                                                                                                                  |
+| Zod schema = 單一真相來源                              | 一份 schema → 驗證 + TS 型別 + OpenAPI 3.1；零落差                                                                                                                                                                 |
 
 ---
 

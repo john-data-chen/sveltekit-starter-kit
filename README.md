@@ -104,11 +104,12 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 
 ### Architecture Decision Records (ADR)
 
-| Decision                                               | Why                                                                                   |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| Own Svelte 5 UI primitives, not a component library    | Fewer deps, smaller bundle, native a11y (`<dialog>`/`<select>`), clean runes/snippets |
-| Pooled `postgres` TCP driver on Vercel Node (not Edge) | Reliable pooling, no proxy, identical local Docker Postgres                           |
-| Zod schema = single source of truth                    | One schema → validation + TS types + OpenAPI 3.1; no drift                            |
+| Decision                                               | Why                                                                                                                                                                                                                                      |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keep `svelte.config.js`, not inline `vite.config.ts`   | SvelteKit ≥ 2.62.0 can inline config into `sveltekit()` (then `svelte.config.js` is ignored), but `svelte-check`, `eslint-plugin-svelte`, and editors read `svelte.config.js` for forced runes. Convention + tooling over one fewer file |
+| Own Svelte 5 UI primitives, not a component library    | Fewer deps, smaller bundle, native a11y (`<dialog>`/`<select>`), clean runes/snippets                                                                                                                                                    |
+| Pooled `postgres` TCP driver on Vercel Node (not Edge) | Reliable pooling, no proxy, identical local Docker Postgres                                                                                                                                                                              |
+| Zod schema = single source of truth                    | One schema → validation + TS types + OpenAPI 3.1; no drift                                                                                                                                                                               |
 
 ---
 
