@@ -24,12 +24,12 @@
     <td align="center"><img src="./src/lib/assets/screenshots/api-docs.png" alt="Expense Tracker API 的 Scalar UI：OpenAPI 3.1 規範，含 cookie 驗證、client libraries 與 List transactions endpoint" width="140"></td>
   </tr>
   <tr>
-    <td align="center"><b>Login</b></td>
-    <td align="center"><b>Dashboard</b></td>
-    <td align="center"><b>Transactions</b></td>
-    <td align="center"><b>Add Record</b></td>
-    <td align="center"><b>Admin</b></td>
-    <td align="center"><b>API Docs</b></td>
+    <td align="center"><b>登入畫面</b></td>
+    <td align="center"><b>儀表板</b></td>
+    <td align="center"><b>交易紀錄清單</b></td>
+    <td align="center"><b>新增交易</b></td>
+    <td align="center"><b>管理員介面</b></td>
+    <td align="center"><b>API 文件</b></td>
   </tr>
 </table>
 
