@@ -43,7 +43,13 @@ describe("Admin Page Component", () => {
       ]
     };
 
-    render(AdminPage, { data: mockData as any });
+    render(AdminPage, {
+      props: {
+        data: mockData as any,
+        params: {} as any,
+        form: null as any
+      }
+    });
 
     expect(screen.getAllByText("Deleted transaction #61").length).toBeGreaterThan(0);
   });
@@ -71,7 +77,13 @@ describe("Admin Page Component", () => {
       ]
     };
 
-    render(AdminPage, { data: mockData as any });
+    render(AdminPage, {
+      props: {
+        data: mockData as any,
+        params: {} as any,
+        form: null as any
+      }
+    });
 
     expect(screen.getAllByText(/Food/).length).toBeGreaterThan(0);
   });

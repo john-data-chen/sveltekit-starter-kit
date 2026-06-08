@@ -96,7 +96,7 @@
 | ----------------------- | -------------------------------------------------------- |
 | oxlint                  | Rust-based JS/TS linter，比 ESLint 快 50-100 倍          |
 | oxfmt                   | Rust-based formatter，處理 JS/TS/CSS/HTML/JSON/MD/Svelte |
-| ESLint（Svelte）        | 專門處理 `.svelte` 檔案的 lint                           |
+| ESLint（Svelte）        | 專門處理 `.svelte` 檔案的 lint（啟用 content-hash 快取） |
 | Vite                    | 近乎即時的 HMR 與快速建置                                |
 | Husky + lint-staged     | pre-commit 品質檢查                                      |
 | commitlint + Commitizen | Conventional commits，維持乾淨 commit history            |
@@ -259,7 +259,7 @@ pnpm build             # Production build
 pnpm dev           # Start dev server
 pnpm build         # TypeScript compile + Vite build
 pnpm preview       # Preview production build
-pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte)
+pnpm lint          # oxlint --fix (JS/TS) + eslint（Svelte，啟用快取）
 pnpm format        # oxfmt --write .
 pnpm test          # vitest run
 pnpm test:coverage # vitest run --coverage
@@ -408,11 +408,11 @@ pnpm db:seed       # Seed demo users + sample transactions
 
 ### Oxlint（Rust-based Linter）
 
-| 面向        | 說明                                        |
-| ----------- | ------------------------------------------- |
-| Status      | **Production** — 已啟用 JS/TS linting       |
-| Performance | 比 ESLint 快 50-100 倍                      |
-| Scope       | ESLint 檢查 `.svelte`；JS/TS 由 oxlint 處理 |
+| 面向        | 說明                                                            |
+| ----------- | --------------------------------------------------------------- |
+| Status      | **Production** — 已啟用 JS/TS linting                           |
+| Performance | 比 ESLint 快 50-100 倍                                          |
+| Scope       | ESLint 檢查 `.svelte`（基於內容雜湊快取）；JS/TS 由 oxlint 處理 |
 
 [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)
 

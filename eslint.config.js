@@ -7,6 +7,29 @@ import ts from "typescript-eslint";
 
 import svelteConfig from "./svelte.config.js";
 
+// Sanitize svelteConfig to remove non-serializable function properties
+// (runes, typescript.config) which cause ESLint cache serialization to fail.
+const sanitizedSvelteConfig = {
+  ...svelteConfig,
+  compilerOptions: svelteConfig.compilerOptions
+    ? {
+        ...svelteConfig.compilerOptions,
+        runes: undefined
+      }
+    : undefined,
+  kit: svelteConfig.kit
+    ? {
+        ...svelteConfig.kit,
+        typescript: svelteConfig.kit.typescript
+          ? {
+              ...svelteConfig.kit.typescript,
+              config: undefined
+            }
+          : undefined
+      }
+    : undefined
+};
+
 // ESLint only owns Svelte files here; oxlint stays the linter for plain JS/TS.
 // `eslint-plugin-oxlint` reads .oxlintrc.json and disables any ESLint rules that
 // oxlint already covers, so the two linters never double-report.
@@ -34,7 +57,7 @@ export default [
         projectService: true,
         extraFileExtensions: [".svelte"],
         parser: ts.parser,
-        svelteConfig
+        svelteConfig: sanitizedSvelteConfig
       }
     }
   },
