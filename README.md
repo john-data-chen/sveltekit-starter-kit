@@ -93,14 +93,14 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 
 ### Developer Experience
 
-| Tool                    | Purpose                                                 |
-| ----------------------- | ------------------------------------------------------- |
-| oxlint                  | Rust-based linter for JS/TS, 50-100x faster than ESLint |
-| oxfmt                   | Rust-based formatter (JS/TS/CSS/HTML/JSON/MD/Svelte)    |
-| ESLint (Svelte)         | Svelte-aware linting for `.svelte` files                |
-| Vite                    | Near-instant HMR and fast production builds             |
-| Husky + lint-staged     | Pre-commit quality enforcement                          |
-| commitlint + Commitizen | Conventional commits for a clean history                |
+| Tool                    | Purpose                                                              |
+| ----------------------- | -------------------------------------------------------------------- |
+| oxlint                  | Rust-based linter for JS/TS, 50-100x faster than ESLint              |
+| oxfmt                   | Rust-based formatter (JS/TS/CSS/HTML/JSON/MD/Svelte)                 |
+| ESLint (Svelte)         | Svelte-aware linting for `.svelte` files (with content-hash caching) |
+| Vite                    | Near-instant HMR and fast production builds                          |
+| Husky + lint-staged     | Pre-commit quality enforcement                                       |
+| commitlint + Commitizen | Conventional commits for a clean history                             |
 
 ### Architecture Decision Records (ADR)
 
@@ -266,7 +266,7 @@ The default `DATABASE_URL` in `.env.example` matches `compose.yaml`. Set `SESSIO
 pnpm dev           # Start dev server
 pnpm build         # TypeScript compile + Vite build
 pnpm preview       # Preview production build
-pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte)
+pnpm lint          # oxlint --fix (JS/TS) + eslint (Svelte with caching)
 pnpm format        # oxfmt --write .
 pnpm test          # vitest run
 pnpm test:coverage # vitest run --coverage
@@ -415,11 +415,11 @@ This project continuously evaluates emerging tools and adopts them based on meas
 
 ### Oxlint (Rust-based Linter)
 
-| Aspect      | Details                                        |
-| ----------- | ---------------------------------------------- |
-| Status      | **Production** — JS/TS linting enabled         |
-| Performance | 50-100x faster than ESLint                     |
-| Scope       | ESLint lints `.svelte`; JS/TS linted by oxlint |
+| Aspect      | Details                                                                      |
+| ----------- | ---------------------------------------------------------------------------- |
+| Status      | **Production** — JS/TS linting enabled                                       |
+| Performance | 50-100x faster than ESLint                                                   |
+| Scope       | ESLint lints `.svelte` (cached via content strategy); JS/TS linted by oxlint |
 
 [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)
 

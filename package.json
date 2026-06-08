@@ -16,7 +16,7 @@
     "db:studio": "drizzle-kit studio",
     "dev": "vite dev",
     "format": "oxfmt --write .",
-    "lint": "oxlint --fix && eslint \"**/*.svelte\"",
+    "lint": "oxlint --fix && eslint --cache --cache-strategy content \"**/*.svelte\"",
     "prepare": "husky && svelte-kit sync || echo ''",
     "preview": "vite preview",
     "test": "vitest run",
