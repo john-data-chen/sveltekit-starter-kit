@@ -4,7 +4,7 @@ allowBuilds:
 # Declared explicitly because minimumReleaseAgeExclude is only honored when
 # minimumReleaseAge is set. Only packages we deliberately track at the
 # bleeding edge belong here — use name patterns, never name@version pins.
-minimumReleaseAge: 1440
+minimumReleaseAge: 0
 # Svelte core is tracked at the bleeding edge for this starter kit, so it is
 # exempted from the cooldown. Name patterns only (no version pins).
 minimumReleaseAgeExclude:
