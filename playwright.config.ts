@@ -2,6 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "e2e",
+  // Snapshot the audit_logs high-water mark, then purge only this run's e2e
+  // audit residue after all projects finish (see e2e/global-teardown.ts).
+  globalSetup: "./e2e/global-setup.ts",
+  globalTeardown: "./e2e/global-teardown.ts",
   use: {
     baseURL: "http://localhost:5173"
   },
