@@ -9,4 +9,4 @@ minimumReleaseAge: 0
 # exempted from the cooldown. Name patterns only (no version pins).
 minimumReleaseAgeExclude:
   - svelte
-  - '@sveltejs/kit'
+  - "@sveltejs/kit"

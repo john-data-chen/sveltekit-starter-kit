@@ -9,6 +9,7 @@ only output task plan, never execute plan until you get confirmation
 
 # Skills
 
+- caveman: all tasks
 - karpathy-guidelines: use it every time in all coding tasks
 - doc-coauthoring: add and modify documentation
 - drizzle: tasks about drizzle and ORM
