@@ -8,6 +8,7 @@ export default defineConfig({
   globalTeardown: "./e2e/global-teardown.ts",
   use: {
     baseURL: "http://localhost:5173"
+    // headless: false
   },
   // Headroom for the first-hit Vite dev compilation of a route (cold `goto`/redirect can
   // exceed the 5s default before the URL settles).
