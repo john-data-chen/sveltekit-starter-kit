@@ -26,6 +26,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
+        env:
+          # postinstall runs `prisma generate`, which only needs a resolvable
+          # DATABASE_URL to load prisma.config.ts — it never connects to the DB.
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
         run: pnpm install --frozen-lockfile
 
       - name: Test
