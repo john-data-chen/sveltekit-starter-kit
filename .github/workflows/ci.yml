@@ -15,7 +15,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6
         with:
-          # version intentionally omitted — resolved from package.json "packageManager"
+          version: 11.6.0
           run_install: false
           cache: true
 
