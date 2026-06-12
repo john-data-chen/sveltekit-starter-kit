@@ -4,26 +4,18 @@ import { listUsersWithStats } from "./admin";
 
 vi.mock("./index", () => ({
   db: {
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        leftJoin: vi.fn(() => ({
-          groupBy: vi.fn(() => ({
-            orderBy: vi.fn().mockResolvedValue([
-              {
-                id: 1,
-                name: "John",
-                email: "john@example.com",
-                avatar: "🦊",
-                role: "admin",
-                transactionCount: "10",
-                totalIncome: "5000",
-                totalExpense: "2000"
-              }
-            ])
-          }))
-        }))
-      }))
-    }))
+    $queryRaw: vi.fn().mockResolvedValue([
+      {
+        id: 1,
+        name: "John",
+        email: "john@example.com",
+        avatar: "🦊",
+        role: "admin",
+        transactionCount: 10n,
+        totalIncome: 5000n,
+        totalExpense: 2000n
+      }
+    ])
   }
 }));
 

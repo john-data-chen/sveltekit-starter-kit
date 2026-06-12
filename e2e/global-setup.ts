@@ -1,8 +1,6 @@
-import { max } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-import { auditLogs } from "../src/lib/server/db/schema";
+import { PrismaClient } from "../src/lib/server/db/generated/client";
 
 // Records the audit_logs high-water mark before any test runs. expense.spec.ts
 // deletes the transaction it creates, but the recordAudit entries persist by
@@ -15,12 +13,12 @@ export default async function globalSetup() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const client = postgres(databaseUrl, { max: 1 });
-  const db = drizzle(client);
+  const adapter = new PrismaPg({ connectionString: databaseUrl, max: 1 });
+  const db = new PrismaClient({ adapter });
   try {
-    const [row] = await db.select({ maxId: max(auditLogs.id) }).from(auditLogs);
-    process.env.E2E_AUDIT_BASELINE_ID = String(row?.maxId ?? 0);
+    const result = await db.auditLog.aggregate({ _max: { id: true } });
+    process.env.E2E_AUDIT_BASELINE_ID = String(result._max.id ?? 0);
   } finally {
-    await client.end();
+    await db.$disconnect();
   }
 }

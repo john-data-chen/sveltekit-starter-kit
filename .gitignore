@@ -39,5 +39,8 @@ session-handoff
 # Paraglide (generated)
 src/lib/paraglide
 
+# Prisma (generated)
+src/lib/server/db/generated
+
 # pnpm
 .pnpm-store

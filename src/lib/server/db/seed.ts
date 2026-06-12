@@ -1,29 +1,29 @@
-import { sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-import { type NewTransaction, transactions, users } from "./schema";
+import { PrismaClient } from "./generated/client";
+import type { NewTransaction } from "./schema";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
   throw new Error("DATABASE_URL is not set");
 }
 
-const client = postgres(databaseUrl, { max: 1 });
-const db = drizzle(client);
+const adapter = new PrismaPg({ connectionString: databaseUrl, max: 1 });
+const db = new PrismaClient({ adapter });
 
 async function seed() {
   // Idempotent: wipe and reset identities so re-runs produce stable ids 1, 2, 3.
-  await db.execute(sql`TRUNCATE TABLE "transactions", "users" RESTART IDENTITY CASCADE`);
+  await db.$executeRaw`TRUNCATE TABLE "transactions", "users" RESTART IDENTITY CASCADE`;
 
-  const [john, sophia, mark] = await db
-    .insert(users)
-    .values([
-      { name: "John", email: "john@example.com", avatar: "🦊", role: "admin" },
-      { name: "Sophia", email: "sophia@example.com", avatar: "🐼" },
-      { name: "Mark", email: "mark@example.com", avatar: "🐨" }
-    ])
-    .returning();
+  const john = await db.user.create({
+    data: { name: "John", email: "john@example.com", avatar: "🦊", role: "admin" }
+  });
+  const sophia = await db.user.create({
+    data: { name: "Sophia", email: "sophia@example.com", avatar: "🐼" }
+  });
+  const mark = await db.user.create({
+    data: { name: "Mark", email: "mark@example.com", avatar: "🐨" }
+  });
 
   const rows: NewTransaction[] = [
     // John — current month (2026-06)
@@ -178,7 +178,12 @@ async function seed() {
     }
   ];
 
-  await db.insert(transactions).values(rows);
+  await db.transaction.createMany({
+    data: rows.map((row) => ({
+      ...row,
+      occurredOn: new Date(`${row.occurredOn}T00:00:00.000Z`)
+    }))
+  });
 
   console.log(`Seeded 3 users and ${rows.length} transactions.`);
 }
@@ -189,5 +194,5 @@ try {
   console.error(error);
   process.exitCode = 1;
 } finally {
-  await client.end();
+  await db.$disconnect();
 }

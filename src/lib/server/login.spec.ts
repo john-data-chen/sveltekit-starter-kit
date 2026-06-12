@@ -2,13 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 function createDb(rows: Array<{ id: number }>) {
   return {
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(async () => rows)
-        }))
-      }))
-    }))
+    user: {
+      findUnique: vi.fn(async () => rows[0] ?? null)
+    }
   };
 }
 
@@ -60,15 +56,11 @@ describe("findLoginUserByEmail", () => {
   it("returns service_unavailable when the database query fails", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const db = {
-      select: vi.fn(() => ({
-        from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            limit: vi.fn(async () => {
-              throw new Error("database offline");
-            })
-          }))
-        }))
-      }))
+      user: {
+        findUnique: vi.fn(async () => {
+          throw new Error("database offline");
+        })
+      }
     };
     const { findLoginUserByEmail } = await loadSubjectWithDb(() => ({ db }));
 

@@ -1,6 +1,4 @@
-import { count, sql } from "drizzle-orm";
-
-import { type UserRole, transactions, users } from "./schema";
+import type { UserRole } from "./schema";
 
 import { db } from "./index";
 
@@ -17,24 +15,32 @@ export interface UserOverview {
 
 /** Fetch all users with aggregated transaction stats (for admin overview). */
 export async function listUsersWithStats(): Promise<UserOverview[]> {
-  const totalIncome = sql<number>`coalesce(sum(case when ${transactions.type} = 'income' then ${transactions.amount} else 0 end), 0)::int`;
-  const totalExpense = sql<number>`coalesce(sum(case when ${transactions.type} = 'expense' then ${transactions.amount} else 0 end), 0)::int`;
-
-  const rows = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      avatar: users.avatar,
-      role: users.role,
-      transactionCount: count(transactions.id),
-      totalIncome: totalIncome,
-      totalExpense: totalExpense
-    })
-    .from(users)
-    .leftJoin(transactions, sql`${transactions.userId} = ${users.id}`)
-    .groupBy(users.id)
-    .orderBy(users.id);
+  const rows = await db.$queryRaw<
+    Array<{
+      id: number;
+      name: string;
+      email: string;
+      avatar: string;
+      role: UserRole;
+      transactionCount: number | bigint;
+      totalIncome: number | bigint;
+      totalExpense: number | bigint;
+    }>
+  >`
+    select
+      u."id",
+      u."name",
+      u."email",
+      u."avatar",
+      u."role",
+      count(t."id")::int as "transactionCount",
+      coalesce(sum(case when t."type" = 'income' then t."amount" else 0 end), 0)::int as "totalIncome",
+      coalesce(sum(case when t."type" = 'expense' then t."amount" else 0 end), 0)::int as "totalExpense"
+    from "users" u
+    left join "transactions" t on t."user_id" = u."id"
+    group by u."id"
+    order by u."id"
+  `;
 
   return rows.map((row) => ({
     ...row,

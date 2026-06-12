@@ -1,13 +1,12 @@
 import { env } from "$env/dynamic/private";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-import * as schema from "./schema";
+import { PrismaClient } from "./generated/client";
 
 if (!env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set");
 }
 
-const client = postgres(env.DATABASE_URL);
+const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
 
-export const db = drizzle(client, { schema });
+export const db = new PrismaClient({ adapter });

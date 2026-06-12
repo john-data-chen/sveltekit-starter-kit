@@ -1,5 +1,7 @@
 allowBuilds:
+  "@prisma/engines": true
   esbuild: true
+  prisma: true
 # Supply-chain release cooldown (pnpm 11 default is 1440 = 1 day).
 # Declared explicitly because minimumReleaseAgeExclude is only honored when
 # minimumReleaseAge is set. Only packages we deliberately track at the

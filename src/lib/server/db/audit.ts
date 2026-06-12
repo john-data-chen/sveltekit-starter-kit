@@ -1,6 +1,4 @@
-import { desc, eq } from "drizzle-orm";
-
-import { type AuditAction, auditLogs, users } from "./schema";
+import type { AuditAction } from "./schema";
 
 import { db } from "./index";
 
@@ -21,12 +19,14 @@ export async function recordAudit(
   summary: string | null
 ) {
   try {
-    await db.insert(auditLogs).values({
-      actorId,
-      action,
-      entity,
-      entityId,
-      summary
+    await db.auditLog.create({
+      data: {
+        actorId,
+        action,
+        entity,
+        entityId,
+        summary
+      }
     });
   } catch (error) {
     console.error("Failed to record audit log", error);
@@ -34,23 +34,24 @@ export async function recordAudit(
 }
 
 export async function listRecentAudits(limit = 50) {
-  return await db
-    .select({
-      id: auditLogs.id,
+  return await db.auditLog.findMany({
+    select: {
+      id: true,
       actor: {
-        id: users.id,
-        name: users.name,
-        avatar: users.avatar,
-        email: users.email
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+          email: true
+        }
       },
-      action: auditLogs.action,
-      entity: auditLogs.entity,
-      entityId: auditLogs.entityId,
-      summary: auditLogs.summary,
-      createdAt: auditLogs.createdAt
-    })
-    .from(auditLogs)
-    .innerJoin(users, eq(auditLogs.actorId, users.id))
-    .orderBy(desc(auditLogs.createdAt))
-    .limit(limit);
+      action: true,
+      entity: true,
+      entityId: true,
+      summary: true,
+      createdAt: true
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit
+  });
 }
