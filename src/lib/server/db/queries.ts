@@ -1,7 +1,7 @@
 import type { TransactionType } from "$lib/categories";
-import { and, desc, eq, gte, lt, sql } from "drizzle-orm";
 
-import { type Transaction, transactions } from "./schema";
+import type { Transaction as DbTransaction, Prisma } from "./generated/client";
+import type { Transaction } from "./schema";
 
 import { db } from "./index";
 
@@ -30,6 +30,20 @@ export interface MonthlyStats {
   expenseByCategory: CategoryTotal[];
 }
 
+/** Convert a "YYYY-MM-DD" string to the UTC Date Prisma expects for date-only columns. */
+function toDbDate(value: string): Date {
+  return new Date(`${value}T00:00:00.000Z`);
+}
+
+/** Convert a date-only column value back to its "YYYY-MM-DD" string form. */
+function toIsoDate(value: Date): string {
+  return value.toISOString().slice(0, 10);
+}
+
+function toAppTransaction(row: DbTransaction): Transaction {
+  return { ...row, occurredOn: toIsoDate(row.occurredOn) };
+}
+
 /** Inclusive start / exclusive end ISO dates for a "YYYY-MM" month. */
 function monthRange(month: string): { start: string; end: string } {
   const [year, monthIndex] = month.split("-").map(Number);
@@ -41,37 +55,38 @@ function monthRange(month: string): { start: string; end: string } {
   return { start, end };
 }
 
-/** List a user's transactions, optionally filtered by category and/or month. */
-export function listTransactions(
-  userId: number,
-  filters: ListFilters = {}
-): Promise<Transaction[]> {
-  const conditions = [eq(transactions.userId, userId)];
+function whereForFilters(userId: number, filters: ListFilters): Prisma.TransactionWhereInput {
+  const where: Prisma.TransactionWhereInput = { userId };
 
   if (filters.category) {
-    conditions.push(eq(transactions.category, filters.category));
+    where.category = filters.category;
   }
   if (filters.month) {
     const { start, end } = monthRange(filters.month);
-    conditions.push(gte(transactions.occurredOn, start), lt(transactions.occurredOn, end));
+    where.occurredOn = { gte: toDbDate(start), lt: toDbDate(end) };
   }
 
-  return db
-    .select()
-    .from(transactions)
-    .where(and(...conditions))
-    .orderBy(desc(transactions.occurredOn), desc(transactions.id));
+  return where;
+}
+
+/** List a user's transactions, optionally filtered by category and/or month. */
+export async function listTransactions(
+  userId: number,
+  filters: ListFilters = {}
+): Promise<Transaction[]> {
+  const rows = await db.transaction.findMany({
+    where: whereForFilters(userId, filters),
+    orderBy: [{ occurredOn: "desc" }, { id: "desc" }]
+  });
+
+  return rows.map(toAppTransaction);
 }
 
 /** Fetch a single transaction owned by the user, or null. */
 export async function getTransaction(userId: number, id: number): Promise<Transaction | null> {
-  const [row] = await db
-    .select()
-    .from(transactions)
-    .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
-    .limit(1);
+  const row = await db.transaction.findFirst({ where: { id, userId } });
 
-  return row ?? null;
+  return row ? toAppTransaction(row) : null;
 }
 
 /** Insert a new transaction for the user. */
@@ -79,12 +94,11 @@ export async function createTransaction(
   userId: number,
   input: TransactionInput
 ): Promise<Transaction> {
-  const [row] = await db
-    .insert(transactions)
-    .values({ ...input, userId })
-    .returning();
+  const row = await db.transaction.create({
+    data: { ...input, occurredOn: toDbDate(input.occurredOn), userId }
+  });
 
-  return row;
+  return toAppTransaction(row);
 }
 
 /** Update a transaction only if it belongs to the user. Returns null when not owned/found. */
@@ -93,13 +107,16 @@ export async function updateTransaction(
   id: number,
   input: TransactionInput
 ): Promise<Transaction | null> {
-  const [row] = await db
-    .update(transactions)
-    .set(input)
-    .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
-    .returning();
+  const { count } = await db.transaction.updateMany({
+    where: { id, userId },
+    data: { ...input, occurredOn: toDbDate(input.occurredOn) }
+  });
 
-  return row ?? null;
+  if (count === 0) {
+    return null;
+  }
+
+  return getTransaction(userId, id);
 }
 
 export interface DeletedTransaction {
@@ -114,54 +131,52 @@ export async function deleteTransaction(
   userId: number,
   id: number
 ): Promise<DeletedTransaction | null> {
-  const [row] = await db
-    .delete(transactions)
-    .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
-    .returning({
-      id: transactions.id,
-      type: transactions.type,
-      category: transactions.category,
-      amount: transactions.amount
-    });
+  const row = await db.transaction.findFirst({
+    where: { id, userId },
+    select: { id: true, type: true, category: true, amount: true }
+  });
 
-  return row ?? null;
+  if (!row) {
+    return null;
+  }
+
+  await db.transaction.deleteMany({ where: { id, userId } });
+
+  return row;
 }
 
 /** Aggregate a user's income / expense / balance and expense-by-category for one month. */
 export async function getMonthlyStats(userId: number, month: string): Promise<MonthlyStats> {
   const { start, end } = monthRange(month);
-  const monthScope = and(
-    eq(transactions.userId, userId),
-    gte(transactions.occurredOn, start),
-    lt(transactions.occurredOn, end)
-  );
+  const monthScope: Prisma.TransactionWhereInput = {
+    userId,
+    occurredOn: { gte: toDbDate(start), lt: toDbDate(end) }
+  };
 
-  const totalAmount = sql<number>`coalesce(sum(${transactions.amount}), 0)::int`;
-
-  const totals = await db
-    .select({ type: transactions.type, total: totalAmount })
-    .from(transactions)
-    .where(monthScope)
-    .groupBy(transactions.type);
+  const totals = await db.transaction.groupBy({
+    by: ["type"],
+    where: monthScope,
+    _sum: { amount: true }
+  });
 
   let income = 0;
   let expense = 0;
   for (const row of totals) {
     if (row.type === "income") {
-      income = Number(row.total);
+      income = row._sum.amount ?? 0;
     } else {
-      expense = Number(row.total);
+      expense = row._sum.amount ?? 0;
     }
   }
 
-  const byCategory = await db
-    .select({ category: transactions.category, total: totalAmount })
-    .from(transactions)
-    .where(and(monthScope, eq(transactions.type, "expense")))
-    .groupBy(transactions.category);
+  const byCategory = await db.transaction.groupBy({
+    by: ["category"],
+    where: { ...monthScope, type: "expense" },
+    _sum: { amount: true }
+  });
 
   const expenseByCategory = byCategory
-    .map((row) => ({ category: row.category, total: Number(row.total) }))
+    .map((row) => ({ category: row.category, total: row._sum.amount ?? 0 }))
     .sort((a, b) => b.total - a.total);
 
   return { income, expense, balance: income - expense, expenseByCategory };
@@ -177,36 +192,17 @@ export async function listTransactionsPaged(
   userId: number,
   filters: ListPagedFilters = {}
 ): Promise<{ rows: Transaction[]; total: number }> {
-  const conditions = [eq(transactions.userId, userId)];
+  const where = whereForFilters(userId, filters);
 
-  if (filters.category) {
-    conditions.push(eq(transactions.category, filters.category));
-  }
-  if (filters.month) {
-    const { start, end } = monthRange(filters.month);
-    conditions.push(gte(transactions.occurredOn, start), lt(transactions.occurredOn, end));
-  }
+  const [total, rows] = await Promise.all([
+    db.transaction.count({ where }),
+    db.transaction.findMany({
+      where,
+      orderBy: [{ occurredOn: "desc" }, { id: "desc" }],
+      ...(filters.limit !== undefined ? { take: filters.limit } : {}),
+      ...(filters.offset !== undefined ? { skip: filters.offset } : {})
+    })
+  ]);
 
-  const [countResult] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(transactions)
-    .where(and(...conditions));
-
-  const total = Number(countResult?.count ?? 0);
-
-  const query = db
-    .select()
-    .from(transactions)
-    .where(and(...conditions))
-    .orderBy(desc(transactions.occurredOn), desc(transactions.id));
-
-  const rows = await (filters.limit !== undefined
-    ? filters.offset !== undefined
-      ? query.limit(filters.limit).offset(filters.offset)
-      : query.limit(filters.limit)
-    : filters.offset !== undefined
-      ? query.offset(filters.offset)
-      : query);
-
-  return { rows, total };
+  return { rows: rows.map(toAppTransaction), total };
 }

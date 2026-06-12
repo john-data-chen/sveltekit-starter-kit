@@ -1,7 +1,5 @@
 import { parseSessionCookie } from "$lib/server/auth";
 import type { SessionUser } from "$lib/server/auth";
-import { users } from "$lib/server/db/schema";
-import { eq } from "drizzle-orm";
 
 export function logSessionInfrastructureError(context: string, error: unknown): void {
   console.error(`[session] ${context}`, error);
@@ -25,11 +23,10 @@ export async function resolveSessionUser(
 
   try {
     const { db } = await import("$lib/server/db");
-    const [user] = await db
-      .select({ id: users.id, name: users.name, avatar: users.avatar, role: users.role })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, avatar: true, role: true }
+    });
 
     return user ?? null;
   } catch (error) {

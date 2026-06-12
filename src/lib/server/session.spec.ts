@@ -8,13 +8,9 @@ vi.mock("$env/dynamic/private", () => ({ env: { SESSION_SECRET: "test-secret-val
 
 function createDb(rows: Array<{ id: number; name: string; avatar: string; role: string }>) {
   return {
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn(async () => rows)
-        }))
-      }))
-    }))
+    user: {
+      findUnique: vi.fn(async () => rows[0] ?? null)
+    }
   };
 }
 
@@ -68,15 +64,11 @@ describe("resolveSessionUser", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const cookie = createSessionCookie(1);
     const db = {
-      select: vi.fn(() => ({
-        from: vi.fn(() => ({
-          where: vi.fn(() => ({
-            limit: vi.fn(async () => {
-              throw new Error("database offline");
-            })
-          }))
-        }))
-      }))
+      user: {
+        findUnique: vi.fn(async () => {
+          throw new Error("database offline");
+        })
+      }
     };
     const { resolveSessionUser } = await loadSubjectWithDb(() => ({ db }));
 

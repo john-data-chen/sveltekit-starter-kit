@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 這是一個產品級別的 SvelteKit starter kit，以真實可用的多使用者 **線上記帳本** 為核心，所有帳號都可以新增支出、收入，並查看統計資訊。而管理帳號可以看到所有帳號的交易紀錄。
-這展示技術決策、品質工程，以及 AI 輔助開發的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Drizzle ORM 與 PostgreSQL。
+這展示技術決策、品質工程，以及 AI 輔助開發的實作方式。技術棧包含 Svelte 5（runes mode）、TypeScript、Tailwind CSS v4、Prisma ORM 與 PostgreSQL。
 
 本專案刻意聚焦於產品團隊在意的能力：型別化、模組化的 **TypeScript / Node.js**；有意識的 **API、資料流與 RBAC** 設計；搭配 ORM 驅動 **schema migration** 與執行時驗證的 **PostgreSQL**；**AI 輔助（Harness）工程**；以及具紀律、可驗證的交付。
 
@@ -57,23 +57,23 @@
 
 評估過引入第三方 UI 元件庫，最終選擇建立內部的 Svelte 5 primitives 層 — 理由：維持極少依賴的原則、無依賴成本的抽象化、符合無障礙標準（a11y-correct）的原生 `<dialog>`，以及利用 Svelte 5 snippets 達到純 HTML 屬性傳遞（不需透過 bind prop-drilling）。
 
-| 類型          | 選擇                                           | 理由                                                                       |
-| ------------- | ---------------------------------------------- | -------------------------------------------------------------------------- |
-| Framework     | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                                     |
-| Styling       | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                         |
-| Database      | Drizzle ORM + PostgreSQL                       | 類型安全 SQL、明確查詢、比大型 ORM 更輕量                                  |
-| DB Driver     | `postgres`（TCP）                              | 快速 pooled driver，適合 Vercel Node serverless 服務                       |
-| Auth          | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                                 |
-| Authz/RBAC    | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制                  |
-| Rate Limiting | 記憶體內的 fixed-window 限流（登入 + API）     | 簡易的防暴力破解/濫用；生產環境會改用 Vercel KV / Redis                    |
-| Security      | Nonce CSP + HSTS + 強化的回應標頭              | 縱深防禦；僅 Scalar `/api/docs` 放寬 CSP，dev 模式移除 CSP 以支援 Vite HMR |
-| Validation    | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod        |
-| REST API      | 完整的 CRUD API + JSON 回應封裝                | 分離的 REST 層以利外部系統整合或手機端應用呼叫                             |
-| API Docs      | Scalar UI + Zod 4 原生 OpenAPI 匯出            | 直接由 Zod 模型動態產生的零阻力互動式 API 文件                             |
-| Tables        | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染    |
-| Charts        | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                                 |
-| i18n          | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable 翻譯；支援英文與繁體中文                          |
-| Deploy        | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                    |
+| 類型          | 選擇                                           | 理由                                                                                  |
+| ------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Framework     | SvelteKit 2 + Svelte 5（runes）                | 精細的響應性、極簡樣板、SSR + 表單操作                                                |
+| Styling       | Tailwind CSS v4（Vite plugin）                 | 公用優先、零執行時間，透過 v4 Vite plugin 加速建置                                    |
+| Database      | Prisma ORM + PostgreSQL                        | 宣告式 schema 作為唯一真相來源；型別安全的 generated client、內建 migrations          |
+| DB Driver     | `pg`（經 `@prisma/adapter-pg`）                | Prisma v7 driver-adapter 工作流；快速 pooled driver，適合 Vercel Node serverless 服務 |
+| Auth          | Password-less email + signed `httpOnly` cookie | 不儲存密碼；使用最小且清楚的 session model                                            |
+| Authz/RBAC    | 路由層級的權限守衛（`requireAdmin`）           | 基於資料庫使用者角色（`admin` 與 `member`）的嚴格存取控制                             |
+| Rate Limiting | 記憶體內的 fixed-window 限流（登入 + API）     | 簡易的防暴力破解/濫用；生產環境會改用 Vercel KV / Redis                               |
+| Security      | Nonce CSP + HSTS + 強化的回應標頭              | 縱深防禦；僅 Scalar `/api/docs` 放寬 CSP，dev 模式移除 CSP 以支援 Vite HMR            |
+| Validation    | Zod（server-side schemas）                     | 在 form action 邊界做執行時驗證 — 編譯檢查交給 TS，輸入檢查交給 Zod                   |
+| REST API      | 完整的 CRUD API + JSON 回應封裝                | 分離的 REST 層以利外部系統整合或手機端應用呼叫                                        |
+| API Docs      | Scalar UI + Zod 4 原生 OpenAPI 匯出            | 直接由 Zod 模型動態產生的零阻力互動式 API 文件                                        |
+| Tables        | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染               |
+| Charts        | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                                            |
+| i18n          | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable 翻譯；支援英文與繁體中文                                     |
+| Deploy        | `@sveltejs/adapter-vercel`（Node serverless）  | `pg` TCP driver 需要 Node runtime                                                     |
 
 ### 品質保證
 
@@ -107,7 +107,7 @@
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 保留 `svelte.config.js`，不將所有設定整合到 `vite.config.ts` | SvelteKit ≥ 2.62.0 可使用 `sveltekit()` 將 `svelte.config.js` 內容整合到 `vite.config.ts`，但 `svelte-check`、`eslint-plugin-svelte` 與 IDE (VS Code..etc) 仍需讀取 `svelte.config.js` 取得強制 runes 設定。新做法必須放棄原先默認的設定，推翻慣例也許會讓其他接手的開發者感到疑惑，權衡利弊後決定使用原先做法。 |
 | 自建 Svelte 5 UI primitives，不用元件庫                      | 更少依賴、更小 bundle、原生 a11y（`<dialog>`/`<select>`）、乾淨的 runes/snippets                                                                                                                                                                                                                                 |
-| Vercel Node 用 pooled `postgres` TCP driver（非 Edge）       | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                                                                                                                                                                                                                                                |
+| Vercel Node 用 pooled `pg` TCP driver（非 Edge）             | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                                                                                                                                                                                                                                                |
 | Zod schema = 單一真相來源                                    | 一份 schema → 驗證 + TS 型別 + OpenAPI 3.1；零落差                                                                                                                                                                                                                                                               |
 
 ---
@@ -123,7 +123,7 @@
 - **Dashboard** — 顯示當月收入、支出、結餘，以及以 原生CSS 製作的類型圓環圖 (無依賴圖表庫，支援大/小切換)。
 - **REST API + OpenAPI 互動文件** — 提供完整的 CRUD endpoints (`/api/transactions`, `/api/stats`)，重度利用 Zod 模型來動態對應出即時的 OpenAPI 3.1 規範。同時於 `/api/docs` 掛載了 Scalar UI 以供互動式探索。
 - **Per-user data isolation** — 每個查詢都會以登入使用者做限制；使用者只能看到自己的資料。
-- **Schema migration 與驗證** — PostgreSQL schema 以 Drizzle Kit 做版本控管（`db:generate` → `db:migrate`），所有不可信輸入都在邊界經由 Zod 驗證；單一 schema 同時是型別、驗證與 OpenAPI 規範的唯一真相來源。
+- **Schema migration 與驗證** — PostgreSQL schema 以 Prisma Migrate 做版本控管（`db:migrate`），所有不可信輸入都在邊界經由 Zod 驗證；單一 schema 同時是型別、驗證與 OpenAPI 規範的唯一真相來源。
 - **限流 (Rate limiting)** — best-effort 記憶體內 fixed-window 限流：登入每 IP 每分鐘上限 10 次，已驗證的 API 寫入每 IP 每分鐘上限 100 次，超過時回傳 `429` 並附上 `Retry-After` header。（serverless 環境下應改用 Vercel KV / Upstash Redis 讓多實例共享狀態。）
 - **安全強化 (Security hardening)** — 每個 HTML 回應都帶有 nonce-based Content-Security-Policy，以及 `X-Content-Type-Options`、`X-Frame-Options: DENY`、`Referrer-Policy`、`Permissions-Policy`；production 另啟用 `Strict-Transport-Security`。僅 Scalar `/api/docs` 頁面放寬 CSP，dev 模式則移除 CSP 以支援 Vite HMR。
 - **API 分頁 (Pagination)** — `GET /api/transactions` 接受 `limit`（預設 20，上限 100）與 `offset`，並回傳 `{ data, pagination: { total, limit, offset } }` 封裝。
@@ -177,7 +177,7 @@ AI agent 是受治理的協作開發者，而非可自行 commit 的自動程式
 
 - **速度**：樣板程式碼和標準模式的實現速度提升 5-10 倍，借助 Gemini Code Assist 將 PR 審查時間縮短 30-40%。
 - **品質**：透過 AI 產生的測試框架，實現更高的測試覆蓋率（80% 以上）。以及 Gemini Code Assist 的 PR 審查，從而減少 bug 和程式碼異味。
-- **學習**：透過 AI 指導的實現，快速掌握新工具（Svelte、Sveltekit、Drizzle 等）。
+- **學習**：透過 AI 指導的實現，快速掌握新工具（Svelte、Sveltekit、Prisma 等）。
 - **成本**：利用 AI 代理的技能減少程式碼迭代次數並遵循最佳實踐，從而降低成本。
 - **專注**：將工程時間從語法開發轉移到系統架構和使用者體驗。
 
@@ -185,14 +185,14 @@ AI agent 是受治理的協作開發者，而非可自行 commit 的自動程式
 
 Skills 會提交到 repo，並透過 `AGENTS.md` / `CLAUDE.md` 提供給 AI assistants。每個 skill 都封裝了特定工作流與專案慣例。
 
-| Skill                                                                                    | 職責                                                                                        |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | 降低 LLM 程式碼錯誤：明確假設、優先簡單方案、手術刀式修改、目標導向循環                     |
-| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 文件共筆的 3 階段工作流程（上下文 → 精煉 → 讀者測試），本 README 由此技能與作者共同協作產生 |
-| **session-handoff (my private skill)**                                                   | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層  |
-| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM 最佳實踐                                                                        |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | 用於在建立/編輯任何 `.svelte` 檔案時尋找技術文件和進行程式碼分析的 CLI 工具                 |
-| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                           | 編寫快速、健壯、現代的 Svelte 程式碼的指南。                                                |
+| Skill                                                                                                               | 職責                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)                                       | 降低 LLM 程式碼錯誤：明確假設、優先簡單方案、手術刀式修改、目標導向循環                     |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring)                            | 文件共筆的 3 階段工作流程（上下文 → 精煉 → 讀者測試），本 README 由此技能與作者共同協作產生 |
+| **session-handoff (my private skill)**                                                                              | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層  |
+| [prisma-\*](https://www.prisma.io/docs)（cli、client-api、database-setup、postgres、driver-adapter-implementation） | Prisma ORM 工作流：CLI 指令、client API、provider 設定、Prisma Postgres、driver adapters    |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                                             | 用於在建立/編輯任何 `.svelte` 檔案時尋找技術文件和進行程式碼分析的 CLI 工具                 |
+| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                                                      | 編寫快速、健壯、現代的 Svelte 程式碼的指南。                                                |
 
 ### MCP（Model Context Protocol）Servers
 
@@ -268,9 +268,9 @@ pnpm test:e2e      # Playwright e2e
 pnpm check         # svelte-kit sync + svelte-check
 pnpm commit        # git-cz (commitizen with commitlint)
 pnpm db:start      # docker compose up (PostgreSQL)
-pnpm db:generate   # drizzle-kit generate
-pnpm db:migrate    # drizzle-kit migrate
-pnpm db:push       # drizzle-kit push
+pnpm db:generate   # prisma generate
+pnpm db:migrate    # prisma migrate dev
+pnpm db:push       # prisma db push
 pnpm db:seed       # Seed demo users + sample transactions
 ```
 
@@ -300,7 +300,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 .
 ├── .agents/skills/              # Repo 專用 AI skills，由 AGENTS.md / CLAUDE.md 使用
 │   ├── doc-coauthoring/         # 文件共筆 workflow
-│   ├── drizzle/                 # Drizzle schema/query 慣例
+│   ├── prisma-*/                # Prisma ORM 慣例（cli、client-api、database-setup、postgres、driver-adapter）
 │   ├── karpathy-guidelines/     # Surgical change 與驗證紀律
 │   ├── session-handoff/         # (private, 未提交) 維護 ai-docs/tasks.md + session-log.md
 │   ├── svelte-code-writer/      # Svelte MCP/CLI 查詢與 autofix workflow
@@ -311,7 +311,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── .opencode/                   # OpenCode AI configuration
 ├── .vscode/                     # VS Code settings + extension recommendations
 ├── ai-docs/                     # AI task template、task plan、session log
-├── drizzle/                     # Generated SQL migrations + Drizzle metadata snapshots
+├── prisma/                      # Prisma schema + generated SQL migrations
 ├── e2e/
 │   ├── expense.spec.ts          # Playwright login + transaction CRUD happy path
 │   └── sort.spec.ts             # Playwright 排序 + URL 狀態 e2e 檢查
@@ -330,9 +330,9 @@ pnpm db:seed       # Seed demo users + sample transactions
 │   │   │   ├── db/
 │   │   │   │   ├── admin.ts     # Admin-only 查詢（跨使用者統計資料）
 │   │   │   │   ├── audit.ts     # 稽核日誌查詢
-│   │   │   │   ├── index.ts     # 使用 DATABASE_URL 的 Drizzle client
+│   │   │   │   ├── index.ts     # 使用 DATABASE_URL 的 Prisma client（pg adapter）
 │   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
-│   │   │   │   ├── schema.ts    # users / transactions / audit_logs tables
+│   │   │   │   ├── schema.ts    # 由 generated Prisma client 衍生的 app-level 型別
 │   │   │   │   ├── schema.spec.ts
 │   │   │   │   └── seed.ts      # Demo users 與 transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
@@ -387,7 +387,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── README-cht.md                # 繁體中文 README
 ├── commitlint.config.mjs        # Conventional commit config
 ├── compose.yaml                 # Local PostgreSQL service
-├── drizzle.config.ts            # Drizzle Kit config
+├── prisma.config.ts             # Prisma CLI config（schema 路徑 + datasource URL）
 ├── eslint.config.js             # Svelte files 的 ESLint config
 ├── package.json                 # Scripts、dependencies、lint-staged、engines
 ├── playwright.config.ts         # Cross-browser e2e configuration

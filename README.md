@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is a product-level SvelteKit starter kit centered around a real, multi-user (family) **online ledger**, where all accounts can add expenses and income, and view statistics. The administrator account can view the transaction history of all accounts.
-It demonstrates technical decision-making, quality engineering, and AI-assisted development practices. Built with Svelte 5 (runes mode), TypeScript, Tailwind CSS v4, and Drizzle ORM + PostgreSQL.
+It demonstrates technical decision-making, quality engineering, and AI-assisted development practices. Built with Svelte 5 (runes mode), TypeScript, Tailwind CSS v4, and Prisma ORM + PostgreSQL.
 
 It is deliberately scoped to showcase the competencies a product team hires for: typed, modular **TypeScript / Node.js**; intentional **API, data-flow, and RBAC** design; **PostgreSQL** with ORM-driven **schema migrations** and runtime validation; **AI-assisted (Harness) engineering**; and disciplined, verifiable delivery.
 
@@ -62,8 +62,8 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 | ------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Framework     | SvelteKit 2 + Svelte 5 (runes)                 | Fine-grained reactivity, minimal boilerplate, SSR + form actions                                              |
 | Styling       | Tailwind CSS v4 (Vite plugin)                  | Utility-first, zero-runtime, fast builds via the v4 Vite plugin                                               |
-| Database      | Drizzle ORM + PostgreSQL                       | Type-safe SQL with explicit queries; lightweight, no heavy ORM                                                |
-| DB Driver     | `postgres` (TCP)                               | Fast pooled driver; pairs with the Vercel Node serverless runtime                                             |
+| Database      | Prisma ORM + PostgreSQL                        | Declarative schema as single source of truth; type-safe generated client, built-in migrations                 |
+| DB Driver     | `pg` via `@prisma/adapter-pg`                  | Prisma v7 driver-adapter workflow; fast pooled driver, pairs with the Vercel Node serverless runtime          |
 | Auth          | Password-less email + signed `httpOnly` cookie | No password storage; minimal, secure session model                                                            |
 | Authz/RBAC    | Route-level role guards (`requireAdmin`)       | Strict access control based on DB-backed user roles (`admin` vs `member`)                                     |
 | Rate Limiting | In-memory fixed-window limiter (login + API)   | Simple protection against brute-force attacks/abuse; Vercel KV/Redis will be used in production environments. |
@@ -74,7 +74,7 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 | Tables        | `@tanstack/table-core`                         | Headless, URL-synchronized sorting, rendered via pure Svelte components                                       |
 | Charts        | Pure CSS donut                                 | Zero charting dependency — smaller bundle, full control                                                       |
 | i18n          | Paraglide JS (`@inlang/paraglide-js`)          | Type-safe, tree-shakeable messages; English + Traditional Chinese                                             |
-| Deploy        | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `postgres` TCP driver                                                           |
+| Deploy        | `@sveltejs/adapter-vercel` (Node serverless)   | Node runtime required for the `pg` TCP driver                                                                 |
 
 ### Quality Assurance
 
@@ -107,7 +107,7 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 | Decision                                                                     | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Keep `svelte.config.js`, do not integrate all settings into `vite.config.ts` | SvelteKit ≥ 2.62.0 can use `sveltekit()` to integrate the contents of `svelte.config.js` into `vite.config.ts`, but `svelte-check`, `eslint-plugin-svelte`, and IDEs (VS Code, etc.) still need to read `svelte.config.js` to obtain mandatory runes settings. This new approach requires abandoning the previous default settings, and overturning conventions may confuse other developers who take over. After weighing the pros and cons, the original approach was chosen. |
-| Pooled `postgres` TCP driver on Vercel Node (not Edge)                       | Reliable pooling, no proxy, identical local Docker Postgres                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Pooled `pg` TCP driver on Vercel Node (not Edge)                             | Reliable pooling, no proxy, identical local Docker Postgres                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Zod schema = single source of truth                                          | One schema → validation + TS types + OpenAPI 3.1; no drift                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ---
@@ -123,7 +123,7 @@ Evaluated adopting a UI component library; chose an internal Svelte 5 primitives
 - **Dashboard** — current-month income / expense / balance plus a category-share donut chart built with **pure CSS** (no charting dependency, supports large/small toggle).
 - **REST API + OpenAPI Documentation** — full CRUD endpoints (`/api/transactions`, `/api/stats`) heavily utilizing Zod models which dynamically map to a live OpenAPI 3.1 schema. Scalar UI is mounted at `/api/docs` for interactive exploration.
 - **Per-user data isolation** — every query is scoped to the signed-in user; you only ever see your own data.
-- **Schema migrations & validation** — the PostgreSQL schema is versioned with Drizzle Kit (`db:generate` → `db:migrate`), and every untrusted input is validated at the boundary by Zod; one schema is the single source of truth for types, validation, and the OpenAPI spec.
+- **Schema migrations & validation** — the PostgreSQL schema is versioned with Prisma Migrate (`db:migrate`), and every untrusted input is validated at the boundary by Zod; one schema is the single source of truth for types, validation, and the OpenAPI spec.
 - **Rate limiting** — best-effort in-memory fixed-window throttling: login is capped at 10 attempts/min per IP, and authenticated API mutations at 100 req/min per IP, returning `429` with a `Retry-After` header. (On serverless, swap the in-memory store for Vercel KV / Upstash Redis to share state across instances.)
 - **Security hardening** — every HTML response carries a nonce-based Content-Security-Policy plus `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, and `Permissions-Policy`; `Strict-Transport-Security` is enabled in production. CSP is relaxed only for the Scalar `/api/docs` page and stripped in dev to support Vite HMR.
 - **API pagination** — `GET /api/transactions` accepts `limit` (default 20, clamped to 100) and `offset`, and returns a `{ data, pagination: { total, limit, offset } }` envelope.
@@ -183,7 +183,7 @@ By treating AI as an integrated part of the stack, this project achieves:
 
 - **Velocity**: 5-10x faster implementation of boilerplate and standard patterns, reduce time of PR review 30~40% by Gemini Code Assist.
 - **Quality**: Higher test coverage (80%+) through AI-generated test scaffolding, and PR review by Gemini Code Assist to reduce bugs and bed smell.
-- **Learning**: Rapid mastery of new tools (Svelte, Sveltekit, Drizzle...and more) via AI-guided implementation.
+- **Learning**: Rapid mastery of new tools (Svelte, Sveltekit, Prisma...and more) via AI-guided implementation.
 - **Cost**: Lower costs by using AI agents skills to reduce tokens and match the best practices.
 - **Focus**: Shifted engineering time from syntax to system architecture and user experience.
 
@@ -191,14 +191,14 @@ By treating AI as an integrated part of the stack, this project achieves:
 
 Skills are committed to the repo and surfaced to AI assistants via `AGENTS.md` / `CLAUDE.md`. Each skill encodes instructions and conventions the assistant must follow.
 
-| Skill                                                                                    | Responsibility                                                                                                              |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)            | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops                      |
-| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring) | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README is made by user and this skill) |
-| **session-handoff (my private skill)**                                                   | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions                         |
-| [drizzle](https://skillsmp.com/skills/lobehub-lobehub-agents-skills-drizzle-skill-md)    | Drizzle ORM best practices                                                                                                  |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                  | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file                             |
-| [velte-core-bestpractices](https://svelte.dev/docs/ai/skills)                            | Guidance on writing fast, robust, modern Svelte code.                                                                       |
+| Skill                                                                                                              | Responsibility                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)                                      | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops                      |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring)                           | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README is made by user and this skill) |
+| **session-handoff (my private skill)**                                                                             | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions                         |
+| [prisma-\*](https://www.prisma.io/docs) (cli, client-api, database-setup, postgres, driver-adapter-implementation) | Prisma ORM workflows: CLI commands, client API, provider setup, Prisma Postgres, driver adapters                            |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                                            | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file                             |
+| [velte-core-bestpractices](https://svelte.dev/docs/ai/skills)                                                      | Guidance on writing fast, robust, modern Svelte code.                                                                       |
 
 ### MCP (Model Context Protocol) Servers
 
@@ -274,9 +274,9 @@ pnpm test:e2e      # Playwright e2e
 pnpm check         # svelte-kit sync + svelte-check
 pnpm commit        # git-cz (commitizen with commitlint)
 pnpm db:start      # docker compose up (PostgreSQL)
-pnpm db:generate   # drizzle-kit generate
-pnpm db:migrate    # drizzle-kit migrate
-pnpm db:push       # drizzle-kit push
+pnpm db:generate   # prisma generate
+pnpm db:migrate    # prisma migrate dev
+pnpm db:push       # prisma db push
 pnpm db:seed       # Seed demo users + sample transactions
 ```
 
@@ -306,7 +306,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 .
 ├── .agents/skills/              # Repo-specific AI skills used by AGENTS.md / CLAUDE.md
 │   ├── doc-coauthoring/         # Documentation co-authoring workflow
-│   ├── drizzle/                 # Drizzle schema/query conventions
+│   ├── prisma-*/                # Prisma ORM conventions (cli, client-api, database-setup, postgres, driver-adapter)
 │   ├── karpathy-guidelines/     # Surgical-change and verification discipline
 │   ├── session-handoff/         # (private, not committed) Maintains ai-docs/tasks.md + session-log.md
 │   ├── svelte-code-writer/      # Svelte MCP/CLI lookup and autofix workflow
@@ -317,7 +317,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── .opencode/                   # OpenCode AI configuration
 ├── .vscode/                     # VS Code settings + extension recommendations
 ├── ai-docs/                     # AI task template, task plan, and session log
-├── drizzle/                     # Generated SQL migrations + Drizzle metadata snapshots
+├── prisma/                      # Prisma schema + generated SQL migrations
 ├── e2e/
 │   ├── expense.spec.ts          # Playwright login + transaction CRUD happy path
 │   └── sort.spec.ts             # Playwright table-sort + URL-state e2e checks
@@ -336,9 +336,9 @@ pnpm db:seed       # Seed demo users + sample transactions
 │   │   │   ├── db/
 │   │   │   │   ├── admin.ts     # Admin-only queries (cross-user stats)
 │   │   │   │   ├── audit.ts     # Audit log queries
-│   │   │   │   ├── index.ts     # Drizzle client using DATABASE_URL
+│   │   │   │   ├── index.ts     # Prisma client (pg adapter) using DATABASE_URL
 │   │   │   │   ├── queries.ts   # User-scoped CRUD + dashboard aggregates
-│   │   │   │   ├── schema.ts    # users / transactions / audit_logs tables
+│   │   │   │   ├── schema.ts    # App-level types derived from the generated Prisma client
 │   │   │   │   ├── schema.spec.ts
 │   │   │   │   └── seed.ts      # Demo users and transactions
 │   │   │   ├── auth.ts          # HMAC-signed httpOnly session cookie
@@ -393,7 +393,7 @@ pnpm db:seed       # Seed demo users + sample transactions
 ├── README-cht.md                # Traditional Chinese README
 ├── commitlint.config.mjs        # Conventional commit config
 ├── compose.yaml                 # Local PostgreSQL service
-├── drizzle.config.ts            # Drizzle Kit config
+├── prisma.config.ts             # Prisma CLI config (schema path + datasource URL)
 ├── eslint.config.js             # ESLint config for Svelte files
 ├── package.json                 # Scripts, dependencies, lint-staged, engines
 ├── playwright.config.ts         # Cross-browser e2e configuration

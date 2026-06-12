@@ -8,7 +8,7 @@ const config = {
   },
   kit: {
     // Targets Vercel. The default Node.js serverless runtime is required because the app
-    // talks to PostgreSQL over TCP via `postgres` (the edge runtime can't). See
+    // talks to PostgreSQL over TCP via `pg` (the edge runtime can't). See
     // https://svelte.dev/docs/kit/adapter-vercel for runtime/region options.
     adapter: adapter(),
 
@@ -30,7 +30,7 @@ const config = {
     typescript: {
       config: (config) => ({
         ...config,
-        include: [...config.include, "../drizzle.config.ts"]
+        include: [...config.include, "../prisma.config.ts"]
       })
     }
   }

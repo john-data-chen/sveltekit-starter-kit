@@ -39,6 +39,7 @@
     ".agents",
     "coverage",
     "static",
-    "pnpm-lock.yaml"
+    "pnpm-lock.yaml",
+    "src/lib/server/db/generated"
   ]
 }

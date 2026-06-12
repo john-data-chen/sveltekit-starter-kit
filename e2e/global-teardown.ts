@@ -1,8 +1,6 @@
-import { and, eq, gt } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-import { auditLogs, users } from "../src/lib/server/db/schema";
+import { PrismaClient } from "../src/lib/server/db/generated/client";
 
 // Removes the audit rows this run created: expense.spec.ts signs in as John and
 // creates + deletes a Food 999 expense (summary "expense Food 999" per the
@@ -23,32 +21,28 @@ export default async function globalTeardown() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const client = postgres(databaseUrl, { max: 1 });
-  const db = drizzle(client);
+  const adapter = new PrismaPg({ connectionString: databaseUrl, max: 1 });
+  const db = new PrismaClient({ adapter });
   try {
-    const [john] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, "john@example.com"))
-      .limit(1);
+    const john = await db.user.findUnique({
+      where: { email: "john@example.com" },
+      select: { id: true }
+    });
     if (!john) {
       return;
     }
 
-    const deleted = await db
-      .delete(auditLogs)
-      .where(
-        and(
-          gt(auditLogs.id, baseline),
-          eq(auditLogs.actorId, john.id),
-          eq(auditLogs.summary, "expense Food 999")
-        )
-      )
-      .returning({ id: auditLogs.id });
-    if (deleted.length > 0) {
-      console.log(`Cleaned up ${deleted.length} e2e audit log rows.`);
+    const { count } = await db.auditLog.deleteMany({
+      where: {
+        id: { gt: baseline },
+        actorId: john.id,
+        summary: "expense Food 999"
+      }
+    });
+    if (count > 0) {
+      console.log(`Cleaned up ${count} e2e audit log rows.`);
     }
   } finally {
-    await client.end();
+    await db.$disconnect();
   }
 }
