@@ -73,7 +73,7 @@
 | Tables        | `@tanstack/table-core`                         | Headless，無 UI 依賴，將排序狀態同步至 URL 並且純粹使用 Svelte 元件渲染               |
 | Charts        | Pure CSS donut                                 | 不引入圖表套件，減少打包體積並保留完整控制                                            |
 | i18n          | Paraglide JS（`@inlang/paraglide-js`）         | 類型安全、tree-shakeable 翻譯；支援英文與繁體中文                                     |
-| Deploy        | `@sveltejs/adapter-vercel`（Node serverless）  | `postgres` TCP driver 需要 Node runtime                                               |
+| Deploy        | `@sveltejs/adapter-vercel`（Node serverless）  | `pg` TCP driver 需要 Node runtime                                                     |
 
 ### 品質保證
 
@@ -107,7 +107,7 @@
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 保留 `svelte.config.js`，不將所有設定整合到 `vite.config.ts` | SvelteKit ≥ 2.62.0 可使用 `sveltekit()` 將 `svelte.config.js` 內容整合到 `vite.config.ts`，但 `svelte-check`、`eslint-plugin-svelte` 與 IDE (VS Code..etc) 仍需讀取 `svelte.config.js` 取得強制 runes 設定。新做法必須放棄原先默認的設定，推翻慣例也許會讓其他接手的開發者感到疑惑，權衡利弊後決定使用原先做法。 |
 | 自建 Svelte 5 UI primitives，不用元件庫                      | 更少依賴、更小 bundle、原生 a11y（`<dialog>`/`<select>`）、乾淨的 runes/snippets                                                                                                                                                                                                                                 |
-| Vercel Node 用 pooled `postgres` TCP driver（非 Edge）       | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                                                                                                                                                                                                                                                |
+| Vercel Node 用 pooled `pg` TCP driver（非 Edge）             | 可靠連線池、免 proxy、本機 Docker 跑相同 Postgres                                                                                                                                                                                                                                                                |
 | Zod schema = 單一真相來源                                    | 一份 schema → 驗證 + TS 型別 + OpenAPI 3.1；零落差                                                                                                                                                                                                                                                               |
 
 ---
