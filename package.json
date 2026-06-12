@@ -17,7 +17,7 @@
     "dev": "vite dev",
     "format": "oxfmt --write .",
     "lint": "oxlint --fix && eslint --cache --cache-strategy content \"**/*.svelte\"",
-    "postinstall": "prisma generate",
+    "postinstall": "svelte-kit sync && prisma generate",
     "prepare": "husky && svelte-kit sync || echo ''",
     "preview": "vite preview",
     "test": "vitest run",
