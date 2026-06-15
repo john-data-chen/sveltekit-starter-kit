@@ -191,14 +191,14 @@ By treating AI as an integrated part of the stack, this project achieves:
 
 Skills are committed to the repo and surfaced to AI assistants via `AGENTS.md` / `CLAUDE.md`. Each skill encodes instructions and conventions the assistant must follow.
 
-| Skill                                                                                                              | Responsibility                                                                                                              |
-| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)                                      | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops                      |
-| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring)                           | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README is made by user and this skill) |
-| **session-handoff (my private skill)**                                                                             | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions                         |
-| [prisma-\*](https://www.prisma.io/docs) (cli, client-api, database-setup, postgres, driver-adapter-implementation) | Prisma ORM workflows: CLI commands, client API, provider setup, Prisma Postgres, driver adapters                            |
-| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                                            | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file                             |
-| [velte-core-bestpractices](https://svelte.dev/docs/ai/skills)                                                      | Guidance on writing fast, robust, modern Svelte code.                                                                       |
+| Skill                                                                                                                                | Responsibility                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)                                                        | Reduce LLM coding mistakes: surface assumptions, simplicity first, surgical changes, goal-driven loops                      |
+| [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring)                                             | 3-stage workflow (Context → Refinement → Reader Testing) for co-authoring docs (this README is made by user and this skill) |
+| **session-handoff (my private skill)**                                                                                               | Maintain `ai-docs/tasks.md` + `ai-docs/session-log.md` so work hands off cleanly across AI sessions                         |
+| [prisma official AI guide](https://www.prisma.io/docs/ai) (cli, client-api, database-setup, postgres, driver-adapter-implementation) | Prisma ORM workflows: CLI commands, client API, provider setup, Prisma Postgres, driver adapters                            |
+| [svelte-code-writer](https://svelte.dev/docs/ai/skills)                                                                              | CLI tooling for Svelte 5 docs lookup and code analysis when creating/editing any `.svelte` file                             |
+| [svelte-core-bestpractices](https://svelte.dev/docs/ai/skills)                                                                       | Guidance on writing fast, robust, modern Svelte code.                                                                       |
 
 ### MCP (Model Context Protocol) Servers
 

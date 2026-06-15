@@ -39,7 +39,7 @@
     "@commitlint/cz-commitlint": "^21.0.2",
     "@eslint/js": "^10.0.1",
     "@inlang/paraglide-js": "^2.19.0",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.61.0",
     "@sveltejs/adapter-vercel": "^6.3.3",
     "@sveltejs/kit": "^2.65.1",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
@@ -49,27 +49,27 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "24.13.2",
     "@types/pg": "^8.20.0",
-    "@vitest/coverage-v8": "4.1.8",
+    "@vitest/coverage-v8": "4.1.9",
     "commitizen": "^4.3.2",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-oxlint": "^1.69.0",
+    "eslint-plugin-oxlint": "^1.70.0",
     "eslint-plugin-svelte": "^3.19.0",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.7",
-    "oxfmt": "^0.54.0",
-    "oxlint": "^1.69.0",
+    "oxfmt": "^0.55.0",
+    "oxlint": "^1.70.0",
     "prisma": "^7.8.0",
     "svelte": "^5.56.3",
     "svelte-check": "^4.6.0",
     "tailwindcss": "^4.3.1",
     "tsx": "4.22.4",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.0",
+    "typescript-eslint": "^8.61.1",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,ts}": [
@@ -90,5 +90,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.6.0"
+  "packageManager": "pnpm@11.7.0"
 }
