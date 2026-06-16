@@ -2,7 +2,7 @@ import type { SessionUser } from "$lib/server/auth";
 import type { RequestEvent } from "@sveltejs/kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { apiError, requireApiUser, requireRateLimit } from "./api";
+import { apiError, requireApiUser, requireApiAdmin, requireRateLimit } from "./api";
 import { resetRateLimitStore } from "./rate-limit";
 
 describe("requireApiUser", () => {
@@ -15,6 +15,20 @@ describe("requireApiUser", () => {
   it("throws a 401 error if user is missing", () => {
     const locals = { user: null } as unknown as App.Locals;
     expect(() => requireApiUser(locals)).toThrowError();
+  });
+});
+
+describe("requireApiAdmin", () => {
+  it("returns the user if role is admin", () => {
+    const user: SessionUser = { id: 1, name: "Admin", avatar: "", role: "admin" };
+    const locals = { user } as App.Locals;
+    expect(requireApiAdmin(locals)).toEqual(user);
+  });
+
+  it("throws a 403 error if user is not admin", () => {
+    const user: SessionUser = { id: 1, name: "Test User", avatar: "", role: "member" };
+    const locals = { user } as App.Locals;
+    expect(() => requireApiAdmin(locals)).toThrowError();
   });
 });
 

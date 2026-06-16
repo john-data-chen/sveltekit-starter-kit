@@ -80,4 +80,16 @@ describe("CategoryChart", () => {
     // Toggled state shows Sort Ascending label
     expect(screen.getByRole("button", { name: /Sort Ascending/ })).toBeTruthy();
   });
+
+  it("handles items when total is 0 without dividing by zero", () => {
+    const { container } = render(CategoryChart, {
+      props: {
+        items: [{ category: "Food", total: 0 }],
+        total: 0
+      }
+    });
+
+    // Check that it renders 0% without NaN
+    expect(screen.getByText(/NT\$0 · 0%/)).toBeTruthy();
+  });
 });
