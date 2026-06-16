@@ -23,7 +23,6 @@ export default defineConfig({
       include: ["src/**/*.{js,ts,svelte}"],
       exclude: [
         "src/lib/paraglide/**",
-        "src/lib/server/db/generated/**",
         "**/*.spec.ts",
         "**/*.test.ts",
         "ai-docs/**",
