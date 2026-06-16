@@ -1,6 +1,6 @@
 import type { TransactionType } from "$lib/categories";
-import type { Transaction as DbTransaction, Prisma } from "@prisma/client";
 
+import type { Transaction as DbTransaction, Prisma } from "./generated/client";
 import type { Transaction } from "./schema";
 
 import { db } from "./index";

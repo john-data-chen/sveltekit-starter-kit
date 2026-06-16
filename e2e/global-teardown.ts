@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+
+import { PrismaClient } from "../src/lib/server/db/generated/client";
 
 // Removes the audit rows this run created: expense.spec.ts signs in as John and
 // creates + deletes a Food 999 expense (summary "expense Food 999" per the

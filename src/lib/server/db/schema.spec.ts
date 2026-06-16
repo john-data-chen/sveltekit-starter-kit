@@ -1,5 +1,6 @@
-import { AuditAction, TransactionType, UserRole } from "@prisma/client";
 import { describe, expect, it } from "vitest";
+
+import { AuditAction, TransactionType, UserRole } from "./generated/client";
 
 // The Prisma schema is structurally validated by `prisma validate` (db:generate);
 // these tests pin the enum values the app logic branches on.
