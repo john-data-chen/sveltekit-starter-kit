@@ -105,4 +105,35 @@ describe("sorted-table", () => {
     expect(calledUrl.searchParams.get("sort")).toBe("id");
     expect(calledUrl.searchParams.get("dir")).toBe("asc");
   });
+
+  it("handles clearing sorting using direct value updater", () => {
+    const table = createSortedTable({
+      data: () => testData,
+      columns,
+      defaultSort: [{ id: "id", desc: false }]
+    });
+
+    const headerGroups = table.headerGroups;
+    const firstHeader = headerGroups[0].headers[0];
+
+    firstHeader.column.clearSorting();
+
+    expect(goto).toHaveBeenCalled();
+  });
+
+  it("headerLabel handles undefined headers", () => {
+    const table = createSortedTable({
+      data: () => testData,
+      columns: [
+        {
+          accessorKey: "id"
+          // no header defined
+        }
+      ]
+    });
+
+    const headerGroups = table.headerGroups;
+    const headers = headerGroups[0].headers;
+    expect(headerLabel(headers[0])).toBe("id");
+  });
 });

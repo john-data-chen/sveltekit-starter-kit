@@ -191,6 +191,12 @@ describe("API: /api/transactions", () => {
       expect(() => TransactionResponse.parse(body)).not.toThrow();
       expect(body).toEqual({ ...mockTx, createdAt: mockTx.createdAt.toISOString() });
     });
+
+    it("returns 400 if id is not an integer", async () => {
+      const event = createMockEvent(undefined, { id: "invalid" });
+      const res = await GET_ID(event);
+      expect(res.status).toBe(400);
+    });
   });
 
   describe("PATCH /api/transactions/[id]", () => {
@@ -223,6 +229,67 @@ describe("API: /api/transactions", () => {
       );
       expect(audit.recordAudit).toHaveBeenCalled();
     });
+
+    it("returns 400 if id is not an integer", async () => {
+      const event = createMockEvent(undefined, { id: "invalid" }, undefined, {});
+      const res = await PATCH(event);
+      expect(res.status).toBe(400);
+    });
+
+    it("returns 400 for invalid JSON body", async () => {
+      const event = createMockEvent(undefined, { id: "1" });
+      event.request.json = vi.fn().mockRejectedValue(new Error("Invalid JSON"));
+      const res = await PATCH(event);
+      expect(res.status).toBe(400);
+    });
+
+    it("returns 400 for invalid update payload", async () => {
+      const event = createMockEvent(undefined, { id: "1" }, undefined, { type: "invalid" });
+      const res = await PATCH(event);
+      expect(res.status).toBe(400);
+    });
+
+    it("returns 404 if existing transaction not found", async () => {
+      const event = createMockEvent(undefined, { id: "1" }, undefined, { amount: 20 });
+      vi.mocked(queries.getTransaction).mockResolvedValue(null);
+      const res = await PATCH(event);
+      expect(res.status).toBe(404);
+    });
+
+    it("returns 400 if combined input is invalid", async () => {
+      const event = createMockEvent(undefined, { id: "1" }, undefined, { amount: -500 });
+      const existing: Transaction = {
+        id: 1,
+        userId: 1,
+        amount: 10,
+        type: "expense",
+        category: "Food",
+        occurredOn: "2023-01-01",
+        note: null,
+        createdAt: new Date()
+      };
+      vi.mocked(queries.getTransaction).mockResolvedValue(existing);
+      const res = await PATCH(event);
+      expect(res.status).toBe(400);
+    });
+
+    it("returns 404 if update transaction returns null", async () => {
+      const event = createMockEvent(undefined, { id: "1" }, undefined, { amount: 20 });
+      const existing: Transaction = {
+        id: 1,
+        userId: 1,
+        amount: 10,
+        type: "expense",
+        category: "Food",
+        occurredOn: "2023-01-01",
+        note: null,
+        createdAt: new Date()
+      };
+      vi.mocked(queries.getTransaction).mockResolvedValue(existing);
+      vi.mocked(queries.updateTransaction).mockResolvedValue(null);
+      const res = await PATCH(event);
+      expect(res.status).toBe(404);
+    });
   });
 
   describe("DELETE /api/transactions/[id]", () => {
@@ -239,6 +306,19 @@ describe("API: /api/transactions", () => {
       expect(res.status).toBe(204);
       expect(queries.deleteTransaction).toHaveBeenCalledWith(1, 1);
       expect(audit.recordAudit).toHaveBeenCalled();
+    });
+
+    it("returns 400 if id is not an integer", async () => {
+      const event = createMockEvent(undefined, { id: "invalid" });
+      const res = await DELETE(event);
+      expect(res.status).toBe(400);
+    });
+
+    it("returns 404 if deleteTransaction returns null", async () => {
+      const event = createMockEvent(undefined, { id: "1" });
+      vi.mocked(queries.deleteTransaction).mockResolvedValue(null);
+      const res = await DELETE(event);
+      expect(res.status).toBe(404);
     });
   });
 });

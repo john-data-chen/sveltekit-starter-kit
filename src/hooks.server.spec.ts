@@ -34,7 +34,12 @@ describe("hooks.server handle", () => {
       url: new URL("http://localhost/")
     } as unknown as RequestEvent;
 
-    const mockResolve = vi.fn(async () => {
+    const mockResolve = vi.fn(async (event, opts: any) => {
+      if (opts?.transformPageChunk) {
+        opts.transformPageChunk({
+          html: '<html lang="%paraglide.lang%" dir="%paraglide.dir%"></html>'
+        });
+      }
       return new Response("<html></html>", {
         headers: {
           "Content-Type": "text/html",
@@ -137,5 +142,59 @@ describe("hooks.server handle", () => {
 
     expect(response.headers.get("X-Content-Type-Options")).toBeNull();
     expect(response.headers.get("Content-Security-Policy")).toBeNull();
+  });
+
+  it("adds dark class to html when theme cookie is undefined or dark", async () => {
+    vi.doMock("$app/environment", () => ({ dev: false }));
+    const { handle } = await loadSubject();
+
+    const mockEvent = {
+      locals: {},
+      cookies: {
+        get: vi.fn((name) => undefined)
+      },
+      request: new Request("http://localhost/"),
+      url: new URL("http://localhost/")
+    } as unknown as RequestEvent;
+
+    const mockResolve = vi.fn(async (event, opts: any) => {
+      if (opts?.transformPageChunk) {
+        return new Response(opts.transformPageChunk({ html: '<html lang="en"></html>' }), {
+          headers: { "Content-Type": "text/html" }
+        });
+      }
+      return new Response("<html></html>", { headers: { "Content-Type": "text/html" } });
+    });
+
+    const response = await handle({ event: mockEvent, resolve: mockResolve });
+    const text = await response.text();
+    expect(text).toContain('class="dark"');
+  });
+
+  it("does not add dark class when theme cookie is light", async () => {
+    vi.doMock("$app/environment", () => ({ dev: false }));
+    const { handle } = await loadSubject();
+
+    const mockEvent = {
+      locals: {},
+      cookies: {
+        get: vi.fn((name) => "light")
+      },
+      request: new Request("http://localhost/"),
+      url: new URL("http://localhost/")
+    } as unknown as RequestEvent;
+
+    const mockResolve = vi.fn(async (event, opts: any) => {
+      if (opts?.transformPageChunk) {
+        return new Response(opts.transformPageChunk({ html: '<html lang="en"></html>' }), {
+          headers: { "Content-Type": "text/html" }
+        });
+      }
+      return new Response("<html></html>", { headers: { "Content-Type": "text/html" } });
+    });
+
+    const response = await handle({ event: mockEvent, resolve: mockResolve });
+    const text = await response.text();
+    expect(text).not.toContain('class="dark"');
   });
 });

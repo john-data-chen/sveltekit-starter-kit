@@ -17,4 +17,17 @@ describe("API: /api/openapi.json", () => {
     expect(doc.paths).toHaveProperty("/api/transactions/{id}");
     expect(doc.paths).toHaveProperty("/api/stats");
   });
+
+  it("returns memoized document on subsequent calls", async () => {
+    const event = {
+      locals: { user: { id: 1, role: "admin" } }
+    } as unknown as RequestEvent;
+    const res1 = await GET(event);
+    const doc1 = await res1.json();
+
+    const res2 = await GET(event);
+    const doc2 = await res2.json();
+
+    expect(doc1).toEqual(doc2);
+  });
 });
