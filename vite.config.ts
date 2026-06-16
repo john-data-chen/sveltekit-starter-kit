@@ -5,6 +5,11 @@ import { svelteTesting } from "@testing-library/svelte/vite";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  build: {
+    rolldownOptions: {
+      external: ["@prisma/client-runtime-utils"]
+    }
+  },
   plugins: [
     tailwindcss(),
     sveltekit(),
