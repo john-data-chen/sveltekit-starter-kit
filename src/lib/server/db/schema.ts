@@ -4,7 +4,7 @@ import type {
   Transaction as DbTransaction,
   User,
   UserRole
-} from "./generated/client";
+} from "@prisma/client";
 
 export type { AuditAction, AuditLog, User, UserRole };
 

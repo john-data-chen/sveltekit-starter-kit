@@ -1,6 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-
-import { PrismaClient } from "../src/lib/server/db/generated/client";
+import { PrismaClient } from "@prisma/client";
 
 // Records the audit_logs high-water mark before any test runs. expense.spec.ts
 // deletes the transaction it creates, but the recordAudit entries persist by
