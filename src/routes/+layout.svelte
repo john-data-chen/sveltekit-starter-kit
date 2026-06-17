@@ -30,11 +30,11 @@
         <a href={resolve("/transactions")} class="whitespace-nowrap hover:underline">
           {m.nav_transactions()}
         </a>
+        <a href={resolve("/api/docs")} class="whitespace-nowrap hover:underline">
+          {m.nav_api_docs()}
+        </a>
         {#if data.user.role === "admin"}
           <a href={resolve("/admin")} class="whitespace-nowrap hover:underline">{m.nav_admin()}</a>
-          <a href={resolve("/api/docs")} class="whitespace-nowrap text-gray-500 hover:underline"
-            >{m.nav_api_docs()}</a
-          >
         {/if}
       </nav>
       <div
@@ -54,6 +54,12 @@
   </header>
   <main class="mx-auto max-w-3xl p-4">{@render children()}</main>
 {:else}
-  <div class="fixed top-4 right-4 z-10 flex gap-2"><LocaleSwitcher /><ThemeToggle /></div>
+  <div class="fixed top-4 right-4 z-10 flex items-center gap-3 text-sm">
+    <a href={resolve("/api/docs")} class="font-medium whitespace-nowrap hover:underline">
+      {m.nav_api_docs()}
+    </a>
+    <LocaleSwitcher />
+    <ThemeToggle />
+  </div>
   {@render children()}
 {/if}

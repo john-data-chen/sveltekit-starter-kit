@@ -1,8 +1,5 @@
-import { requireAdmin } from "$lib/server/guards";
-import type { RequestEvent } from "@sveltejs/kit";
-
-export function GET(event: RequestEvent) {
-  requireAdmin(event.locals);
+// Public endpoint: the API reference is intentionally accessible without auth.
+export function GET() {
   const html = `<!DOCTYPE html>
 <html>
   <head>

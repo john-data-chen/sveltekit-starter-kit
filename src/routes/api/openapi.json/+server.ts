@@ -1,11 +1,8 @@
-import { requireApiAdmin } from "$lib/server/api";
 import { getOpenApiSpec } from "$lib/server/openapi";
 import { json } from "@sveltejs/kit";
 
-import type { RequestEvent } from "./$types";
-
-export function GET(event: RequestEvent) {
-  requireApiAdmin(event.locals);
+// Public endpoint: the OpenAPI spec is intentionally accessible without auth.
+export function GET() {
   const spec = getOpenApiSpec();
   return json(spec);
 }
