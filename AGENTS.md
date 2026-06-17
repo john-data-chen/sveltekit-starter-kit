@@ -1,73 +1,57 @@
 # AGENTS.md
 
-This file provides guidance to AI when working with code in this repository.
+AI guidance for this repo. Read first.
 
 # Verification Workflow (MANDATORY)
 
-After **every** code modification, you MUST execute all three commands in order:
+After **every** code modification, run in order:
 
 ```bash
-pnpm lint      # 1. Lint — must pass with zero errors and warnings
+pnpm lint      # 1. Lint — zero errors and warnings
 pnpm build     # 2. Build — TypeScript compile + Vite build must succeed
-pnpm check     # 3. Check type
-## after user is confirmed every code modification, then verify below commands
-pnpm test      # 4. Test — must pass with zero errors and warnings
-pnpm test:e2e  # 5. E2E Test — must pass with zero errors and warnings
+pnpm check     # 3. Typecheck
+## after user confirms the code modification, then run below
+pnpm test      # 4. Test — zero errors and warnings
+pnpm test:e2e  # 5. E2E — zero errors and warnings
 ```
+
+Any step fails → fix immediately before proceeding. Add/update test cases after user confirms results.
 
 # Commands
 
-- `pnpm dev` — Dev server (usually already running; do not execute unless you get confirmation)
+- `pnpm dev` — Dev server (usually running; don't run without confirmation)
 - `pnpm test` — `vitest run` (single run)
 - `pnpm test:coverage` — `vitest run --coverage`
 
-If any step fails, fix the issue immediately before proceeding.
-Additionally:
-
-- **Update or add test cases** after user has confirmed the results.
-
 # Architecture
 
-check README.md in root folder
+See README.md (root folder).
 
-# SKill for coding tasks
+# Skills
 
-- karpathy-guidelines: use it every time in all coding tasks
+Default **caveman** ON for all tasks → cut tokens (prose only; code/commits/PRs stay normal).
 
-# Svelte Tools for AI
+| Skill                                | When to invoke                                                                                                          |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| caveman                              | ALL tasks. Global user skill, not in repo (https://github.com/juliusbrussee/caveman). Default on to reduce token usage. |
+| karpathy-guidelines                  | Every coding task.                                                                                                      |
+| doc-coauthoring                      | Add or modify documentation.                                                                                            |
+| session-handoff                      | Create task plans + execution logs for handoff across models/sessions. Private skill, not committed.                    |
+| prisma-database-setup                | Prisma ORM setup across DB providers.                                                                                   |
+| prisma-client-api                    | Prisma Client model queries, CRUD, filters, relations, transactions.                                                    |
+| prisma-cli                           | Prisma CLI commands, options, migrations.                                                                               |
+| prisma-postgres                      | Create/manage/integrate Prisma Postgres.                                                                                |
+| prisma-driver-adapter-implementation | Implement a Prisma v7 driver adapter.                                                                                   |
+| svelte-code-writer                   | MUST when creating/editing/analyzing any `.svelte` or `.svelte.ts`/`.svelte.js`.                                        |
+| svelte-core-bestpractices            | Writing/analyzing any Svelte component or module.                                                                       |
 
-## Skills
+# MCP
 
-### svelte-code-writer
+If any server below is missing or disabled, warn user before starting the task.
 
-CLI tools for Svelte 5 documentation lookup and code analysis. MUST be used whenever creating, editing or analyzing any Svelte component (.svelte) or Svelte module (.svelte.ts/.svelte.js). If possible, this skill should be executed within the svelte-file-editor agent for optimal results.
-
-### svelte-core-bestpractices
-
-Guidance on writing fast, robust, modern Svelte code. Load this skill whenever in a Svelte project and asked to write/edit or analyze a Svelte component or module. Covers reactivity, event handling, styling, integration with libraries and more.
-
-## Svelte MCP server
-
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
-
-### Available Svelte MCP Tools:
-
-#### 1. list-sections
-
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
-
-#### 2. get-documentation
-
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
-
-#### 3. svelte-autofixer
-
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
-
-#### 4. playground-link
-
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+| Server          | Use                                                                                                                                                                                                                                                                                                |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| svelte          | Svelte/SvelteKit tasks. Flow: `list-sections` first (discover) → `get-documentation` (fetch ALL relevant sections per use_cases) → `svelte-autofixer` (MUST before showing code; loop until no issues) → `playground-link` (only after user confirms, NEVER if code was written to project files). |
+| context7        | Query library/framework/API docs.                                                                                                                                                                                                                                                                  |
+| chrome-devtools | Verify results in the running app.                                                                                                                                                                                                                                                                 |
+| Prisma-Local    | Prisma DB ops (migrate, studio).                                                                                                                                                                                                                                                                   |
