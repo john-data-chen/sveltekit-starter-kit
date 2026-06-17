@@ -187,6 +187,7 @@ Skills 會提交到 repo，並透過 `AGENTS.md` / `CLAUDE.md` 提供給 AI assi
 
 | Skill                                                                                                                                 | 職責                                                                                        |
 | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [caveman（全域使用者 skill，未提交）](https://github.com/juliusbrussee/caveman)                                                       | 所有任務預設啟用：精簡輸出以降低 token 用量（僅限文字；程式碼/commit/PR 維持正常）          |
 | [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills)                                                         | 降低 LLM 程式碼錯誤：明確假設、優先簡單方案、手術刀式修改、目標導向循環                     |
 | [doc-coauthoring](https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring)                                              | 文件共筆的 3 階段工作流程（上下文 → 精煉 → 讀者測試），本 README 由此技能與作者共同協作產生 |
 | **session-handoff (my private skill)**                                                                                                | 維護 `ai-docs/tasks.md` + `ai-docs/session-log.md`，讓跨模型/跨 session 接手時沒有資訊斷層  |
