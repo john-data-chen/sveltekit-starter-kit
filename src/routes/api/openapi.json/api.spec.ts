@@ -1,14 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import type { RequestEvent } from "./$types";
 import { GET } from "./+server";
 
 describe("API: /api/openapi.json", () => {
-  it("returns a valid OpenAPI document", async () => {
-    const event = {
-      locals: { user: { id: 1, role: "admin" } }
-    } as unknown as RequestEvent;
-    const res = await GET(event);
+  it("returns a valid OpenAPI document without auth", async () => {
+    const res = await GET();
     expect(res.status).toBe(200);
 
     const doc = await res.json();
@@ -19,13 +15,10 @@ describe("API: /api/openapi.json", () => {
   });
 
   it("returns memoized document on subsequent calls", async () => {
-    const event = {
-      locals: { user: { id: 1, role: "admin" } }
-    } as unknown as RequestEvent;
-    const res1 = await GET(event);
+    const res1 = await GET();
     const doc1 = await res1.json();
 
-    const res2 = await GET(event);
+    const res2 = await GET();
     const doc2 = await res2.json();
 
     expect(doc1).toEqual(doc2);
