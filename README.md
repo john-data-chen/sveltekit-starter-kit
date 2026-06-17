@@ -15,6 +15,9 @@ It is deliberately scoped to showcase the competencies a product team hires for:
 
 繁體中文版本請見 **[README-cht.md](./README-cht.md)**.
 
+> 🚀 **Next-Generation Successor — [ultra-light-monorepo](https://github.com/john-data-chen/ultra-light-monorepo)**
+> This starter kit evolves into a decoupled frontend/backend **monorepo**, re-architected and tuned for **Vercel Remote Cache**–accelerated CI/CD. Together these two portfolio projects trace a deliberate path: from a focused, production-grade full-stack product to a scalable, cache-optimized monorepo platform.
+
 <table>
   <tr>
     <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="Passwordless email login screen, pre-filled with a demo account" width="140"></td>

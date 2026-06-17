@@ -14,6 +14,9 @@
 
 **[Live Demo](https://sveltekit-starter-kit.vercel.app/login)** — 按下 **以 Email 繼續** 即可用已建立的使用者登入。
 
+> 🚀 **下一代延伸專案 — [ultra-light-monorepo](https://github.com/john-data-chen/ultra-light-monorepo)**
+> 本 starter kit 進化為前後端分離的 **monorepo** 架構，並針對 **Vercel Remote Cache** 優化 CI/CD 部署。兩個作品集專案共同呈現一條清晰的成長軌跡：從聚焦、產品級的全端應用，邁向可擴展、快取最佳化的 monorepo 平台。
+
 <table>
   <tr>
     <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="免密碼 email 登入畫面，已預填 demo account" width="140"></td>
