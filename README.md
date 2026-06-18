@@ -18,6 +18,9 @@ It is deliberately scoped to showcase the competencies a product team hires for:
 > 🚀 **Next-Generation Successor — [ultra-light-monorepo](https://github.com/john-data-chen/ultra-light-monorepo)**
 > This starter kit evolves into a decoupled frontend/backend **monorepo**, re-architected and tuned for **Vercel Remote Cache**–accelerated CI/CD. Together these two portfolio projects trace a deliberate path: from a focused, production-grade full-stack product to a scalable, cache-optimized monorepo platform.
 
+> **Framework Agility Showcase — [Next.js Kanban Board](https://github.com/john-data-chen/next-dnd-starter-kit)**
+> Production-grade Kanban board built with Next.js App Router, Zustand, MongoDB. AI-assisted engineering enables rapid framework switching and high-speed delivery. Proves framework agility and AI-driven quality.
+
 <table>
   <tr>
     <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="Passwordless email login screen, pre-filled with a demo account" width="140"></td>
