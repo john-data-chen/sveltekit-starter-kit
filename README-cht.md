@@ -17,6 +17,9 @@
 > 🚀 **下一代延伸專案 — [ultra-light-monorepo](https://github.com/john-data-chen/ultra-light-monorepo)**
 > 本 starter kit 進化為前後端分離的 **monorepo** 架構，並針對 **Vercel Remote Cache** 優化 CI/CD 部署。兩個作品集專案共同呈現一條清晰的成長軌跡：從聚焦、產品級的全端應用，邁向可擴展、快取最佳化的 monorepo 平台。
 
+> **框架敏捷性展示 — [Next.js Kanban Board](https://github.com/john-data-chen/next-dnd-starter-kit)**
+> 以 Next.js App Router、Zustand 與 MongoDB 打造的產品級看板。AI 輔助工程實現快速框架切換與高速交付。證明了框架敏捷性與 AI 驅動的品質。
+
 <table>
   <tr>
     <td align="center"><img src="./src/lib/assets/screenshots/login.png" alt="免密碼 email 登入畫面，已預填 demo account" width="140"></td>
