@@ -30,7 +30,7 @@
     "@prisma/client": "^7.8.0",
     "@tanstack/table-core": "^8.21.3",
     "@vercel/analytics": "^2.0.1",
-    "pg": "^8.21.0",
+    "pg": "^8.22.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -38,10 +38,10 @@
     "@commitlint/config-conventional": "^21.0.2",
     "@commitlint/cz-commitlint": "^21.0.2",
     "@eslint/js": "^10.0.1",
-    "@inlang/paraglide-js": "^2.19.0",
+    "@inlang/paraglide-js": "^2.20.0",
     "@playwright/test": "^1.61.0",
-    "@sveltejs/adapter-vercel": "^6.3.3",
-    "@sveltejs/kit": "^2.65.1",
+    "@sveltejs/adapter-vercel": "^6.3.4",
+    "@sveltejs/kit": "^2.66.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tailwindcss/vite": "^4.3.1",
     "@testing-library/jest-dom": "^6.9.1",
